@@ -25,6 +25,7 @@ from src.backend.catalog.librarian.routers.edition import router as librarian_ed
 from src.backend.catalog.librarian.routers.genre import router as librarian_genre_router
 from src.backend.catalog.librarian.routers.series import router as librarian_series_router
 from src.backend.catalog.librarian.routers.work import router as librarian_work_router
+from src.backend.library.reading_goals.routers import router as reading_goals_router
 
 app = FastAPI(
     version="1.0.0",
@@ -50,6 +51,7 @@ app.include_router(genre_router)
 app.include_router(librarian_genre_router)
 app.include_router(librarian_submission_public_router)
 app.include_router(librarian_submission_router)
+app.include_router(reading_goals_router)
 
 app.add_exception_handler(Unauthorized, unauthorized_exception_handler)
 app.add_exception_handler(Forbidden, forbidden_exception_handler)
