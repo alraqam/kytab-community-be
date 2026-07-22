@@ -23,6 +23,7 @@ from src.backend.core.models import Base
 from src.backend.identity.auth.models import User, Session
 from src.backend.identity.profile.models import Profile
 from src.backend.identity.blocked_users.models import BlockedUser
+from src.backend.identity.follow.models import Follow
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

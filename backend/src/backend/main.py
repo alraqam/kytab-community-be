@@ -11,6 +11,7 @@ from src.backend.identity.auth.routers.session import router as session_router
 from src.backend.identity.users.routers import router as user_router
 from src.backend.identity.profile.routers import router as profile_router
 from src.backend.identity.blocked_users.routers import router as blocked_users_router
+from src.backend.identity.follow.routers import router as follow_router
 
 app = FastAPI(
     version="1.0.0",
@@ -22,7 +23,7 @@ app.include_router(session_router)
 app.include_router(user_router)
 app.include_router(profile_router)
 app.include_router(blocked_users_router)
-
+app.include_router(follow_router)
 
 
 app.add_exception_handler(Unauthorized, unauthorized_exception_handler)
