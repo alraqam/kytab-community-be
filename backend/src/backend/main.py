@@ -12,6 +12,12 @@ from src.backend.identity.users.routers import router as user_router
 from src.backend.identity.profile.routers import router as profile_router
 from src.backend.identity.blocked_users.routers import router as blocked_users_router
 from src.backend.identity.follow.routers import router as follow_router
+from src.backend.catalog.books.routers.books import router as books_router
+from src.backend.catalog.books.routers.work import router as work_router
+from src.backend.catalog.books.routers.author import router as author_router
+from src.backend.catalog.books.routers.edition import router as edition_router
+from src.backend.catalog.books.routers.series import router as series_router
+from src.backend.catalog.books.routers.genre import router as genre_router
 
 app = FastAPI(
     version="1.0.0",
@@ -24,6 +30,12 @@ app.include_router(user_router)
 app.include_router(profile_router)
 app.include_router(blocked_users_router)
 app.include_router(follow_router)
+app.include_router(books_router)
+app.include_router(work_router)
+app.include_router(author_router)
+app.include_router(edition_router)
+app.include_router(series_router)
+app.include_router(genre_router)
 
 
 app.add_exception_handler(Unauthorized, unauthorized_exception_handler)
