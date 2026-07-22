@@ -27,6 +27,7 @@ from src.backend.identity.follow.models import Follow
 from src.backend.catalog.books.models import Work, Edition
 from src.backend.catalog.librarian.models import LibrarianSubmission
 from src.backend.library.reading_goals.models import ReadingGoal
+from src.backend.library.shelf.models import Shelf, ShelfItem
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
