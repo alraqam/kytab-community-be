@@ -18,6 +18,13 @@ from src.backend.catalog.books.routers.author import router as author_router
 from src.backend.catalog.books.routers.edition import router as edition_router
 from src.backend.catalog.books.routers.series import router as series_router
 from src.backend.catalog.books.routers.genre import router as genre_router
+from src.backend.catalog.librarian.routers.submission import router as librarian_submission_router
+from src.backend.catalog.librarian.routers.public import router as librarian_submission_public_router
+from src.backend.catalog.librarian.routers.authors import router as librarian_author_router
+from src.backend.catalog.librarian.routers.edition import router as librarian_edition_router
+from src.backend.catalog.librarian.routers.genre import router as librarian_genre_router
+from src.backend.catalog.librarian.routers.series import router as librarian_series_router
+from src.backend.catalog.librarian.routers.work import router as librarian_work_router
 
 app = FastAPI(
     version="1.0.0",
@@ -32,11 +39,17 @@ app.include_router(blocked_users_router)
 app.include_router(follow_router)
 app.include_router(books_router)
 app.include_router(work_router)
+app.include_router(librarian_work_router)
 app.include_router(author_router)
+app.include_router(librarian_author_router)
 app.include_router(edition_router)
+app.include_router(librarian_edition_router)
 app.include_router(series_router)
+app.include_router(librarian_series_router)
 app.include_router(genre_router)
-
+app.include_router(librarian_genre_router)
+app.include_router(librarian_submission_public_router)
+app.include_router(librarian_submission_router)
 
 app.add_exception_handler(Unauthorized, unauthorized_exception_handler)
 app.add_exception_handler(Forbidden, forbidden_exception_handler)

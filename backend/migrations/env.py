@@ -25,6 +25,7 @@ from src.backend.identity.profile.models import Profile
 from src.backend.identity.blocked_users.models import BlockedUser
 from src.backend.identity.follow.models import Follow
 from src.backend.catalog.books.models import Work, Edition
+from src.backend.catalog.librarian.models import LibrarianSubmission
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,
