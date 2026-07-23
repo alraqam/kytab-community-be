@@ -1,5 +1,4 @@
 from datetime import date, datetime
-from enum import Enum
 
 from pydantic import BaseModel, Field
 
@@ -19,5 +18,11 @@ class GetProgressLog(BaseModel):
     log_date: date
     created_at: datetime
     updated_at: datetime
+
+class GetReadingPeriod(BaseModel):
+    id: int
+    shelf_item_id: int
+    started_at: datetime
+    finished_at: datetime
 
 

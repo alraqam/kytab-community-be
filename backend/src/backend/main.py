@@ -26,11 +26,16 @@ from src.backend.catalog.librarian.routers.genre import router as librarian_genr
 from src.backend.catalog.librarian.routers.series import router as librarian_series_router
 from src.backend.catalog.librarian.routers.work import router as librarian_work_router
 from src.backend.library.reading_goals.routers import router as reading_goals_router
+from src.backend.library.shelf.routers.shelf import router as shelf_router
+from src.backend.library.shelf.routers.shelf_item import router as shelf_item_router
+
 
 app = FastAPI(
     version="1.0.0",
     redirect_slashes=False,
 )
+
+shelf_router.include_router(shelf_item_router)
 
 app.include_router(auth_router)
 app.include_router(session_router)
@@ -52,6 +57,7 @@ app.include_router(librarian_genre_router)
 app.include_router(librarian_submission_public_router)
 app.include_router(librarian_submission_router)
 app.include_router(reading_goals_router)
+app.include_router(shelf_router)
 
 app.add_exception_handler(Unauthorized, unauthorized_exception_handler)
 app.add_exception_handler(Forbidden, forbidden_exception_handler)

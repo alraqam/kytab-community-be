@@ -9,7 +9,7 @@ from src.backend.library.reading_goals.models import ReadingGoal
 from src.backend.library.reading_goals.schemas import GetReadingGoal, CreateReadingGoal, UpdateReadingGoal
 
 router = APIRouter(
-    prefix="/goal",
+    prefix="/reading_goal",
     tags=["reading_goal"]
 )
 

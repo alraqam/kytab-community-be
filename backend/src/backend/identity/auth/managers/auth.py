@@ -3,6 +3,9 @@ from datetime import datetime, timezone
 from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.identity.profile.managers import ProfileManager
+from backend.identity.profile.schemas import CreateProfile
+from backend.library.shelf.managers.shelf import ShelfManager
 from src.backend.identity.auth.exceptions import InvalidUsernameOrPasswordError, UnverifiedUserError, \
     UsernameAlreadyExists, EmailAlreadyExists, InvalidTokenError
 from src.backend.identity.auth.models import User
@@ -30,6 +33,7 @@ class AuthManager:
         self.token_service = TokenService()
         self.profile_manager = ProfileManager(session)
         self.user_manager = UserManager(session)
+        self.shelf_manager = ShelfManager(session)
 
     async def login(
             self,
@@ -107,6 +111,7 @@ class AuthManager:
                 fullname=request.fullname,
             )
         )
+        shelves = await self.shelf_manager.create_default_shelves(user)
         await self.session.commit()
         return user
 

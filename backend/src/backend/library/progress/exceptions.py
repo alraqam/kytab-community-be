@@ -13,16 +13,12 @@ class ProgressLogNotFound(NotFound):
     """Raised when a progress log with the given ID does not exist."""
 
 
-class SessionParticipantAlreadyExistsError(Conflict):
-    """Raised when a participant record for the same user and session already exists."""
-
-
-class SessionParticipantNotFoundError(NotFound):
-    """Raised when a session participant record does not exist."""
-
 
 class NoTotalPagesError(NotFound):
     """Raised when recommended pages cannot be calculated because the book has no page count."""
 
 class ReadingPeriodNotFound(NotFound):
+    pass
+
+class LogDateError(Conflict):
     pass

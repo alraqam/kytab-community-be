@@ -98,12 +98,12 @@ class ShelfManager:
             result.append(shelf)
         return result
 
-    # async def get_my_shelves(
-    #         self,
-    #         user: User,
-    # ) -> list[Shelf]:
-    #     shelves = await self.shelf_repo.get_user_shelves(user.id)
-    #     return shelves
+    async def get_my_shelves(
+            self,
+            user: User,
+    ) -> list[Shelf]:
+        shelves = await self.shelf_repo.get_user_shelves(user.id)
+        return shelves
 
     async def get_shelf_by_id(
             self,

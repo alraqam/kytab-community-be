@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.library.shelf.exceptions import ShelfNotFoundError
 from src.backend.identity.auth.models import User
 from src.backend.library.progress.exceptions import ReadingPeriodNotFound
 from src.backend.library.progress.models import ReadingPeriod
@@ -38,6 +39,8 @@ class ReadingPeriodManager:
             reading_period: ReadingPeriod
     ) -> None:
         shelf = await self.reading_period_repo.get_shelf_by_period(reading_period.id)
+        if not shelf:
+            raise ShelfNotFoundError("Shelf not found")
         await is_shelf_owner(user, shelf)
 
         await self.reading_period_repo.set_finishing_date(reading_period)
@@ -49,6 +52,8 @@ class ReadingPeriodManager:
             reading_period: ReadingPeriod
     ) -> None:
         shelf = await self.reading_period_repo.get_shelf_by_period(reading_period.id)
+        if not shelf:
+            raise ShelfNotFoundError("Shelf not found")
         await is_shelf_owner(user, shelf)
 
         await self.reading_period_repo.delete_reading_period(reading_period)

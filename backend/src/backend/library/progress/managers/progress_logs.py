@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.identity.auth.models import User
 from src.backend.library.progress.dependencies import is_log_owner
-from src.backend.library.progress.exceptions import ProgressLogNotFound
+from src.backend.library.progress.exceptions import ProgressLogNotFound, LogDateError
 from src.backend.library.progress.models import ReadingPeriod, ProgressLog
 from src.backend.library.progress.repositories.progress_logs import ProgressLogRepository
 from src.backend.library.progress.schemas import LogProgressSchema
@@ -56,6 +56,8 @@ class ProgressLogManager:
             request: LogProgressSchema
     ) -> None:
         await is_log_owner(user, log)
+        if log.log_date != date.today():
+            raise LogDateError("Can update only today log")
         await self.log_repo.update_progress_log(
             log=log,
             pages_read=request.pages,
@@ -83,4 +85,28 @@ class ProgressLogManager:
         )
         if not result:
             raise ProgressLogNotFound("Progress log not found")
+        return result
+
+    async def get_user_today_progress_log(
+            self,
+            user: User,
+            reading_period: ReadingPeriod,
+    ) -> ProgressLog:
+        result = await self.log_repo.get_user_today_progress_log(
+            user_id=user.id,
+            period_id=reading_period.id,
+            log_date=date.today(),
+        )
+        if not result:
+            raise ProgressLogNotFound("Progress log not found")
+        return result
+
+
+    async def get_user_progress_logs(
+            self,
+            user: User,
+    ) -> list[ProgressLog]:
+        result = await self.log_repo.get_user_progress_logs(
+            user_id=user.id,
+        )
         return result

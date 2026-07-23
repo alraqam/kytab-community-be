@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.library.shelf.exceptions import IsNotShelfOwnerError
 from src.backend.identity.auth.models import User
 from src.backend.identity.follow.repository import FollowRepository
 from src.backend.library.shelf.dependencies import is_shelf_owner
@@ -68,6 +69,16 @@ class ShelfItemManager:
             if not is_follower:
                 raise PrivateShelfError("Shelf is followers only")
 
+        return items
+
+    async def get_my_shelf_items(
+            self,
+            user: User,
+            shelf: Shelf
+    ) -> list[ShelfItem]:
+        if user.id != shelf.user_id:
+            raise IsNotShelfOwnerError("Is not shelf owner")
+        items = await self.shelf_item_repo.get_shelf_items(shelf.id)
         return items
 
     async def get_shelf_item_by_id(
