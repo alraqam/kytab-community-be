@@ -28,6 +28,7 @@ from src.backend.catalog.librarian.routers.work import router as librarian_work_
 from src.backend.library.reading_goals.routers import router as reading_goals_router
 from src.backend.library.shelf.routers.shelf import router as shelf_router
 from src.backend.library.shelf.routers.shelf_item import router as shelf_item_router
+from src.backend.library.reviews.routers.review import router as review_router
 
 
 app = FastAPI(
@@ -36,6 +37,7 @@ app = FastAPI(
 )
 
 shelf_router.include_router(shelf_item_router)
+work_router.include_router(work_router)
 
 app.include_router(auth_router)
 app.include_router(session_router)
