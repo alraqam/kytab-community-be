@@ -3,10 +3,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.backend.identity.auth.models import User
 from src.backend.catalog.books.models import Work
 from src.backend.library.reviews.dependencies import is_review_owner
-from src.backend.library.reviews.exceptions import ReviewNotFound
+from src.backend.library.reviews.exceptions import ReviewNotFound, EmptyReviewError
 from src.backend.library.reviews.filters import ReviewFilter
 from src.backend.library.reviews.models import Review
-from backend.library.reviews.repositories.review import ReviewRepository
+from src.backend.library.reviews.repositories.review import ReviewRepository
 from src.backend.library.reviews.schemas import CreateReview, UpdateReview
 
 
@@ -24,6 +24,9 @@ class ReviewManager:
             work: Work,
             request: CreateReview
     ) -> Review:
+        if not request.rating and not request.text:
+            raise EmptyReviewError("Review should contain either rating or text")
+
         result = await self.review_repo.create_review(
             work_id=work.id,
             user_id=user.id,
@@ -65,7 +68,7 @@ class ReviewManager:
     async def get_review_by_id(
             self,
             review_id: int,
-    ) -> Review | None:
+    ) -> Review:
         result = await self.review_repo.get_review_by_id(review_id)
         if not result:
             raise ReviewNotFound("Review not found")

@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.library.reviews.filters import ReviewFilter
-from backend.library.reviews.models import Review
+from src.backend.library.reviews.filters import ReviewFilter
+from src.backend.library.reviews.models import Review
 
 
 @dataclass
@@ -34,7 +34,7 @@ class ReviewRepository:
     async def update_review(
             self,
             review: Review,
-            rating: int,
+            rating: float,
             text: str,
             contains_spoiler: bool,
     ) -> None:

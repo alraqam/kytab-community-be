@@ -1,10 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.library.shelf.exceptions import ShelfNotFoundError
+from src.backend.library.shelf.exceptions import ShelfNotFoundError
 from src.backend.identity.auth.models import User
 from src.backend.library.progress.exceptions import ReadingPeriodNotFound
 from src.backend.library.progress.models import ReadingPeriod
-from src.backend.library.shelf.dependencies import is_shelf_owner
+from src.backend.library.shelf.permissions import is_shelf_owner
 from src.backend.library.shelf.exceptions import IsNotShelfOwnerError
 from src.backend.library.shelf.models import ShelfItem
 from src.backend.library.progress.repositories.reading_period import ReadingPeriodRepository

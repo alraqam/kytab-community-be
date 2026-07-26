@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi_filter import FilterDepends
 from fastapi_utils.cbv import cbv
 
-from backend.catalog.books.dependencies.work import get_work_or_404
+from src.backend.catalog.books.dependencies.work import get_work_or_404
 from src.backend.identity.auth.dependencies import get_current_user
 from src.backend.identity.auth.models import User
 from src.backend.catalog.books.models import Work

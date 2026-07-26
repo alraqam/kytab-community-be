@@ -29,6 +29,7 @@ from src.backend.catalog.librarian.models import LibrarianSubmission
 from src.backend.library.reading_goals.models import ReadingGoal
 from src.backend.library.shelf.models import Shelf, ShelfItem
 from src.backend.library.progress.models import ProgressLog, ReadingPeriod
+from src.backend.library.reviews.models import Review
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

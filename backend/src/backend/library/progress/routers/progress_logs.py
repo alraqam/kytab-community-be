@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
-from backend.identity.auth.dependencies import get_current_user
-from backend.identity.auth.models import User
-from backend.library.progress.dependencies import get_reading_period_or_404, get_progress_log_or_404
-from backend.library.progress.managers.progress_logs import ProgressLogManager
-from backend.library.progress.models import ReadingPeriod, ProgressLog
-from backend.library.progress.schemas import LogProgressSchema, GetProgressLog
+from src.backend.identity.auth.dependencies import get_current_user
+from src.backend.identity.auth.models import User
+from src.backend.library.progress.dependencies import get_reading_period_or_404, get_progress_log_or_404
+from src.backend.library.progress.managers.progress_logs import ProgressLogManager
+from src.backend.library.progress.models import ReadingPeriod, ProgressLog
+from src.backend.library.progress.schemas import LogProgressSchema, GetProgressLog
 
 router = APIRouter(
     prefix="/{reading_period_id}/progress",

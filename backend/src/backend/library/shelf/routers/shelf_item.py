@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from fastapi_utils.cbv import cbv
 
-from backend.identity.users.dependencies import get_user_or_404
+from src.backend.identity.users.dependencies import get_user_or_404
 from src.backend.identity.auth.dependencies import get_current_user
 from src.backend.identity.auth.models import User
 from src.backend.library.shelf.dependencies import get_shelf_item_manager, get_shelf_item_or_404, get_shelf_or_404

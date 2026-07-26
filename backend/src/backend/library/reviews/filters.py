@@ -1,11 +1,11 @@
 from fastapi_filter.contrib.sqlalchemy import Filter
 
-from backend.library.reviews.models import Review
+from src.backend.library.reviews.models import Review
 
 
 class ReviewFilter(Filter):
-    rating: int | None = None
-    contains_spoiler: bool = None
+    rating: float | None = None
+    contains_spoiler: bool | None = None
     order_by: list[str] | None = None
 
     class Constants(Filter.Constants):

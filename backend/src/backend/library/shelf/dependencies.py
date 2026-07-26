@@ -1,21 +1,13 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.identity.auth.models import User
 from src.backend.core.dependencies import get_db
-from src.backend.library.shelf.exceptions import IsNotShelfOwnerError
 from src.backend.library.shelf.models import Shelf, ShelfItem
 
 
-async def is_shelf_owner(
-        user: User,
-        shelf: Shelf,
-) -> None:
-    if shelf.user_id != user.id:
-        raise IsNotShelfOwnerError("Only shelf owner can change their list")
-    return
-
 from src.backend.library.shelf.managers.shelf import ShelfManager
+from src.backend.library.shelf.managers.shelf_item import ShelfItemManager
+
 
 async def get_shelf_manager(
         session: AsyncSession = Depends(get_db)
@@ -28,8 +20,6 @@ async def get_shelf_or_404(
 ) -> Shelf:
     return await manager.get_shelf_by_id(shelf_id)
 
-
-from src.backend.library.shelf.managers.shelf_item import ShelfItemManager
 
 async def get_shelf_item_manager(
         session: AsyncSession = Depends(get_db)

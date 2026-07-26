@@ -1,14 +1,14 @@
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
-from backend.identity.auth.dependencies import get_current_user
-from backend.identity.auth.models import User
-from backend.library.progress.dependencies import get_reading_period_manager, get_reading_period_or_404
-from backend.library.progress.managers.reading_period import ReadingPeriodManager
-from backend.library.progress.models import ReadingPeriod
-from backend.library.progress.schemas import GetReadingPeriod
-from backend.library.shelf.dependencies import get_shelf_item_or_404
-from backend.library.shelf.models import ShelfItem
+from src.backend.identity.auth.dependencies import get_current_user
+from src.backend.identity.auth.models import User
+from src.backend.library.progress.dependencies import get_reading_period_manager, get_reading_period_or_404
+from src.backend.library.progress.managers.reading_period import ReadingPeriodManager
+from src.backend.library.progress.models import ReadingPeriod
+from src.backend.library.progress.schemas import GetReadingPeriod
+from src.backend.library.shelf.dependencies import get_shelf_item_or_404
+from src.backend.library.shelf.models import ShelfItem
 
 router = APIRouter(
     prefix="/{shelf_item_id}/period",

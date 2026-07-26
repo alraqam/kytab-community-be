@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.identity.follow.managers import FollowManager
+from src.backend.identity.follow.managers import FollowManager
 from src.backend.core.services import is_valid_url
 from src.backend.identity.auth.models import User
 from src.backend.identity.auth.services.security import PasswordService

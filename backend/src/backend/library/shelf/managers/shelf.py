@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.identity.auth.models import User
 from src.backend.identity.follow.repository import FollowRepository
-from src.backend.library.shelf.dependencies import is_shelf_owner
+from src.backend.library.shelf.permissions import is_shelf_owner
 from src.backend.library.shelf.exceptions import ShelfAlreadyExistsError, DefaultShelfError, ShelfNotFoundError, \
     PrivateShelfError
 from src.backend.library.shelf.models import Shelf

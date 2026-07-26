@@ -3,9 +3,9 @@ from datetime import datetime, timezone
 from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.identity.profile.managers import ProfileManager
-from backend.identity.profile.schemas import CreateProfile
-from backend.library.shelf.managers.shelf import ShelfManager
+from src.backend.identity.profile.managers import ProfileManager
+from src.backend.identity.profile.schemas import CreateProfile
+from src.backend.library.shelf.managers.shelf import ShelfManager
 from src.backend.identity.auth.exceptions import InvalidUsernameOrPasswordError, UnverifiedUserError, \
     UsernameAlreadyExists, EmailAlreadyExists, InvalidTokenError
 from src.backend.identity.auth.models import User
