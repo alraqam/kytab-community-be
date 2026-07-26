@@ -18,3 +18,6 @@ class PrivateShelfError(Forbidden):
 
 class ShelfItemNotFoundError(NotFound):
     pass
+
+class WorkAlreadyInShelfError(Conflict):
+    pass

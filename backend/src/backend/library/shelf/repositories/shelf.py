@@ -37,6 +37,15 @@ class ShelfRepository:
         self.session.add(shelf)
         await self.session.flush()
 
+    async def update_shelf_visibility(
+            self,
+            shelf: Shelf,
+            visibility: str
+    ) -> None:
+        shelf.visibility = visibility
+        self.session.add(shelf)
+        await self.session.flush()
+
     async def delete_shelf(
             self,
             shelf: Shelf,

@@ -31,12 +31,16 @@ from src.backend.library.shelf.routers.shelf_item import router as shelf_item_ro
 from src.backend.library.reviews.routers.review import router as review_router
 from src.backend.library.reviews.routers.comments import router as review_comments_router
 from src.backend.library.reviews.routers.like import router as review_like_router
+from src.backend.library.progress.routers.reading_period import router as reading_period_router
+from src.backend.library.progress.routers.progress_logs import router as progress_logs_router
 
 app = FastAPI(
     version="1.0.0",
     redirect_slashes=False,
 )
 
+reading_period_router.include_router(progress_logs_router)
+shelf_item_router.include_router(reading_period_router)
 shelf_router.include_router(shelf_item_router)
 review_router.include_router(review_comments_router)
 review_router.include_router(review_like_router)

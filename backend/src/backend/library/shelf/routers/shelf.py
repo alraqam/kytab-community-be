@@ -7,7 +7,7 @@ from src.backend.identity.auth.models import User
 from src.backend.library.shelf.dependencies import get_shelf_manager, get_shelf_or_404
 from src.backend.library.shelf.managers.shelf import ShelfManager
 from src.backend.library.shelf.models import Shelf
-from src.backend.library.shelf.schemas import GetShelf, CreateShelf, UpdateShelf
+from src.backend.library.shelf.schemas import GetShelf, CreateShelf, UpdateShelf, UpdateShelfVisibility
 
 router = APIRouter(
     prefix="/shelf",
@@ -42,6 +42,17 @@ class ShelfRouter:
     ):
         await self.shelf_manager.update_shelf(self.user, shelf, request)
 
+    @router.put(
+        "/{shelf_id}/visibility",
+        summary="updating shelf visibility",
+    )
+    async def update_shelf_visibility(
+            self,
+            request: UpdateShelfVisibility,
+            shelf: Shelf = Depends(get_shelf_or_404),
+    ):
+        await self.shelf_manager.update_shelf_visibility(self.user, shelf, request)
+
     @router.delete(
         "/{shelf_id}",
         summary="deleting shelf",
@@ -53,23 +64,11 @@ class ShelfRouter:
         await self.shelf_manager.delete_shelf(self.user, shelf)
 
     @router.get(
-        "/{user_id}",
-        summary="getting user's reading shelves",
-        response_model=list[GetShelf]
-    )
-    async def get_user_shelves(
-            self,
-            user: User = Depends(get_user_or_404),
-    ):
-        result = await self.shelf_manager.get_user_shelves(user, self.user)
-        return result
-
-    @router.get(
         "/my",
         summary="getting current user's reading shelves",
         response_model=list[GetShelf]
     )
-    async def get_user_shelves(
+    async def get_my_shelves(
             self,
             user: User = Depends(get_current_user),
     ):
@@ -90,13 +89,25 @@ class ShelfRouter:
         return result
 
     @router.get(
+        "/{user_id}",
+        summary="getting user's reading shelves",
+        response_model=list[GetShelf]
+    )
+    async def get_user_shelves(
+            self,
+            user: User = Depends(get_user_or_404),
+    ):
+        result = await self.shelf_manager.get_user_shelves(user, self.user)
+        return result
+
+
+    @router.get(
         "/{shelf_id}",
         summary="getting shelf by id",
         response_model=GetShelf
     )
     async def get_shelf_by_id(
             self,
-            shelf_id: int
+            shelf: Shelf = Depends(get_shelf_or_404),
     ):
-        result = await self.shelf_manager.get_shelf_by_id(shelf_id)
-        return result
+        return shelf

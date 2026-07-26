@@ -23,6 +23,6 @@ class GetReadingPeriod(BaseModel):
     id: int
     shelf_item_id: int
     started_at: datetime
-    finished_at: datetime
+    finished_at: datetime | None = None
 
 

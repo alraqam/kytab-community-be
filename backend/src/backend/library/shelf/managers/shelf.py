@@ -7,7 +7,8 @@ from src.backend.library.shelf.exceptions import ShelfAlreadyExistsError, Defaul
     PrivateShelfError
 from src.backend.library.shelf.models import Shelf
 from src.backend.library.shelf.repositories.shelf import ShelfRepository
-from src.backend.library.shelf.schemas import CreateShelf, ShelfDefault, ShelfVisibility, UpdateShelf
+from src.backend.library.shelf.schemas import CreateShelf, ShelfDefault, ShelfVisibility, UpdateShelf, \
+    UpdateShelfVisibility
 
 
 class ShelfManager:
@@ -37,17 +38,18 @@ class ShelfManager:
             self,
             user: User,
             request: CreateShelf
-    ) -> None:
+    ) -> Shelf:
         if await self.shelf_repo.get_shelf_by_name(user.id, request.name):
             raise ShelfAlreadyExistsError("Shelf with this name already exists")
 
-        await self.shelf_repo.create_shelf(
+        result = await self.shelf_repo.create_shelf(
             user_id=user.id,
             name=request.name,
             is_default=False,
             visibility=ShelfVisibility.public
         )
         await self.session.commit()
+        return result
 
     async def update_shelf(
             self,
@@ -62,6 +64,19 @@ class ShelfManager:
         await self.shelf_repo.update_shelf(
             shelf=shelf,
             name=request.name
+        )
+        await self.session.commit()
+
+    async def update_shelf_visibility(
+            self,
+            user: User,
+            shelf: Shelf,
+            request: UpdateShelfVisibility
+    ) -> None:
+        await is_shelf_owner(user, shelf)
+        await self.shelf_repo.update_shelf_visibility(
+            shelf=shelf,
+            visibility=request.visibility
         )
         await self.session.commit()
 

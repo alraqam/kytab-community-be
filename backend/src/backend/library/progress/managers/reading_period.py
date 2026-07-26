@@ -5,7 +5,6 @@ from src.backend.identity.auth.models import User
 from src.backend.library.progress.exceptions import ReadingPeriodNotFound
 from src.backend.library.progress.models import ReadingPeriod
 from src.backend.library.shelf.permissions import is_shelf_owner
-from src.backend.library.shelf.exceptions import IsNotShelfOwnerError
 from src.backend.library.shelf.models import ShelfItem
 from src.backend.library.progress.repositories.reading_period import ReadingPeriodRepository
 from src.backend.library.shelf.repositories.shelf_item import ShelfItemRepository
@@ -26,9 +25,10 @@ class ReadingPeriodManager:
             shelf_item: ShelfItem
     ) -> ReadingPeriod:
         shelf = await self.shelf_item_repo.get_shelf_by_item(shelf_item.id)
-        if shelf.user_id == user.id:
-            raise IsNotShelfOwnerError("Is not shelf owner")
+        if not shelf:
+            raise ShelfNotFoundError("Shelf not found")
 
+        await is_shelf_owner(user, shelf)
         result = await self.reading_period_repo.start_reading_period(shelf_item.id)
         await self.session.commit()
         return result

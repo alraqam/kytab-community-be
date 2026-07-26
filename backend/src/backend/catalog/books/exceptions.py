@@ -32,3 +32,6 @@ class GenreWorkLinkExistsError(Conflict):
 
 class SeriesWorkLinkExistsError(Conflict):
     pass
+
+class InvalidWorkEditionError(Conflict):
+    pass

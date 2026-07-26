@@ -53,18 +53,7 @@ class ProgressLogRouter:
         return log
 
     @router.get(
-        "/",
-        summary="getting user's today progress log",
-        response_model=GetProgressLog,
-    )
-    async def get_user_today_progress_log(
-            self,
-    ):
-        result = await self.progress_log.get_user_today_progress_log(self.user, self.reading_period)
-        return result
-
-    @router.get(
-        "/",
+        "/today",
         summary="getting user's today progress log",
         response_model=GetProgressLog,
     )

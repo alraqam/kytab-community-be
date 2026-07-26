@@ -19,6 +19,7 @@ class ReadingPeriodRepository:
         result = ReadingPeriod(
             shelf_item_id=shelf_item_id,
             started_at=datetime.now(),
+            finished_at=None,
         )
         self.session.add(result)
         await self.session.flush()
@@ -28,7 +29,7 @@ class ReadingPeriodRepository:
             self,
             reading_period: ReadingPeriod,
     ) -> None:
-        reading_period.finished_at = datetime.now(),
+        reading_period.finished_at = datetime.now()
         self.session.add(reading_period)
         await self.session.flush()
 
@@ -52,7 +53,7 @@ class ReadingPeriodRepository:
             self,
             shelf_item: int
     ) -> list[ReadingPeriod]:
-        stmt = select(ReadingPeriod).where(ReadingPeriod.shelf_item == shelf_item)
+        stmt = select(ReadingPeriod).where(ReadingPeriod.shelf_item_id == shelf_item)
         result = await self.session.execute(stmt)
         lst = result.scalars().all()
         return lst
@@ -78,4 +79,3 @@ class ReadingPeriodRepository:
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
-

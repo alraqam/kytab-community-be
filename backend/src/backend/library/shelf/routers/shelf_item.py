@@ -43,6 +43,17 @@ class ShelfItemRouter:
         await self.shelf_item_manager.remove_from_shelf(self.user, shelf_item)
 
     @router.get(
+        "/my",
+        summary="getting current user's reading shelf items",
+        response_model=list[GetShelfItem]
+    )
+    async def get_my_shelf_items(
+            self,
+    ):
+        result = await self.shelf_item_manager.get_my_shelf_items(self.user, self.shelf)
+        return result
+
+    @router.get(
         "/{user_id}",
         summary="getting user's shelf items",
         response_model=list[GetShelfItem]
@@ -52,17 +63,6 @@ class ShelfItemRouter:
             user: User = Depends(get_user_or_404),
     ):
         result = await self.shelf_item_manager.get_shelf_items(user, self.user, self.shelf)
-        return result
-
-    @router.get(
-        "/my",
-        summary="getting current user's reading shelf items",
-        response_model=list[GetShelfItem]
-    )
-    async def get_my_shelf_items(
-            self,
-    ):
-        result = await self.shelf_item_manager.get_my_shelf_items(self.user, self.shelf)
         return result
 
     @router.get(

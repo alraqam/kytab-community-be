@@ -1,6 +1,12 @@
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.library.shelf.exceptions import IsNotShelfOwnerError
+from backend.catalog.books.exceptions import InvalidWorkEditionError
+from backend.catalog.books.managers.edition import EditionManager
+from backend.catalog.books.managers.work import WorkManager
+from backend.catalog.books.repository.work import WorkRepository
+from backend.identity.follow.managers import FollowManager
+from src.backend.library.shelf.exceptions import IsNotShelfOwnerError, ShelfNotFoundError, WorkAlreadyInShelfError
 from src.backend.identity.auth.models import User
 from src.backend.identity.follow.repository import FollowRepository
 from src.backend.library.shelf.permissions import is_shelf_owner
@@ -18,7 +24,10 @@ class ShelfItemManager:
 
         self.session = session
         self.shelf_item_repo = ShelfItemRepository(session)
-        self.follow_repo = FollowRepository(session)
+        self.follow_manager = FollowManager(session)
+        self.work_manager = WorkManager(session)
+        self.edition_manager = EditionManager(session)
+
 
     async def add_to_shelf(
             self,
@@ -28,13 +37,22 @@ class ShelfItemManager:
     ) -> ShelfItem:
         await is_shelf_owner(user, shelf)
 
-        result = await self.shelf_item_repo.add_to_shelf(
-            shelf_id=shelf.id,
-            work_id=request.work_id,
-            edition_id=request.edition_id
-        )
-        await self.session.commit()
-        return result
+        work = await self.work_manager.get_work_by_id(request.work_id)
+        edition = await self.edition_manager.get_edition_by_id(request.edition_id) if request.edition_id else None
+
+        if edition and edition.work_id != work.id:
+            raise InvalidWorkEditionError("Invalid work edition")
+
+        try:
+            result = await self.shelf_item_repo.add_to_shelf(
+                shelf_id=shelf.id,
+                work_id=work.id,
+                edition_id=edition.id if edition else None,
+            )
+            await self.session.commit()
+            return result
+        except IntegrityError:
+            raise WorkAlreadyInShelfError("Work is already added to shelf")
 
     async def remove_from_shelf(
             self,
@@ -42,6 +60,9 @@ class ShelfItemManager:
             shelf_item: ShelfItem,
     ) -> None:
         shelf = await self.shelf_item_repo.get_shelf_by_item(shelf_item.id)
+        if not shelf:
+            raise ShelfNotFoundError("Shelf not found")
+
         await is_shelf_owner(user, shelf)
 
         result = await self.shelf_item_repo.remove_from_shelf(
@@ -65,9 +86,7 @@ class ShelfItemManager:
             raise PrivateShelfError("Shelf is private")
 
         if shelf.visibility == ShelfVisibility.followers_only:
-            is_follower = True if await self.follow_repo.is_following_user(current_user.id, user.id) else False
-            if not is_follower:
-                raise PrivateShelfError("Shelf is followers only")
+            await self.follow_manager.is_following_user(current_user.id, user.id)
 
         return items
 

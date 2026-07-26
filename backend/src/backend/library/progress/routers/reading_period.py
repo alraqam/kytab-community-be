@@ -26,7 +26,7 @@ class ReadingPeriodRouter:
         summary="start reading period",
         response_model=GetReadingPeriod
     )
-    async def create_custom_shelf(
+    async def start_reading_period(
             self,
     ):
         result = await self.period_manager.start_reading_period(self.user, self.shelf_item)
@@ -52,7 +52,7 @@ class ReadingPeriodRouter:
     ):
         await self.period_manager.delete_reading_period(self.user, reading_period)
 
-    @router.post(
+    @router.get(
         "/",
         summary="getting shelf item's reading periods",
         response_model=list[GetReadingPeriod]
@@ -63,10 +63,10 @@ class ReadingPeriodRouter:
         result = await self.period_manager.get_shelf_item_periods(self.shelf_item)
         return result
 
-    @router.post(
+    @router.get(
         "/{reading_period_id}",
         summary="getting reading period by id",
-        response_model=list[GetReadingPeriod]
+        response_model=GetReadingPeriod
     )
     async def get_reading_period_by_id(
             self,
