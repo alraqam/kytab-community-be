@@ -34,6 +34,13 @@ from src.backend.library.reviews.routers.like import router as review_like_route
 from src.backend.library.progress.routers.reading_period import router as reading_period_router
 from src.backend.library.progress.routers.progress_logs import router as progress_logs_router
 from src.backend.library.progress.routers.users_progress import router as user_progress_router
+from src.backend.clubs.clubs.routers.public import router as clubs_public_router
+from src.backend.clubs.clubs.routers.admin import router as clubs_admin_router
+from src.backend.clubs.club_membership.routers.membership import router as membership_router
+from src.backend.clubs.club_membership.routers.requests import router as request_router
+from src.backend.clubs.club_membership.routers.invitation import router as invitation_router
+
+
 
 app = FastAPI(
     version="1.0.0",
@@ -46,6 +53,7 @@ shelf_router.include_router(shelf_item_router)
 review_router.include_router(review_comments_router)
 review_router.include_router(review_like_router)
 work_router.include_router(review_router)
+clubs_public_router.include_router(membership_router)
 
 app.include_router(auth_router)
 app.include_router(session_router)
@@ -69,6 +77,10 @@ app.include_router(librarian_submission_router)
 app.include_router(reading_goals_router)
 app.include_router(shelf_router)
 app.include_router(user_progress_router)
+app.include_router(clubs_public_router)
+app.include_router(clubs_admin_router)
+app.include_router(invitation_router)
+app.include_router(request_router)
 
 app.add_exception_handler(Unauthorized, unauthorized_exception_handler)
 app.add_exception_handler(Forbidden, forbidden_exception_handler)
