@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
+from src.backend.catalog.books.dependencies.work import get_work_or_404
+from src.backend.catalog.books.models import Work
 from src.backend.identity.auth.dependencies import get_current_user
 from src.backend.identity.auth.models import User
 from src.backend.library.reviews.dependencies import get_review_or_404, get_review_comment_manager, \
@@ -19,6 +21,7 @@ class ReviewCommentRouter:
     comment_manager: ReviewCommentManager = Depends(get_review_comment_manager)
     user: User = Depends(get_current_user)
     review: Review = Depends(get_review_or_404)
+    work: Work = Depends(get_work_or_404)
 
     @router.post(
         "/",

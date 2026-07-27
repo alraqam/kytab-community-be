@@ -4,11 +4,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from backend.catalog.books.exceptions import InvalidWorkEditionError
 from backend.catalog.books.managers.edition import EditionManager
 from backend.catalog.books.managers.work import WorkManager
-from backend.catalog.books.repository.work import WorkRepository
 from backend.identity.follow.managers import FollowManager
+from backend.library.shelf.managers.shelf import ShelfManager
 from src.backend.library.shelf.exceptions import IsNotShelfOwnerError, ShelfNotFoundError, WorkAlreadyInShelfError
 from src.backend.identity.auth.models import User
-from src.backend.identity.follow.repository import FollowRepository
 from src.backend.library.shelf.permissions import is_shelf_owner
 from src.backend.library.shelf.exceptions import PrivateShelfError, ShelfItemNotFoundError
 from src.backend.library.shelf.models import Shelf, ShelfItem
@@ -27,6 +26,7 @@ class ShelfItemManager:
         self.follow_manager = FollowManager(session)
         self.work_manager = WorkManager(session)
         self.edition_manager = EditionManager(session)
+        self.shelf_manager = ShelfManager(session)
 
 
     async def add_to_shelf(
@@ -71,23 +71,29 @@ class ShelfItemManager:
         await self.session.commit()
         return result
 
-    async def get_shelf_items(
+    async def change_shelf(
+            self,
+            user: User,
+            shelf_item: ShelfItem,
+            shelf: Shelf
+    ) -> None:
+        await is_shelf_owner(user, shelf)
+
+        result = await self.shelf_item_repo.change_shelf(
+            shelf_item=shelf_item,
+            shelf_id=shelf.id
+        )
+        await self.session.commit()
+        return result
+
+    async def get_user_shelf_items(
             self,
             user: User,
             current_user: User,
             shelf: Shelf
     ) -> list[ShelfItem]:
+        await self.shelf_manager.ensure_shelf_access(shelf, current_user, user)
         items = await self.shelf_item_repo.get_shelf_items(shelf.id)
-
-        if shelf.user_id == current_user.id:
-            return items
-
-        if shelf.visibility == ShelfVisibility.private:
-            raise PrivateShelfError("Shelf is private")
-
-        if shelf.visibility == ShelfVisibility.followers_only:
-            await self.follow_manager.is_following_user(current_user.id, user.id)
-
         return items
 
     async def get_my_shelf_items(
@@ -107,5 +113,14 @@ class ShelfItemManager:
         result = await self.shelf_item_repo.get_shelf_item_by_id(shelf_item_id=shelf_item_id)
         if not result:
             raise ShelfItemNotFoundError("Shelf item not found")
+        return result
+
+    async def get_shelf_by_item(
+            self,
+            shelf_item_id: int
+    ) -> Shelf:
+        result = await self.shelf_item_repo.get_shelf_by_item(shelf_item_id=shelf_item_id)
+        if not result:
+            raise ShelfNotFoundError("Shelf not found")
         return result
 

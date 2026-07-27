@@ -16,6 +16,7 @@ class ProgressLog(Base, IntIdMixin, TimeActionMixin):
     period_id = Column(BigInteger, ForeignKey("reading_periods.id", ondelete="CASCADE"), nullable=False)
     pages_read = Column(Integer, nullable=False)
     log_date = Column(Date, nullable=False)
+    note  = Column(String(255), nullable=True)
 
     __table_args__ = (
         UniqueConstraint("user_id", "period_id", "log_date", name="uq_user_period_log"),

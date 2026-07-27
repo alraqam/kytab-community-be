@@ -65,32 +65,30 @@ class ShelfRouter:
 
     @router.get(
         "/my",
-        summary="getting current user's reading shelves",
+        summary="getting current user's shelves",
         response_model=list[GetShelf]
     )
     async def get_my_shelves(
             self,
-            user: User = Depends(get_current_user),
     ):
-        result = await self.shelf_manager.get_my_shelves(user)
+        result = await self.shelf_manager.get_my_shelves(self.user)
         return result
 
     @router.get(
         "/name",
-        summary="getting user's reading shelf by name",
+        summary="getting user's shelf by name",
         response_model=GetShelf
     )
     async def get_shelf_by_name(
             self,
-            name: str = Query(default=None),
-            user: User = Depends(get_current_user),
+            name: str = Query(),
     ):
-        result = await self.shelf_manager.get_shelf_by_name(user, self.user, name)
+        result = await self.shelf_manager.get_shelf_by_name(self.user, name)
         return result
 
     @router.get(
-        "/{user_id}",
-        summary="getting user's reading shelves",
+        "/user/{user_id}",
+        summary="getting user's shelves",
         response_model=list[GetShelf]
     )
     async def get_user_shelves(

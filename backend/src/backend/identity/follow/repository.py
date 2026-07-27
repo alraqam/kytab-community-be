@@ -54,7 +54,7 @@ class FollowRepository:
             self,
             follower_id: int,
             followed_id: int,
-    ) -> Follow | None:
+    ) -> bool:
         stmt = select(Follow).where(
             and_(
                 Follow.follower_id == follower_id,
@@ -63,7 +63,7 @@ class FollowRepository:
         )
         result = await self.session.execute(stmt)
         follows = result.scalar_one_or_none()
-        return follows
+        return True if follows else False
 
     async def unfollow(
             self,

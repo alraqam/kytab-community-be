@@ -11,7 +11,7 @@ from src.backend.library.shelf.schemas import GetShelfItem, CreateShelfItem
 
 router = APIRouter(
     prefix="/{shelf_id}/item",
-    tags=["shelf_item-item"]
+    tags=["shelf_item"]
 )
 
 @cbv(router)
@@ -54,15 +54,15 @@ class ShelfItemRouter:
         return result
 
     @router.get(
-        "/{user_id}",
+        "/user/{user_id}",
         summary="getting user's shelf items",
         response_model=list[GetShelfItem]
     )
-    async def get_shelf_items(
+    async def get_user_shelf_items(
             self,
             user: User = Depends(get_user_or_404),
     ):
-        result = await self.shelf_item_manager.get_shelf_items(user, self.user, self.shelf)
+        result = await self.shelf_item_manager.get_user_shelf_items(user, self.user, self.shelf)
         return result
 
     @router.get(

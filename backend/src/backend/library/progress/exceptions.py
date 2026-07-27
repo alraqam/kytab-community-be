@@ -22,3 +22,9 @@ class ReadingPeriodNotFound(NotFound):
 
 class LogDateError(Conflict):
     pass
+
+class ActiveReadingPeriodError(Conflict):
+    pass
+
+class NotReadingPeriodOwner(Forbidden):
+    pass

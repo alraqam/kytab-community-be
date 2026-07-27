@@ -87,7 +87,7 @@ class FollowManager:
             self,
             follower_id: int,
             followed_id: int,
-    ) -> Follow:
+    ) -> bool:
         result = await self.follow_repo.is_following_user(
             follower_id=follower_id,
             followed_id=followed_id,

@@ -33,6 +33,15 @@ class ShelfItemRepository:
         await self.session.delete(shelf_item)
         await self.session.flush()
 
+    async def change_shelf(
+            self,
+            shelf_item: ShelfItem,
+            shelf_id: int
+    ) -> None:
+        shelf_item.shelf_id = shelf_id
+        self.session.add(shelf_item)
+        await self.session.flush()
+
     async def get_shelf_items(
             self,
             shelf_id: int

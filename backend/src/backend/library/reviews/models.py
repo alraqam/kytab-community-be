@@ -1,17 +1,8 @@
-from sqlalchemy import Column, BigInteger, ForeignKey, Integer, Text, Boolean, String, UniqueConstraint, Float
+from sqlalchemy import Column, BigInteger, ForeignKey, Integer, Text, Boolean, String, UniqueConstraint, Float, \
+    func, select
+from sqlalchemy.orm import column_property
 
 from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
-
-
-class Review(Base, IntIdMixin, TimeActionMixin):
-    __tablename__ = "reviews"
-
-    user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    work_id = Column(BigInteger, ForeignKey("works.id", ondelete="CASCADE"), nullable=False)
-    rating = Column(Float, nullable=True)
-    text = Column(Text, nullable=True)
-    contains_spoiler = Column(Boolean, default=False)
-    is_edited = Column(Boolean, default=False)
 
 
 class ReviewComment(Base, IntIdMixin, TimeActionMixin):
@@ -32,3 +23,21 @@ class ReviewLike(Base, IntIdMixin, TimeActionMixin):
     __table_args__ = (
         UniqueConstraint("user_id", "review_id", name="uq_user_review_like"),
     )
+
+
+class Review(Base, IntIdMixin, TimeActionMixin):
+    __tablename__ = "reviews"
+
+    user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    work_id = Column(BigInteger, ForeignKey("works.id", ondelete="CASCADE"), nullable=False)
+    rating = Column(Float, nullable=True)
+    text = Column(Text, nullable=True)
+    contains_spoiler = Column(Boolean, default=False)
+    is_edited = Column(Boolean, default=False)
+
+Review.likes_count = column_property(
+    select(func.count(ReviewLike.id))
+    .where(ReviewLike.review_id == Review.id)
+    .correlate_except(ReviewLike)
+    .scalar_subquery()
+)

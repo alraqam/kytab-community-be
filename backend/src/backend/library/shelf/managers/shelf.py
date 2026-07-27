@@ -21,6 +21,24 @@ class ShelfManager:
         self.shelf_repo = ShelfRepository(session)
         self.follow_repo = FollowRepository(session)
 
+    async def ensure_shelf_access(
+            self,
+            shelf: Shelf,
+            current_user: User,
+            user: User
+    ) -> None:
+        is_owner = True if current_user.id == user.id else False
+
+        if shelf.visibility == ShelfVisibility.private and not is_owner:
+            raise PrivateShelfError("Shelf is private")
+
+        if shelf.visibility == ShelfVisibility.followers_only and not is_owner:
+            is_follower = await self.follow_repo.is_following_user(current_user.id, user.id)
+            if not is_follower:
+                raise PrivateShelfError("Shelf is followers only")
+
+
+
     async def create_default_shelves(
             self,
             user: User,
@@ -101,16 +119,12 @@ class ShelfManager:
     ) -> list[Shelf]:
         shelves = await self.shelf_repo.get_user_shelves(user.id)
         result = []
-
-        is_follower = True if await self.follow_repo.is_following_user(current_user.id, user.id) else False
-        is_owner = True if current_user.id == user.id else False
-
         for shelf in shelves:
-            if shelf.visibility == ShelfVisibility.private and not is_owner:
+            try:
+                await self.ensure_shelf_access(shelf, current_user, user)
+                result.append(shelf)
+            except PrivateShelfError:
                 continue
-            if shelf.visibility == ShelfVisibility.followers_only and not is_follower:
-                continue
-            result.append(shelf)
         return result
 
     async def get_my_shelves(
@@ -132,23 +146,9 @@ class ShelfManager:
     async def get_shelf_by_name(
             self,
             user: User,
-            current_user: User,
             name: str
     ) -> Shelf:
         shelf = await self.shelf_repo.get_shelf_by_name(user.id, name)
         if not shelf:
             raise ShelfNotFoundError("Shelf not found")
-
-        if shelf.user_id == current_user.id:
-            return shelf
-
-        if shelf.visibility == ShelfVisibility.private:
-            raise PrivateShelfError("Shelf is private")
-
-        if shelf.visibility == ShelfVisibility.followers_only:
-            is_follower = True if await self.follow_repo.is_following_user(current_user.id, user.id) else False
-            if not is_follower:
-                raise PrivateShelfError("Shelf is followers only")
-            return shelf
-
         return shelf

@@ -33,6 +33,7 @@ from src.backend.library.reviews.routers.comments import router as review_commen
 from src.backend.library.reviews.routers.like import router as review_like_router
 from src.backend.library.progress.routers.reading_period import router as reading_period_router
 from src.backend.library.progress.routers.progress_logs import router as progress_logs_router
+from src.backend.library.progress.routers.users_progress import router as user_progress_router
 
 app = FastAPI(
     version="1.0.0",
@@ -67,6 +68,7 @@ app.include_router(librarian_submission_public_router)
 app.include_router(librarian_submission_router)
 app.include_router(reading_goals_router)
 app.include_router(shelf_router)
+app.include_router(user_progress_router)
 
 app.add_exception_handler(Unauthorized, unauthorized_exception_handler)
 app.add_exception_handler(Forbidden, forbidden_exception_handler)

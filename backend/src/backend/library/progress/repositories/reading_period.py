@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.backend.catalog.books.models import Edition
 from src.backend.library.progress.models import ReadingPeriod
 from src.backend.library.shelf.models import Shelf, ShelfItem
 
@@ -44,7 +45,12 @@ class ReadingPeriodRepository:
             self,
             user_id: int
     ) -> list[ReadingPeriod]:
-        stmt = select(ReadingPeriod).where(ReadingPeriod.user_id == user_id)
+        stmt = (
+            select(ReadingPeriod)
+            .join(ShelfItem, ReadingPeriod.shelf_item_id == ShelfItem.id)
+            .join(Shelf, ShelfItem.shelf_id == Shelf.id)
+            .where(Shelf.user_id == user_id)
+        )
         result = await self.session.execute(stmt)
         lst = result.scalars().all()
         return lst
@@ -74,6 +80,51 @@ class ReadingPeriodRepository:
         stmt = (
             select(Shelf)
             .join(ShelfItem, ShelfItem.shelf_id == Shelf.id)
+            .join(ReadingPeriod, ReadingPeriod.shelf_item_id == ShelfItem.id)
+            .where(ReadingPeriod.id == reading_period_id)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def get_shelf_item_by_period(
+            self,
+            reading_period_id: int
+    ) -> ShelfItem | None:
+        stmt = (
+            select(ShelfItem)
+            .join(ReadingPeriod, ReadingPeriod.shelf_item_id == ShelfItem.id)
+            .where(ReadingPeriod.id == reading_period_id)
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def exists_active_period(
+            self,
+            user_id: int,
+            work_id: int
+    ) -> Shelf | None:
+        stmt = (
+            select(Shelf)
+            .join(ShelfItem, ShelfItem.shelf_id == Shelf.id)
+            .join(ReadingPeriod, ReadingPeriod.shelf_item_id == ShelfItem.id)
+            .where(
+                and_(
+                   Shelf.user_id == user_id,
+                   ShelfItem.work_id == work_id,
+                    ReadingPeriod.finished_at.is_(None),
+                )
+            )
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def get_edition_by_reading_period(
+            self,
+            reading_period_id: int
+    ) -> Edition | None:
+        stmt = (
+            select(Edition)
+            .join(ShelfItem, ShelfItem.edition_id == Edition.id)
             .join(ReadingPeriod, ReadingPeriod.shelf_item_id == ShelfItem.id)
             .where(ReadingPeriod.id == reading_period_id)
         )
