@@ -39,6 +39,8 @@ from src.backend.clubs.clubs.routers.admin import router as clubs_admin_router
 from src.backend.clubs.club_membership.routers.membership import router as membership_router
 from src.backend.clubs.club_membership.routers.requests import router as request_router
 from src.backend.clubs.club_membership.routers.invitation import router as invitation_router
+from src.backend.clubs.club_membership.routers.user_membership import router as user_membership_router
+from src.backend.clubs.club_membership.routers.block import router as club_block_router
 
 
 
@@ -47,6 +49,7 @@ app = FastAPI(
     redirect_slashes=False,
 )
 
+clubs_public_router.include_router(club_block_router)
 reading_period_router.include_router(progress_logs_router)
 shelf_item_router.include_router(reading_period_router)
 shelf_router.include_router(shelf_item_router)
@@ -79,6 +82,7 @@ app.include_router(shelf_router)
 app.include_router(user_progress_router)
 app.include_router(clubs_public_router)
 app.include_router(clubs_admin_router)
+app.include_router(user_membership_router)
 app.include_router(invitation_router)
 app.include_router(request_router)
 

@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi_filter import FilterDepends
 from fastapi_utils.cbv import cbv
 
+from src.backend.clubs.clubs.schemas import ManageClubModerators
 from src.backend.clubs.club_membership.dependencies import get_membership_manager
 from src.backend.clubs.club_membership.filters import ClubMembersFilter
 from src.backend.clubs.club_membership.managers.membership import ClubMembershipManager
@@ -27,17 +28,18 @@ class MembershipRouter:
     @router.post(
         "/",
         summary="joining club",
-        status_code=204,
+        response_model=GetMembership,
     )
-    async def join_public_club(self) -> None:
+    async def join_public_club(self):
         """Joins the current user to the club as a reader."""
-        await self.manager.join_public_club(self.user, self.club)
+        result = await self.manager.join_public_club(self.user, self.club)
+        return result
 
     @router.delete(
         "/",
         summary="leaving club",
     )
-    async def leave_club(self) -> None:
+    async def leave_club(self):
         """Removes the current user from the club."""
         await self.manager.leave_club(self.user, self.club)
 
@@ -70,7 +72,7 @@ class MembershipRouter:
         Args:
             filters: ClubMembersFilter for filtering and sorting.
         """
-        result = await self.manager.get_memberships(self.club, filters)
+        result = await self.manager.get_memberships(self.club, self.user, filters)
         return result
 
     @router.get(
@@ -82,4 +84,27 @@ class MembershipRouter:
             self,
     ):
         result = await self.manager.get_club_owner_moderator(self.club)
+        return result
+
+    @router.put(
+        "/assign-moderator",
+        summary="assigning club moderator",
+    )
+    async def assign_moderator(
+            self,
+            request: ManageClubModerators
+    ):
+        result = await self.manager.assign_moderator(self.club, self.user, request)
+        return result
+
+
+    @router.put(
+        "/remove-moderator",
+        summary="removing club moderator",
+    )
+    async def remove_moderator(
+            self,
+            request: ManageClubModerators
+    ):
+        result = await self.manager.remove_moderator(self.club, self.user, request)
         return result

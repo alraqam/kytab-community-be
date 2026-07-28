@@ -33,3 +33,21 @@ class ExpiredInvitationError(BadRequest):
 
 class ExpiredRequestError(BadRequest):
     pass
+
+class MemberAlreadyBlockedError(Conflict):
+    pass
+
+class ClubBlockNotFoundError(NotFound):
+    pass
+
+class ClubModeratorError(Conflict):
+    pass
+
+class ClubOwnerError(Conflict):
+    pass
+
+class PrivateClubError(Conflict):
+    pass
+
+class MemberBlockedError(Conflict):
+    pass

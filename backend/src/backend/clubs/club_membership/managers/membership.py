@@ -1,11 +1,15 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.club_membership.exceptions import AlreadyClubMemberError, NotClubMemberError
+from backend.clubs.club_membership.exceptions import ClubOwnerError, PrivateClubError
+from backend.clubs.club_membership.managers.block import ClubBlockedManager
+from backend.clubs.clubs.schemas import ClubTypes
+from src.backend.clubs.clubs.schemas import ManageClubModerators
+from src.backend.clubs.club_membership.exceptions import AlreadyClubMemberError, NotClubMemberError, ClubModeratorError
 from src.backend.clubs.club_membership.filters import ClubMembersFilter
 from src.backend.clubs.club_membership.models import ClubMembership
 from src.backend.clubs.club_membership.repository.membership import ClubMembershipRepository
 from src.backend.clubs.club_membership.schemas import MemberRole, ManageMember
-from src.backend.clubs.club_membership.services import is_owner_or_moderator
+from src.backend.clubs.club_membership.services import is_owner_or_moderator, is_club_owner, is_club_member
 from src.backend.clubs.clubs.managers import ClubManager
 from src.backend.clubs.clubs.models import Club
 from src.backend.identity.auth.models import User
@@ -27,6 +31,7 @@ class ClubMembershipManager:
         self.club_manager = ClubManager(session)
         self.user_manager = UserManager(session)
         self.membership_repo = ClubMembershipRepository(session)
+        self.club_blocked_manager = ClubBlockedManager(session)
 
     async def get_user_club_membership(
             self,
@@ -67,13 +72,32 @@ class ClubMembershipManager:
         Raises:
             AlreadyClubMemberError: When the user is already a member.
         """
+        if club.club_type != ClubTypes.public:
+            raise PrivateClubError("Can not join this club")
+        await self.get_user_club_membership(club, user)
+
+        await self.club_blocked_manager.is_blocked_member(club.id, user.id)
+
+        result = await self.membership_repo.create_membership(
+            club_id=club.id,
+            user_id=user.id,
+            role=MemberRole.member
+        )
+        await self.session.commit()
+        return result
+
+    async def join_club(
+            self,
+            user: User,
+            club: Club,
+    ) -> ClubMembership:
         await self.get_user_club_membership(club, user)
         result = await self.membership_repo.create_membership(
             club_id=club.id,
             user_id=user.id,
             role=MemberRole.member
         )
-
+        await self.club_blocked_manager.is_blocked_member(club.id, user.id)
         await self.session.commit()
         return result
 
@@ -95,6 +119,8 @@ class ClubMembershipManager:
         membership = await self.membership_repo.get_user_club_membership(club, user)
         if not membership:
             raise NotClubMemberError("Not a club member")
+        if membership.role == MemberRole.club_owner:
+            raise ClubOwnerError("Before leaving club transfer the ownership")
         await self.membership_repo.delete_membership(membership)
         await self.session.commit()
 
@@ -119,11 +145,19 @@ class ClubMembershipManager:
         """
         is_owner_or_moderator(club, user.id)
 
+        club_owner = is_club_owner(club, user)
+
         member = await self.user_manager.get_user_by_id(request.member_id)
 
         membership = await self.membership_repo.get_user_club_membership(club, member)
         if not membership:
             raise NotClubMemberError("Membership not found")
+
+        if membership.role == MemberRole.club_moderator and not club_owner:
+            raise ClubModeratorError("Only club owner can kick moderator")
+
+        if membership.role == MemberRole.club_owner:
+            raise ClubOwnerError("Club owner can not be kicked")
 
         await self.membership_repo.delete_membership(membership)
         await self.session.commit()
@@ -132,6 +166,7 @@ class ClubMembershipManager:
     async def get_memberships(
             self,
             club: Club,
+            user: User,
             filters: ClubMembersFilter | None = None
     ) -> list[ClubMembership]:
         """Returns all club memberships.
@@ -143,6 +178,7 @@ class ClubMembershipManager:
         Returns:
             List of ClubMembership instances.
         """
+        await is_club_member(club, user, self.session)
         memberships = await self.membership_repo.get_memberships(club, filters)
         return memberships
 
@@ -175,3 +211,68 @@ class ClubMembershipManager:
         """
         memberships = await self.membership_repo.get_club_owner_moderator(club)
         return memberships
+
+    async def assign_moderator(
+            self,
+            club: Club,
+            user: User,
+            request: ManageClubModerators
+    ) -> None:
+        """Promotes a club member to the moderator role; requires owner.
+
+        Args:
+            club: Club instance.
+            user: Authenticated user performing the action.
+            request: ManageClubModerators payload with the target member's user_id.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not an owner or moderator.
+            UserNotFoundError: When the target user does not exist.
+            NotClubMemberError: When the target user is not a member of the club.
+        """
+        is_club_owner(club, user)
+
+        member = await self.user_manager.get_user_by_id(request.user_id)
+
+        membership = await self.membership_repo.get_user_club_membership(club, member)
+        if not membership:
+            raise NotClubMemberError("Membership not found")
+
+        if membership.role != MemberRole.member:
+            raise ClubModeratorError("Only members can be promoted to moderators")
+
+        await self.membership_repo.change_member_role(membership, MemberRole.club_moderator)
+        await self.session.commit()
+
+    async def remove_moderator(
+            self,
+            club: Club,
+            user: User,
+            request: ManageClubModerators
+    ) -> None:
+        """Demotes a club moderator back to the reader role; requires owner.
+
+        Args:
+            club: Club instance.
+            user: Authenticated user performing the action.
+            request: ManageClubModerators payload with the target member's user_id.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not an owner or moderator.
+            UserNotFoundError: When the target user does not exist.
+            NotClubMemberError: When the target user is not a member of the club.
+        """
+        is_club_owner(club, user)
+
+        member = await self.user_manager.get_user_by_id(request.user_id)
+
+        membership = await self.membership_repo.get_user_club_membership(club, member)
+        if not membership:
+            raise NotClubMemberError("Membership not found")
+
+        if membership.role != MemberRole.club_moderator:
+            raise ClubModeratorError("Is not club moderator")
+
+        await self.membership_repo.change_member_role(membership, MemberRole.member)
+        await self.session.commit()
+

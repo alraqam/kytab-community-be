@@ -75,5 +75,4 @@ class BlockedUserManager:
             blocker_id=blocker_id,
             blocked_id=blocked_id,
         )
-        print(result)
         return True if result else False

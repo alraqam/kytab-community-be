@@ -59,3 +59,11 @@ class GetJoinRequest(BaseModel):
     expires_at: datetime
     created_at: datetime
     updated_at: datetime
+
+class CreateBlockedMember(BaseModel):
+    user_id: int
+
+class GetBlockedMember(BaseModel):
+    id: int
+    user_id: int
+    club_id: int

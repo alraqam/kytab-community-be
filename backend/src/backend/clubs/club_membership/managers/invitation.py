@@ -2,6 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.clubs.club_membership.managers.block import ClubBlockedManager
 from src.backend.clubs.club_membership.exceptions import UnavailableInvitationError, InvitationNotFoundError
 from src.backend.clubs.club_membership.managers.membership import ClubMembershipManager
 from src.backend.clubs.club_membership.models import ClubInvitation
@@ -29,6 +30,7 @@ class ClubInvitationManager:
         self.club_manager = ClubManager(session)
         self.user_manager = UserManager(session)
         self.membership_manager = ClubMembershipManager(session)
+        self.club_blocked_manager = ClubBlockedManager(session)
         self.invitation_repo = ClubInvitationRepository(session)
 
     async def send_invitation(
@@ -53,7 +55,10 @@ class ClubInvitationManager:
         is_owner_or_moderator(club, user.id)
 
         invited_user = await self.user_manager.get_user_by_id(request.user_id)
+
         membership = await self.membership_manager.get_user_club_membership(club, invited_user)
+        await self.club_blocked_manager.is_blocked_member(club.id, user.id)
+
         invitation = await self.invitation_repo.create_invitation(
             club_id=club.id,
             invited_by_id=user.id,
@@ -84,7 +89,7 @@ class ClubInvitationManager:
         )
         user = await self.user_manager.get_user_by_id(invitation.invited_user_id)
         club = await self.club_manager.get_club_by_id(invitation.club_id)
-        await self.membership_manager.join_public_club(user, club)
+        await self.membership_manager.join_club(user, club)
 
         await self.session.commit()
 

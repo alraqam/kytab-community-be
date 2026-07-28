@@ -14,6 +14,15 @@ class ClubMembership(Base, IntIdMixin, TimeActionMixin):
         UniqueConstraint("club_id", "user_id", name="user_club_id"),
     )
 
+class ClubBlocked(Base, IntIdMixin, TimeActionMixin):
+    __tablename__ = "club_blocked"
+
+    club_id = Column(BigInteger, ForeignKey("clubs.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("club_id", "user_id", name="block_user_club_id"),
+    )
 
 class ClubInvitation(Base, IntIdMixin, TimeActionMixin):
     __tablename__ = "club_invitation"

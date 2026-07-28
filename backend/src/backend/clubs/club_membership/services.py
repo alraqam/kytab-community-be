@@ -41,21 +41,8 @@ def is_owner_or_moderator(club: Club, user_id: int) -> bool:
         raise IsNotClubOwnerError("Only club owner or moderator can access")
     return True
 
-def is_club_owner(club: Club, user_id: int) -> bool:
-    """Checks that the user holds the owner role in the club.
-
-    Args:
-        club: Club instance with members relationship loaded.
-        user_id: ID of the user to verify.
-
-    Returns:
-        True if the user is the club owner.
-
-    Raises:
-        IsNotClubOwnerError: When the user is not the club owner.
-    """
-    role = get_user_role_in_club(club, user_id)
-    if role != MemberRole.club_owner:
+def is_club_owner(club: Club, user: User) -> bool:
+    if user.id != club.owner_id:
         raise IsNotClubOwnerError("Only club owner can access")
     return True
 

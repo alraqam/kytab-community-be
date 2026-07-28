@@ -1,4 +1,5 @@
 from sqlalchemy import Column, BigInteger, ForeignKey, String, Text, Boolean, UniqueConstraint
+from sqlalchemy.orm import relationship
 
 from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
 
@@ -14,6 +15,7 @@ class Club(Base, IntIdMixin, TimeActionMixin):
     language = Column(String(20), nullable=True)
     is_archived = Column(Boolean, default=False)
 
+    members = relationship("ClubMembership", backref="club", lazy="selectin")
 
 class ClubGenre (Base, IntIdMixin):
     __tablename__ = "club_genre"

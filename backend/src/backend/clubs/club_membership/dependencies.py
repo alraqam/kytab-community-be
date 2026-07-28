@@ -1,10 +1,11 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.backend.clubs.club_membership.managers.block import ClubBlockedManager
 from src.backend.clubs.club_membership.managers.invitation import ClubInvitationManager
 from src.backend.clubs.club_membership.managers.membership import ClubMembershipManager
 from src.backend.clubs.club_membership.managers.requests import ClubJoinRequestManager
-from src.backend.clubs.club_membership.models import ClubInvitation, ClubJoinRequest
+from src.backend.clubs.club_membership.models import ClubInvitation, ClubJoinRequest, ClubBlocked
 from src.backend.core.dependencies import get_db
 
 
@@ -82,5 +83,17 @@ async def get_join_request_or_404(
     Raises:
         JoinRequestNotFound: When no join request with the given ID exists.
     """
-    return await manager.get_reqsrc.uest_by_id(join_request_id)
+    return await manager.get_request_by_id(join_request_id)
+
+
+async def get_club_blocked_manager(
+        session: AsyncSession = Depends(get_db)
+) -> ClubBlockedManager:
+    return ClubBlockedManager(session)
+
+async def get_club_blocked_or_404(
+        join_request_id: int,
+        manager: ClubBlockedManager = Depends(get_club_blocked_manager)
+) -> ClubBlocked:
+    return await manager.get_block_by_id(join_request_id)
 

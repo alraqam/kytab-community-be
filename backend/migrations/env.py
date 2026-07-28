@@ -31,6 +31,7 @@ from src.backend.library.shelf.models import Shelf, ShelfItem
 from src.backend.library.progress.models import ProgressLog, ReadingPeriod
 from src.backend.library.reviews.models import Review
 from src.backend.clubs.clubs.models import Club, ClubGenre
+from src.backend.clubs.club_membership.models import ClubMembership
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

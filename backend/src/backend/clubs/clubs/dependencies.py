@@ -1,18 +1,8 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.clubs.exceptions import IsNotClubOwnerError
 from src.backend.clubs.clubs.models import Club
-from src.backend.identity.auth.models import User
 from src.backend.core.dependencies import get_db
-
-def is_club_owner(
-        club: Club,
-        user: User,
-) -> User:
-    if user.id != club.owner_id:
-        raise IsNotClubOwnerError("Is not club owner")
-    return user
 
 from src.backend.clubs.clubs.managers import ClubManager
 

@@ -2,6 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.clubs.club_membership.managers.block import ClubBlockedManager
 from src.backend.clubs.club_membership.exceptions import UnavailableRequestError, JoinRequestNotFound
 from src.backend.clubs.club_membership.models import ClubJoinRequest
 from src.backend.clubs.club_membership.repository.requests import ClubJoinRequestRepository
@@ -30,6 +31,7 @@ class ClubJoinRequestManager:
         self.club_manager = ClubManager(session)
         self.user_manager = UserManager(session)
         self.membership_manager = ClubMembershipManager(session)
+        self.club_blocked_manager = ClubBlockedManager(session)
         self.request_repo = ClubJoinRequestRepository(session)
 
     async def send_join_request(
@@ -48,6 +50,7 @@ class ClubJoinRequestManager:
         """
         club = await self.club_manager.get_club_by_id(request.club_id)
         membership = await self.membership_manager.get_user_club_membership(club, user)
+        await self.club_blocked_manager.is_blocked_member(club.id, user.id)
 
         if club.club_type == ClubTypes.public:
             await self.membership_manager.join_public_club(user, club)
@@ -87,7 +90,7 @@ class ClubJoinRequestManager:
             status=JoinRequestStatus.accepted,
         )
         member = await self.user_manager.get_user_by_id(join_request.user_id)
-        await self.membership_manager.join_public_club(member, club)
+        await self.membership_manager.join_club(member, club)
         await self.session.commit()
 
     async def reject_join_request(
