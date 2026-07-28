@@ -93,3 +93,19 @@ class ClubInvitationRepository:
         result = await self.session.execute(stmt)
         invitations = result.scalars().all()
         return invitations
+
+    async def get_pending_invitation(
+            self,
+            club_id: int,
+            user_id: int
+    ):
+        stmt = select(ClubInvitation).where(
+            and_(
+                ClubInvitation.invited_user_id == user_id,
+                ClubInvitation.status == InvitationStatus.pending,
+                ClubInvitation.club_id >= club_id
+            ))
+        result = await self.session.execute(stmt)
+        invitations = result.scalars().all()
+        return invitations
+

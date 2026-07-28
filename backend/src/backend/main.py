@@ -41,7 +41,8 @@ from src.backend.clubs.club_membership.routers.requests import router as request
 from src.backend.clubs.club_membership.routers.invitation import router as invitation_router
 from src.backend.clubs.club_membership.routers.user_membership import router as user_membership_router
 from src.backend.clubs.club_membership.routers.block import router as club_block_router
-
+from src.backend.clubs.reading_session.routers.session import router as reading_sessions_router
+from src.backend.clubs.reading_session.routers.milestone import router as milestone_router
 
 
 app = FastAPI(
@@ -50,6 +51,8 @@ app = FastAPI(
 )
 
 clubs_public_router.include_router(club_block_router)
+reading_sessions_router.include_router(milestone_router)
+clubs_public_router.include_router(reading_sessions_router)
 reading_period_router.include_router(progress_logs_router)
 shelf_item_router.include_router(reading_period_router)
 shelf_router.include_router(shelf_item_router)

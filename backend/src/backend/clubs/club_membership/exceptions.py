@@ -51,3 +51,6 @@ class PrivateClubError(Conflict):
 
 class MemberBlockedError(Conflict):
     pass
+
+class DuplicateInvitationError(Conflict):
+    pass

@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi_utils.cbv import cbv
 
+from backend.clubs.club_membership.schemas import InvitationEmail
 from src.backend.clubs.club_membership.dependencies import get_invitation_manager, get_invitation_or_404
 from src.backend.clubs.club_membership.managers.invitation import ClubInvitationManager
 from src.backend.clubs.club_membership.models import ClubInvitation
@@ -35,6 +36,18 @@ class InvitationRouter:
             request: SendInvitation payload with club_id and target user_id.
         """
         result = await self.manager.send_invitation(self.user, request)
+        return result
+
+    @router.post(
+        "/email",
+        summary="sending invitation by email",
+        response_model=GetInvitation
+    )
+    async def send_invitation_email(
+            self,
+            request: SendInvitation
+    ):
+        result = await self.manager.send_invitation_email(self.user, request)
         return result
 
     @router.put(
@@ -72,7 +85,19 @@ class InvitationRouter:
         summary="getting current user invitations",
         response_model=list[GetInvitation]
     )
-    async def get_user_invitations(self) -> list[GetInvitation]:
+    async def get_user_invitations(self):
         """Returns all pending, non-expired invitations for the current user."""
         result = await self.manager.get_user_invitations(self.user)
+        return result
+
+    @router.get(
+        "/email",
+        summary="getting invitation by email token",
+        response_model=GetInvitation
+    )
+    async def get_invitation_email(
+            self,
+            token: str = Query()
+    ):
+        result = await self.manager.get_invitation_email(token)
         return result

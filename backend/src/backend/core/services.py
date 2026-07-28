@@ -1,4 +1,10 @@
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 from urllib.parse import urlparse
+
+from backend.core.settings import settings
+
 
 def is_valid_url(url: str) -> bool:
     """Checks whether a string is a valid HTTP or HTTPS URL.
@@ -14,3 +20,15 @@ def is_valid_url(url: str) -> bool:
         return result.scheme in ("http", "https") and bool(result.netloc)
     except Exception:
         return False
+
+def _send_email_sync(to_email: str, subject: str, html_body: str) -> None:
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = settings.SMTP_FROM_EMAIL
+    msg["To"] = to_email
+    msg.attach(MIMEText(html_body, "html"))
+
+    with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
+        server.starttls()
+        server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+        server.send_message(msg)

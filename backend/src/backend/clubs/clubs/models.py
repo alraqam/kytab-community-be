@@ -10,7 +10,7 @@ class Club(Base, IntIdMixin, TimeActionMixin):
     name = Column(String(256), nullable=False)
     description = Column(String(1024), nullable=True)
     owner_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    club_type = Column(String(20), nullable=False, default="public")
+    club_type = Column(String(20), nullable=False, default="private")
     cover = Column(Text, nullable=True)
     language = Column(String(20), nullable=True)
     is_archived = Column(Boolean, default=False)

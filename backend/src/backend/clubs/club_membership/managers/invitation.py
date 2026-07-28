@@ -2,12 +2,16 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.clubs.club_membership.managers.block import ClubBlockedManager
-from src.backend.clubs.club_membership.exceptions import UnavailableInvitationError, InvitationNotFoundError
+from src.backend.clubs.club_membership.email import create_club_invite_token, send_club_invite_email, \
+    decode_club_invite_token
+from src.backend.clubs.club_membership.managers.block import ClubBlockedManager
+from src.backend.identity.auth.exceptions import InvalidTokenError
+from src.backend.clubs.club_membership.exceptions import UnavailableInvitationError, InvitationNotFoundError, \
+    DuplicateInvitationError
 from src.backend.clubs.club_membership.managers.membership import ClubMembershipManager
 from src.backend.clubs.club_membership.models import ClubInvitation
 from src.backend.clubs.club_membership.repository.invitation import ClubInvitationRepository
-from src.backend.clubs.club_membership.schemas import SendInvitation, InvitationStatus
+from src.backend.clubs.club_membership.schemas import SendInvitation, InvitationStatus, InvitationEmail
 from src.backend.clubs.club_membership.services import is_owner_or_moderator
 from src.backend.clubs.clubs.managers import ClubManager
 from src.backend.identity.auth.models import User
@@ -57,7 +61,11 @@ class ClubInvitationManager:
         invited_user = await self.user_manager.get_user_by_id(request.user_id)
 
         membership = await self.membership_manager.get_user_club_membership(club, invited_user)
-        await self.club_blocked_manager.is_blocked_member(club.id, user.id)
+        await self.club_blocked_manager.is_blocked_member(club.id, invited_user .id)
+
+        existing = await self.invitation_repo.get_pending_invitation(club.id, invited_user.id)
+        if existing:
+            raise DuplicateInvitationError("Invitation already pending")
 
         invitation = await self.invitation_repo.create_invitation(
             club_id=club.id,
@@ -66,6 +74,49 @@ class ClubInvitationManager:
         )
 
         await self.session.commit()
+        return invitation
+
+
+    async def send_invitation_email(
+            self,
+            user: User,
+            request: SendInvitation
+    ) -> ClubInvitation:
+        club = await self.club_manager.get_club_by_id(request.club_id)
+        is_owner_or_moderator(club, user.id)
+
+        invited_user = await self.user_manager.get_user_by_id(request.user_id)
+
+        membership = await self.membership_manager.get_user_club_membership(club, invited_user)
+        await self.club_blocked_manager.is_blocked_member(club.id, invited_user.id)
+
+        existing = await self.invitation_repo.get_pending_invitation(club.id, invited_user.id)
+        if existing:
+            raise DuplicateInvitationError("Invitation already pending")
+
+        invitation = await self.invitation_repo.create_invitation(
+            club_id=club.id,
+            invited_by_id=user.id,
+            invited_user_id=invited_user.id
+        )
+        token = create_club_invite_token(invitation)
+        await send_club_invite_email(user.email, token)
+
+        await self.session.commit()
+        return invitation
+
+    async def get_invitation_email(
+            self,
+            token: str
+    ):
+        invitation_id = await decode_club_invite_token(token)
+        invitation = await self.invitation_repo.get_invitation_by_id(invitation_id)
+        if not invitation:
+            raise InvalidTokenError("Invitation not found")
+
+        if invitation.status != InvitationStatus.pending:
+            raise InvalidTokenError("Invitation is no longer valid")
+
         return invitation
 
     async def accept_invitation(

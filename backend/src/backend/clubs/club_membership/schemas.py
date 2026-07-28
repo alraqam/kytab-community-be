@@ -67,3 +67,6 @@ class GetBlockedMember(BaseModel):
     id: int
     user_id: int
     club_id: int
+
+class InvitationEmail(BaseModel):
+    token: str

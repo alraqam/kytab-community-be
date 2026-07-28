@@ -5,7 +5,7 @@ from src.backend.library.reviews.models import Review
 
 class ReviewFilter(Filter):
     rating: float | None = None
-    rating__gte: float | None = None  # "4 stars and up"
+    rating__gte: float | None = None
     contains_spoiler: bool | None = None
     order_by: list[str] | None = None
     search: str | None = None

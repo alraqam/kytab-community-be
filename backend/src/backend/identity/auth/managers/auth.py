@@ -12,9 +12,8 @@ from src.backend.identity.auth.models import User
 from src.backend.identity.auth.repository import SessionRepository
 from src.backend.identity.auth.schemas import Token, UserRegister, ChangeUserPassword, ResetPassword, UpdateUser
 from src.backend.identity.auth.services.email import create_verification_token, create_password_reset_token, \
-    decode_password_reset_token
-from src.backend.identity.auth.services.security import PasswordService, TokenService, hash_token, \
-    send_verification_email, send_password_reset_email
+    decode_password_reset_token, send_verification_email, send_password_reset_email
+from src.backend.identity.auth.services.security import PasswordService, TokenService, hash_token
 from src.backend.identity.users.managers import UserManager
 from src.backend.identity.users.repository import UserRepository
 

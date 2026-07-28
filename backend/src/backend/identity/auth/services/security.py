@@ -1,9 +1,5 @@
-import asyncio
 import hashlib
-import smtplib
 from datetime import timedelta, datetime
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 
 from jose import jwt, JWTError
 from passlib.hash import argon2
@@ -105,28 +101,6 @@ class PasswordService:
             password,
             hashed_password
         )
-
-def _send_email_sync(to_email: str, subject: str, html_body: str) -> None:
-    msg = MIMEMultipart("alternative")
-    msg["Subject"] = subject
-    msg["From"] = settings.SMTP_FROM_EMAIL
-    msg["To"] = to_email
-    msg.attach(MIMEText(html_body, "html"))
-
-    with smtplib.SMTP(settings.SMTP_HOST, settings.SMTP_PORT) as server:
-        server.starttls()
-        server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-        server.send_message(msg)
-
-async def send_verification_email(to_email: str, token: str) -> None:
-    link = f"{settings.FRONTEND_URL}/verify-email?token={token}"
-    html = f'<p>Click <a href="{link}">here</a> to verify your email. Expires in 24h.</p>'
-    await asyncio.to_thread(_send_email_sync, to_email, "Verify your email", html)
-
-async def send_password_reset_email(to_email: str, token: str) -> None:
-    link = f"{settings.FRONTEND_URL}/password_reset?token={token}"
-    html = f'<p>Click <a href="{link}">here</a> to reset your password. Expires in 10 minutes.</p>'
-    await asyncio.to_thread(_send_email_sync, to_email, "Password reset", html)
 
 def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
