@@ -1,0 +1,110 @@
+from fastapi import APIRouter, Depends
+from fastapi_utils.cbv import cbv
+
+from src.backend.clubs.reading_session.dependencies import get_reading_session_or_404, get_milestone_or_404
+from src.backend.clubs.reading_session.models import ReadingSession, Milestone
+from src.backend.clubs.thread.dependencies import get_thread_manager, get_thread_or_404
+from src.backend.clubs.thread.managers.thread import ThreadManager
+from src.backend.clubs.thread.models import Thread
+from src.backend.clubs.thread.schemas import GetThread, CreateThread, UpdateThread
+from src.backend.clubs.clubs.dependencies import get_club_or_404
+from src.backend.clubs.clubs.models import Club
+from src.backend.identity.auth.dependencies import get_current_user
+from src.backend.identity.auth.models import User
+
+router = APIRouter(
+    prefix="/{milestone}/thread",
+    tags=["threads"]
+)
+
+@cbv(router)
+class ThreadRouter:
+    manager: ThreadManager = Depends(get_thread_manager)
+    user: User = Depends(get_current_user)
+    club: Club = Depends(get_club_or_404)
+    reading_session: ReadingSession = Depends(get_reading_session_or_404)
+    milestone: Milestone = Depends(get_milestone_or_404)
+
+    @router.post(
+        "/",
+        summary="creating milestone thread",
+        response_model=GetThread
+    )
+    async def create_thread(
+            self,
+            request: CreateThread
+    ):
+        result = await self.manager.create_milestone_thread(self.user, self.club, self.reading_session, self.milestone, request)
+        return result
+
+    @router.put(
+        "/{thread_id}",
+        summary="update milestone thread",
+    )
+    async def update_thread(
+            self,
+            request: UpdateThread,
+            thread: Thread = Depends(get_thread_or_404),
+    ):
+        await self.manager.update_thread(self.user, self.club, thread, request)
+
+    @router.put(
+        "/{thread_id}/lock",
+        summary="locking milestone thread",
+    )
+    async def lock_thread(
+            self,
+            thread: Thread = Depends(get_thread_or_404),
+    ):
+        await self.manager.update_thread_lock(self.user, self.club, thread)
+
+    @router.put(
+        "/{thread_id}/unlock",
+        summary="unlocking milestone thread",
+    )
+    async def unlock_thread(
+            self,
+            thread: Thread = Depends(get_thread_or_404),
+    ):
+        await self.manager.update_thread_unlock(self.user, self.club, thread)
+
+    @router.put(
+        "/{thread_id}/pin",
+        summary="pining milestone thread",
+    )
+    async def pin_thread(
+            self,
+            thread: Thread = Depends(get_thread_or_404),
+    ):
+        await self.manager.update_thread_pin(self.user, self.club, thread)
+
+    @router.put(
+        "/{thread_id}/unpin",
+        summary="unpining milestone thread",
+    )
+    async def unpin_thread(
+            self,
+            thread: Thread = Depends(get_thread_or_404),
+    ):
+        await self.manager.update_thread_unpin(self.user, self.club, thread)
+
+    @router.delete(
+        "/{thread_id}",
+        summary="deleting milestone thread",
+    )
+    async def delete_thread(
+            self,
+            thread: Thread = Depends(get_thread_or_404)
+    ):
+        await self.manager.delete_thread(self.user, self.club, thread)
+
+    @router.get(
+        "/",
+        summary="getting club milestone threads",
+        response_model=list[GetThread]
+    )
+    async def get_session_milestone_threads(
+            self,
+    ):
+        result = await self.manager.get_session_milestone_threads(self.reading_session, self.milestone)
+        return result
