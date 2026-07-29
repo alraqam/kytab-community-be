@@ -1,7 +1,7 @@
-from datetime import timezone
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.backend.clubs.reading_session.exceptions import MilestoneValueError
+from src.backend.clubs.reading_session.schemas import MilestoneBoundaryType
 from src.backend.clubs.reading_session.filters import MilestoneFilter
 from src.backend.clubs.club_membership.services import is_owner_or_moderator
 from src.backend.clubs.clubs.managers import ClubManager
@@ -31,12 +31,15 @@ class MilestoneManager:
         club = await self.club_manager.get_club_by_id(reading_session.club_id)
         is_owner_or_moderator(club, user.id)
 
-        if request.target_date <= reading_session.created_at(timezone.utc).date() or request.target_date > reading_session.deadline(timezone.utc).date():
+        if request.target_date <= reading_session.created_at.date() or request.target_date > reading_session.deadline.date():
             raise DateInPastError("Milestone target date can not be before reading session")
 
         exists = await self.milestone_repo.exists_milestone(reading_session.id, request.boundary_type, request.boundary_value)
         if exists:
             raise MilestoneAlreadyExistsError("Milestone already exists")
+
+        if request.boundary_type == MilestoneBoundaryType.percent and request.boundary_value > 100:
+            raise MilestoneValueError("Milestone percent value can not be greater than 100")
 
         response = await self.milestone_repo.create_milestone(
             session_id=reading_session.id,
@@ -59,6 +62,17 @@ class MilestoneManager:
     ) -> None:
         club = await self.club_manager.get_club_by_id(reading_session.club_id)
         is_owner_or_moderator(club, user.id)
+
+        if request.target_date <= reading_session.created_at.date() or request.target_date > reading_session.deadline.date():
+            raise DateInPastError("Milestone target date can not be before reading session")
+
+        if request.boundary_value and request.boundary_type:
+            exists = await self.milestone_repo.exists_milestone(reading_session.id, request.boundary_type, request.boundary_value)
+            if exists:
+                raise MilestoneAlreadyExistsError("Milestone already exists")
+
+        if request.boundary_type == MilestoneBoundaryType.percent and request.boundary_value > 100:
+            raise MilestoneValueError("Milestone percent value can not be greater than 100")
 
         await self.milestone_repo.update_milestone(
             milestone=milestone,
@@ -98,7 +112,7 @@ class MilestoneManager:
     async def get_milestone_by_id(
             self,
             milestone_id: int,
-    ) -> Milestone | None:
+    ) -> Milestone:
         milestone = await self.milestone_repo.get_milestone_by_id(
             milestone_id=milestone_id,
         )

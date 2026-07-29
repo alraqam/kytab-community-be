@@ -8,7 +8,6 @@ from src.backend.clubs.reading_session.schemas import MilestoneBoundaryType
 
 class MilestoneFilter(Filter):
     boundary_type: MilestoneBoundaryType | None = None
-    target_date_gte: date | None = None
     order_by: list[str] | None = None
 
     class Constants(Filter.Constants):

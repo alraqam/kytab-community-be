@@ -39,7 +39,7 @@ class MilestoneRouter:
         return result
 
     @router.put(
-        "/",
+        "/{milestone_id}",
         summary="update milestone",
     )
     async def update_milestone(
@@ -50,7 +50,7 @@ class MilestoneRouter:
         await self.manager.update_milestone(self.user, self.session, milestone, request)
 
     @router.delete(
-        "/",
+        "/{milestone_id}",
         summary="deleting milestone",
     )
     async def delete_milestone(
@@ -60,7 +60,7 @@ class MilestoneRouter:
         await self.manager.delete_milestone(self.user, self.session, milestone)
 
     @router.get(
-        "/active",
+        "/",
         summary="getting session milestones",
         response_model=list[GetMilestone]
     )
@@ -74,7 +74,7 @@ class MilestoneRouter:
     @router.get(
         "/{milestone_id}",
         summary="getting milestone by id",
-        response_model=list[GetMilestone]
+        response_model=GetMilestone
     )
     async def get_milestone_by_id(
             self,

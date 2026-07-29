@@ -17,7 +17,7 @@ class MilestoneRepository:
             session_id: int,
             label: str,
             boundary_type: str,
-            boundary_value: str,
+            boundary_value: int,
             target_date: date,
             order_index: int,
     ) -> Milestone:
@@ -36,11 +36,11 @@ class MilestoneRepository:
     async def update_milestone(
             self,
             milestone: Milestone,
-            label: str,
-            boundary_type: str,
-            boundary_value: str,
-            target_date: date,
-            order_index: int,
+            label: str | None = None,
+            boundary_type: str | None = None,
+            boundary_value: int | None = None,
+            target_date: date | None = None,
+            order_index: int | None = None,
     ) -> None:
         updates = {
             "label": label,
@@ -65,7 +65,7 @@ class MilestoneRepository:
             self,
             session_id: int,
             boundary_type: str,
-            boundary_value: str,
+            boundary_value: int,
     ) -> list[Milestone]:
         stmt = (select(Milestone).where(
             and_(

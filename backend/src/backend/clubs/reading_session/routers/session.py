@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
+from src.backend.clubs.reading_session.dependencies import get_milestone_progress_manager
+from src.backend.clubs.reading_session.managers.progress import MilestoneProgressManager
 from src.backend.clubs.clubs.dependencies import get_club_or_404
 from src.backend.clubs.clubs.models import Club
 from src.backend.clubs.reading_session.dependencies import get_reading_session_manager, get_reading_session_or_404
 from src.backend.clubs.reading_session.managers.session import ReadingSessionManager
 from src.backend.clubs.reading_session.models import ReadingSession
-from src.backend.clubs.reading_session.schemas import GetReadingSession, CreateReadingSession
+from src.backend.clubs.reading_session.schemas import GetReadingSession, CreateReadingSession, GetMilestoneProgress
 from src.backend.identity.auth.dependencies import get_current_user
 from src.backend.identity.auth.models import User
 
@@ -20,6 +22,7 @@ class ReadingSessionRouter:
     """CBV router for club reading session endpoints."""
 
     manager: ReadingSessionManager = Depends(get_reading_session_manager)
+    progress_manager: MilestoneProgressManager = Depends(get_milestone_progress_manager)
     user: User = Depends(get_current_user)
     club: Club = Depends(get_club_or_404)
 
@@ -41,7 +44,7 @@ class ReadingSessionRouter:
         return result
 
     @router.put(
-        "/",
+        "/{session_id}",
         summary="completing active reading session",
     )
     async def complete_session(
@@ -56,7 +59,7 @@ class ReadingSessionRouter:
         await self.manager.complete_session(self.user, self.club, reading_session)
 
     @router.delete(
-        "/",
+        "/{session_id}",
         summary="deleting reading session",
     )
     async def delete_session(
@@ -88,4 +91,29 @@ class ReadingSessionRouter:
     async def get_club_sessions(self):
         """Returns all reading sessions for the club."""
         result = await self.manager.get_club_sessions(self.club)
+        return result
+
+    @router.get(
+        "/{session_id}/progress",
+        summary="getting session milestone progresses",
+        response_model=list[GetMilestoneProgress]
+    )
+    async def get_session_milestone_progress(
+            self,
+            reading_session: ReadingSession = Depends(get_reading_session_or_404)
+    ):
+        """Returns all reading sessions for the club."""
+        result = await self.progress_manager.get_session_milestone_progress(reading_session, self.user, self.club)
+        return result
+
+    @router.get(
+        "/{session_id}",
+        summary="getting users milestone progress",
+        response_model=GetMilestoneProgress
+    )
+    async def get_user_milestone_progress(
+            self,
+            reading_session: ReadingSession = Depends(get_reading_session_or_404)
+    ):
+        result = await self.progress_manager.get_user_milestone_progress(reading_session, self.user)
         return result

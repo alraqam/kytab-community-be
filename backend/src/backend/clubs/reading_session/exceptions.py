@@ -1,4 +1,4 @@
-from src.backend.core.exceptions import Conflict, NotFound
+from src.backend.core.exceptions import Conflict, NotFound, Forbidden
 
 
 class DateInPastError(Conflict):
@@ -22,4 +22,16 @@ class MilestoneAlreadyExistsError(Conflict):
     pass
 
 class MilestoneNotFoundError(NotFound):
+    pass
+
+class MilestoneValueError(Conflict):
+    pass
+
+class IsNotProgressOwner(Forbidden):
+    pass
+
+class MilestoneProgressNotFound(NotFound):
+    pass
+
+class MilestoneProgressAlreadyExists(Conflict):
     pass
