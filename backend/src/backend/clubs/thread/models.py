@@ -14,3 +14,17 @@ class Thread(Base, IntIdMixin, TimeActionMixin):
     created_by_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     is_locked = Column(Boolean, default=False)
     is_pinned = Column(Boolean, default=False)
+
+
+class Post(Base, IntIdMixin, TimeActionMixin):
+    __tablename__ = "posts"
+
+    thread_id = Column(BigInteger, ForeignKey("threads.id", ondelete="CASCADE"), nullable=False)
+    parent_post_id = Column(BigInteger, ForeignKey("posts.id", ondelete="SET NULL"), nullable=True)
+    author_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    title = Column(String(100), nullable=False)
+    body = Column(String(512), nullable=False)
+    is_spoiler = Column(Boolean, default=False)
+    edited_at = Column(DateTime, nullable=True)
+    deleted_at = Column(DateTime, nullable=True)
+

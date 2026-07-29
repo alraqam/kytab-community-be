@@ -1,4 +1,4 @@
-from src.backend.core.exceptions import Conflict, NotFound
+from src.backend.core.exceptions import Conflict, NotFound, Forbidden
 
 
 class LockedThreadError(Conflict):
@@ -8,4 +8,10 @@ class PinnedThreadError(Conflict):
     pass
 
 class ThreadNotFoundError(NotFound):
+    pass
+
+class IsNotPostOwnerError(Forbidden):
+    pass
+
+class PostNotFoundError(NotFound):
     pass

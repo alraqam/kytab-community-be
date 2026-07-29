@@ -46,6 +46,8 @@ from src.backend.clubs.reading_session.routers.milestone import router as milest
 from src.backend.clubs.reading_session.routers.progress import router as milestone_progress_router
 from src.backend.clubs.thread.routers.thread_general import router as thread_general_router
 from src.backend.clubs.thread.routers.thread_session import router as thread_session_router
+from src.backend.clubs.thread.routers.posts_general import router as post_general_router
+from src.backend.clubs.thread.routers.posts_session import router as post_session_router
 
 
 app = FastAPI(
@@ -53,8 +55,10 @@ app = FastAPI(
     redirect_slashes=False,
 )
 
+thread_general_router.include_router(post_general_router)
 clubs_public_router.include_router(thread_general_router)
 clubs_public_router.include_router(club_block_router)
+thread_session_router.include_router(post_session_router)
 milestone_router.include_router(thread_session_router)
 milestone_router.include_router(milestone_progress_router)
 reading_sessions_router.include_router(milestone_router)

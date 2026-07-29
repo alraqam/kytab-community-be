@@ -20,3 +20,26 @@ class GetThread(BaseModel):
     is_pinned: bool
     created_at: datetime
     updated_at: datetime
+
+class CreatePost(BaseModel):
+    parent_post_id: int | None = None
+    title: str
+    body: str
+    is_spoiler: bool
+
+class UpdatePost(BaseModel):
+    title: str | None = None
+    body: str | None = None
+    is_spoiler: bool | None = None
+
+class GetPost(BaseModel):
+    id: int
+    thread_id: int
+    parent_post_id: int | None = None
+    author_id: int
+    title: str
+    body: str
+    is_spoiler: bool
+    edited_at: datetime | None = None
+    deleted_at: datetime | None = None
+    created_at: datetime
