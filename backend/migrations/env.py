@@ -34,6 +34,7 @@ from src.backend.clubs.clubs.models import Club, ClubGenre
 from src.backend.clubs.club_membership.models import ClubMembership
 from src.backend.clubs.reading_session.models import ReadingSession
 from src.backend.clubs.thread.models import Thread
+from src.backend.clubs.voting.models import VotingPoll, PollVote, PollCandidate
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

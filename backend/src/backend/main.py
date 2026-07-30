@@ -53,6 +53,10 @@ from src.backend.clubs.thread.routers.posts_general import router as post_genera
 from src.backend.clubs.thread.routers.posts_session import router as post_session_router
 from src.backend.clubs.thread.routers.reaction_session import router as reaction_session_router
 from src.backend.clubs.thread.routers.reaction_general import router as reaction_general_router
+from src.backend.clubs.voting.routers.voting_poll import router as voting_poll_router
+from src.backend.clubs.voting.routers.poll_candidate import router as poll_candidate_router
+from src.backend.clubs.voting.routers.vote_poll import router as vote_poll_router
+
 
 
 app = FastAPI(
@@ -77,6 +81,9 @@ review_router.include_router(review_like_router)
 work_router.include_router(review_router)
 clubs_public_router.include_router(membership_router)
 clubs_public_router.include_router(club_block_router)
+voting_poll_router.include_router(poll_candidate_router)
+voting_poll_router.include_router(vote_poll_router)
+clubs_public_router.include_router(voting_poll_router)
 
 app.include_router(auth_router)
 app.include_router(session_router)
