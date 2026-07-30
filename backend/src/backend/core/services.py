@@ -3,7 +3,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from urllib.parse import urlparse
 
-from backend.core.settings import settings
+from src.backend.core.settings import settings
 
 
 def is_valid_url(url: str) -> bool:

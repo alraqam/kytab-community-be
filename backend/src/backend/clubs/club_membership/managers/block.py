@@ -1,10 +1,10 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.clubs.club_membership.exceptions import ClubModeratorError, MemberBlockedError
-from backend.clubs.club_membership.repository.membership import ClubMembershipRepository
-from backend.identity.users.managers import UserManager
-from backend.identity.users.repository import UserRepository
+from src.backend.clubs.club_membership.exceptions import ClubModeratorError, MemberBlockedError
+from src.backend.clubs.club_membership.repository.membership import ClubMembershipRepository
+from src.backend.identity.users.managers import UserManager
+from src.backend.identity.users.repository import UserRepository
 from src.backend.clubs.club_membership.exceptions import MemberAlreadyBlockedError, ClubBlockNotFoundError, \
     ClubOwnerError
 from src.backend.clubs.club_membership.models import ClubBlocked

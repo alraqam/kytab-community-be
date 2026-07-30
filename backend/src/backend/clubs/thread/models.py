@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BigInteger, ForeignKey, String, Date, DateTime, Integer, Boolean, UniqueConstraint
+from sqlalchemy import Column, BigInteger, ForeignKey, String, DateTime, Boolean, UniqueConstraint
 
 from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
 
@@ -27,4 +27,15 @@ class Post(Base, IntIdMixin, TimeActionMixin):
     is_spoiler = Column(Boolean, default=False)
     edited_at = Column(DateTime, nullable=True)
     deleted_at = Column(DateTime, nullable=True)
+
+class PostReaction(Base, IntIdMixin, TimeActionMixin):
+    __tablename__ = "post_reactions"
+
+    post_id = Column(BigInteger, ForeignKey("posts.id", ondelete="CASCADE"), nullable=True)
+    user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    emoji = Column(String(30), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("user_id",  "post_id", "emoji", name="uq_user_post_emoji"),
+    )
 

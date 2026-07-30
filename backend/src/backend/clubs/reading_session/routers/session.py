@@ -108,7 +108,7 @@ class ReadingSessionRouter:
 
     @router.get(
         "/{session_id}",
-        summary="getting users milestone progress",
+        summary="getting current users milestone progress",
         response_model=GetMilestoneProgress
     )
     async def get_user_milestone_progress(

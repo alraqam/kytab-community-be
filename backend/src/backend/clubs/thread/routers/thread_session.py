@@ -18,7 +18,7 @@ router = APIRouter(
 )
 
 @cbv(router)
-class ThreadRouter:
+class ThreadSessionRouter:
     manager: ThreadManager = Depends(get_thread_manager)
     user: User = Depends(get_current_user)
     club: Club = Depends(get_club_or_404)
@@ -100,11 +100,22 @@ class ThreadRouter:
 
     @router.get(
         "/",
-        summary="getting club milestone threads",
+        summary="getting club milestone threads by user milestone reached",
         response_model=list[GetThread]
     )
     async def get_session_milestone_threads(
             self,
     ):
-        result = await self.manager.get_session_milestone_threads(self.reading_session, self.milestone)
+        result = await self.manager.get_session_milestone_threads(self.user, self.reading_session, self.milestone)
+        return result
+
+    @router.get(
+        "/all",
+        summary="getting all club milestone threads",
+        response_model=list[GetThread]
+    )
+    async def get_all_session_milestone_threads(
+            self,
+    ):
+        result = await self.manager.get_all_session_milestone_threads(self.reading_session, self.milestone)
         return result

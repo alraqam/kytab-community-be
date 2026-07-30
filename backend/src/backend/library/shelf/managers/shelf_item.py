@@ -1,11 +1,11 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.catalog.books.exceptions import InvalidWorkEditionError
-from backend.catalog.books.managers.edition import EditionManager
-from backend.catalog.books.managers.work import WorkManager
-from backend.identity.follow.managers import FollowManager
-from backend.library.shelf.managers.shelf import ShelfManager
+from src.backend.catalog.books.exceptions import InvalidWorkEditionError
+from src.backend.catalog.books.managers.edition import EditionManager
+from src.backend.catalog.books.managers.work import WorkManager
+from src.backend.identity.follow.managers import FollowManager
+from src.backend.library.shelf.managers.shelf import ShelfManager
 from src.backend.library.shelf.exceptions import IsNotShelfOwnerError, ShelfNotFoundError, WorkAlreadyInShelfError
 from src.backend.identity.auth.models import User
 from src.backend.library.shelf.permissions import is_shelf_owner

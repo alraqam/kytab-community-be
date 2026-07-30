@@ -43,7 +43,6 @@ class MilestoneProgressRouter:
             self,
             progress: MilestoneProgress = Depends(get_milestone_progress_or_404),
     ):
-        print(f"ROUTERRRRRRRR {self.milestone.id}")
         await self.manager.update_milestone_progress(progress, self.user, self.session, self.milestone)
 
     @router.put(

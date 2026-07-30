@@ -15,3 +15,15 @@ class IsNotPostOwnerError(Forbidden):
 
 class PostNotFoundError(NotFound):
     pass
+
+class IsNotPostReactionOwnerError(Forbidden):
+    pass
+
+class ReactionNotFoundError(NotFound):
+    pass
+
+class PostReactionAlreadyExists(Conflict):
+    pass
+
+class MilestoneNotReachedError(Forbidden):
+    pass

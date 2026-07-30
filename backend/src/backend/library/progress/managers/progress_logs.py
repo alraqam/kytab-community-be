@@ -2,7 +2,7 @@ from datetime import date
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.library.shelf.managers.shelf import ShelfManager
+from src.backend.library.shelf.managers.shelf import ShelfManager
 from src.backend.library.shelf.models import Shelf
 from src.backend.library.progress.exceptions import ActiveReadingPeriodError
 from src.backend.library.progress.managers.reading_period import ReadingPeriodManager

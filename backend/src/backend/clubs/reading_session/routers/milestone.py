@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi_filter import FilterDepends
 from fastapi_utils.cbv import cbv
 
-from backend.clubs.reading_session.dependencies import get_reading_session_or_404
+from src.backend.clubs.reading_session.dependencies import get_reading_session_or_404
 from src.backend.clubs.reading_session.filters import MilestoneFilter
 from src.backend.clubs.reading_session.dependencies import get_milestone_manager, get_milestone_or_404
 from src.backend.clubs.reading_session.managers.milestone import MilestoneManager

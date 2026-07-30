@@ -16,7 +16,7 @@ router = APIRouter(
 )
 
 @cbv(router)
-class PostRouter:
+class PostGeneralRouter:
     manager: PostManager = Depends(get_post_manager)
     user: User = Depends(get_current_user)
     club: Club = Depends(get_club_or_404)
@@ -60,8 +60,8 @@ class PostRouter:
         summary="getting general posts",
         response_model=list[GetPost]
     )
-    async def get_posts(
+    async def get_all_posts(
             self,
     ):
-        result = await self.manager.get_posts(self.thread)
+        result = await self.manager.get_all_posts(self.thread)
         return result

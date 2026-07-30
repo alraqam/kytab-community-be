@@ -12,6 +12,7 @@ from src.backend.identity.users.routers import router as user_router
 from src.backend.identity.profile.routers import router as profile_router
 from src.backend.identity.blocked_users.routers import router as blocked_users_router
 from src.backend.identity.follow.routers import router as follow_router
+
 from src.backend.catalog.books.routers.books import router as books_router
 from src.backend.catalog.books.routers.work import router as work_router
 from src.backend.catalog.books.routers.author import router as author_router
@@ -25,6 +26,7 @@ from src.backend.catalog.librarian.routers.edition import router as librarian_ed
 from src.backend.catalog.librarian.routers.genre import router as librarian_genre_router
 from src.backend.catalog.librarian.routers.series import router as librarian_series_router
 from src.backend.catalog.librarian.routers.work import router as librarian_work_router
+
 from src.backend.library.reading_goals.routers import router as reading_goals_router
 from src.backend.library.shelf.routers.shelf import router as shelf_router
 from src.backend.library.shelf.routers.shelf_item import router as shelf_item_router
@@ -34,6 +36,7 @@ from src.backend.library.reviews.routers.like import router as review_like_route
 from src.backend.library.progress.routers.reading_period import router as reading_period_router
 from src.backend.library.progress.routers.progress_logs import router as progress_logs_router
 from src.backend.library.progress.routers.users_progress import router as user_progress_router
+
 from src.backend.clubs.clubs.routers.public import router as clubs_public_router
 from src.backend.clubs.clubs.routers.admin import router as clubs_admin_router
 from src.backend.clubs.club_membership.routers.membership import router as membership_router
@@ -48,6 +51,8 @@ from src.backend.clubs.thread.routers.thread_general import router as thread_gen
 from src.backend.clubs.thread.routers.thread_session import router as thread_session_router
 from src.backend.clubs.thread.routers.posts_general import router as post_general_router
 from src.backend.clubs.thread.routers.posts_session import router as post_session_router
+from src.backend.clubs.thread.routers.reaction_session import router as reaction_session_router
+from src.backend.clubs.thread.routers.reaction_general import router as reaction_general_router
 
 
 app = FastAPI(
@@ -55,9 +60,10 @@ app = FastAPI(
     redirect_slashes=False,
 )
 
+post_general_router.include_router(reaction_general_router)
 thread_general_router.include_router(post_general_router)
 clubs_public_router.include_router(thread_general_router)
-clubs_public_router.include_router(club_block_router)
+post_session_router.include_router(reaction_session_router)
 thread_session_router.include_router(post_session_router)
 milestone_router.include_router(thread_session_router)
 milestone_router.include_router(milestone_progress_router)
@@ -70,6 +76,7 @@ review_router.include_router(review_comments_router)
 review_router.include_router(review_like_router)
 work_router.include_router(review_router)
 clubs_public_router.include_router(membership_router)
+clubs_public_router.include_router(club_block_router)
 
 app.include_router(auth_router)
 app.include_router(session_router)

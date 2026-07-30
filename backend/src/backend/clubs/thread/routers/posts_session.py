@@ -6,7 +6,7 @@ from src.backend.clubs.reading_session.models import ReadingSession, Milestone
 from src.backend.clubs.thread.dependencies import get_post_manager, get_thread_or_404, get_post_or_404
 from src.backend.clubs.thread.managers.posts import PostManager
 from src.backend.clubs.thread.models import Thread, Post
-from src.backend.clubs.thread.schemas import GetPost, CreatePost, UpdatePost
+from src.backend.clubs.thread.schemas import GetPost, CreatePost, UpdatePost, GetPostPartial
 from src.backend.clubs.clubs.dependencies import get_club_or_404
 from src.backend.clubs.clubs.models import Club
 from src.backend.identity.auth.dependencies import get_current_user
@@ -18,7 +18,7 @@ router = APIRouter(
 )
 
 @cbv(router)
-class PostRouter:
+class PostSessionRouter:
     manager: PostManager = Depends(get_post_manager)
     user: User = Depends(get_current_user)
     club: Club = Depends(get_club_or_404)
@@ -60,12 +60,24 @@ class PostRouter:
         await self.manager.delete_post(self.user, self.thread, post)
 
     @router.get(
-        "/",
-        summary="getting session posts",
+        "/all",
+        summary="getting session all posts",
         response_model=list[GetPost]
+    )
+    async def get_all_posts(
+            self,
+    ):
+        result = await self.manager.get_all_posts(self.thread)
+        return result
+
+    @router.get(
+        "/",
+        summary="getting session posts by user milestone reached",
+        response_model=list[GetPost] | list[GetPostPartial]
     )
     async def get_posts(
             self,
     ):
-        result = await self.manager.get_posts(self.thread)
+        result = await self.manager.get_posts(self.thread, self.reading_session, self.milestone, self.user)
         return result
+

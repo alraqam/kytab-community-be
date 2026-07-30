@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.clubs.club_membership.exceptions import ClubOwnerError, PrivateClubError
-from backend.clubs.club_membership.managers.block import ClubBlockedManager
-from backend.clubs.clubs.schemas import ClubTypes
+from src.backend.clubs.club_membership.exceptions import ClubOwnerError, PrivateClubError
+from src.backend.clubs.club_membership.managers.block import ClubBlockedManager
+from src.backend.clubs.clubs.schemas import ClubTypes
 from src.backend.clubs.clubs.schemas import ManageClubModerators
 from src.backend.clubs.club_membership.exceptions import AlreadyClubMemberError, NotClubMemberError, ClubModeratorError
 from src.backend.clubs.club_membership.filters import ClubMembersFilter

@@ -1,0 +1,58 @@
+from fastapi import APIRouter, Depends
+from fastapi_utils.cbv import cbv
+
+from src.backend.clubs.thread.dependencies import get_post_reaction_manager, get_post_or_404, get_thread_or_404, \
+    get_post_reaction_or_404
+from src.backend.clubs.thread.managers.reaction import PostReactionManager
+from src.backend.clubs.thread.models import Thread, Post, PostReaction
+from src.backend.clubs.thread.schemas import GetPostReaction, CreatePostReaction
+from src.backend.clubs.clubs.dependencies import get_club_or_404
+from src.backend.clubs.clubs.models import Club
+from src.backend.identity.auth.dependencies import get_current_user
+from src.backend.identity.auth.models import User
+
+router = APIRouter(
+    prefix="/{post_id}/reaction",
+    tags=["reactions"]
+)
+
+@cbv(router)
+class PostReactionGeneralRouter:
+    manager: PostReactionManager = Depends(get_post_reaction_manager)
+    user: User = Depends(get_current_user)
+    club: Club = Depends(get_club_or_404)
+    thread: Thread = Depends(get_thread_or_404)
+    post: Post = Depends(get_post_or_404)
+
+    @router.post(
+        "/",
+        summary="creating general thread reaction",
+        response_model=GetPostReaction
+    )
+    async def create_reaction(
+            self,
+            request: CreatePostReaction
+    ):
+        result = await self.manager.create_reaction(self.user, self.club, self.post, request)
+        return result
+
+    @router.delete(
+        "/{reaction_id}",
+        summary="deleting general reaction",
+    )
+    async def delete_reaction(
+            self,
+            reaction: PostReaction = Depends(get_post_reaction_or_404)
+    ):
+        await self.manager.delete_reaction(self.user, reaction)
+
+    @router.get(
+        "/",
+        summary="getting general reactions",
+        response_model=list[GetPostReaction]
+    )
+    async def get_post_reactions(
+            self,
+    ):
+        result = await self.manager.get_post_reactions(self.post)
+        return result

@@ -16,7 +16,7 @@ router = APIRouter(
 )
 
 @cbv(router)
-class ThreadRouter:
+class ThreadGeneralRouter:
     manager: ThreadManager = Depends(get_thread_manager)
     user: User = Depends(get_current_user)
     club: Club = Depends(get_club_or_404)

@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.clubs.club_membership.managers.block import ClubBlockedManager
+from src.backend.clubs.club_membership.managers.block import ClubBlockedManager
 from src.backend.clubs.club_membership.exceptions import UnavailableRequestError, JoinRequestNotFound
 from src.backend.clubs.club_membership.models import ClubJoinRequest
 from src.backend.clubs.club_membership.repository.requests import ClubJoinRequestRepository

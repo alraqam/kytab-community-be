@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Query
 from fastapi_utils.cbv import cbv
 
-from backend.clubs.club_membership.schemas import InvitationEmail
+from src.backend.clubs.club_membership.schemas import InvitationEmail
 from src.backend.clubs.club_membership.dependencies import get_invitation_manager, get_invitation_or_404
 from src.backend.clubs.club_membership.managers.invitation import ClubInvitationManager
 from src.backend.clubs.club_membership.models import ClubInvitation

@@ -1,10 +1,13 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.backend.clubs.reading_session.managers.milestone import MilestoneManager
+from src.backend.clubs.reading_session.managers.progress import MilestoneProgressManager
 from src.backend.clubs.club_membership.services import is_owner_or_moderator
 from src.backend.clubs.clubs.managers import ClubManager
 from src.backend.clubs.clubs.models import Club
 from src.backend.clubs.reading_session.models import ReadingSession, Milestone
-from src.backend.clubs.thread.exceptions import LockedThreadError, PinnedThreadError, ThreadNotFoundError
+from src.backend.clubs.thread.exceptions import LockedThreadError, PinnedThreadError, ThreadNotFoundError, \
+    MilestoneNotReachedError
 from src.backend.clubs.thread.models import Thread
 from src.backend.clubs.thread.repository.thread import ThreadRepository
 from src.backend.clubs.thread.schemas import CreateThread, UpdateThread
@@ -19,6 +22,8 @@ class ThreadManager:
         self.session = session
         self.thread_repo = ThreadRepository(session)
         self.club_manager = ClubManager(session)
+        self.milestone_progress_manager = MilestoneProgressManager(session)
+        self.milestone_manager = MilestoneManager(session)
 
     async def create_milestone_thread(
             self,
@@ -159,7 +164,16 @@ class ThreadManager:
         )
         await self.session.commit()
 
-    async def get_session_milestone_threads(
+    async def get_club_general_threads(
+            self,
+            club: Club
+    ) -> list[Thread]:
+        threads = await self.thread_repo.get_club_general_threads(
+            club_id=club.id,
+        )
+        return threads
+
+    async def get_all_session_milestone_threads(
             self,
             reading_session: ReadingSession,
             milestone: Milestone,
@@ -170,13 +184,28 @@ class ThreadManager:
         )
         return threads
 
-    async def get_club_general_threads(
+    async def get_session_milestone_threads(
             self,
-            club: Club
+            user: User,
+            reading_session: ReadingSession,
+            milestone: Milestone,
     ) -> list[Thread]:
-        threads = await self.thread_repo.get_club_general_threads(
-            club_id=club.id,
+        threads = await self.thread_repo.get_session_milestone_threads(
+            session_id=reading_session.id,
+            milestone_id=milestone.id,
         )
+
+        progress = await self.milestone_progress_manager.get_user_milestone_progress(reading_session, user)
+        if not progress:
+            raise MilestoneNotReachedError("Milestone for this thread not reached")
+
+        if progress.is_finished:
+            return threads
+
+        index_reached = await self.milestone_manager.get_milestone_by_id(milestone_id=progress.milestone_id)
+        if milestone.order_index > index_reached.order_index:
+            raise MilestoneNotReachedError("Milestone for this thread not reached")
+
         return threads
 
     async def get_thread_by_id(
