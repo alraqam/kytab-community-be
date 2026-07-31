@@ -1,6 +1,9 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.backend.clubs.clubs.dependencies import get_club_or_404
+from src.backend.clubs.clubs.models import Club
+from src.backend.clubs.voting.exceptions import PollNotInClubError
 from src.backend.clubs.voting.managers.poll_candidate import PollCandidateManager
 from src.backend.clubs.voting.managers.vote_poll import VotePollManager
 from src.backend.clubs.voting.managers.voting_poll import VotingPollManager
@@ -23,6 +26,7 @@ async def get_voting_poll_manager(
 
 async def get_voting_poll_or_404(
         poll_id: int,
+        club: Club = Depends(get_club_or_404),
         manager: VotingPollManager = Depends(get_voting_poll_manager)
 ) -> VotingPoll:
     """FastAPI dependency that fetches a voting poll by ID or raises if not found.
@@ -37,7 +41,10 @@ async def get_voting_poll_or_404(
     Raises:
         PollNotFoundError: When no poll with the given ID exists.
     """
-    return await manager.get_poll_by_id(poll_id)
+    poll = await manager.get_poll_by_id(poll_id)
+    if poll.club_id == club.id:
+        raise PollNotInClubError("Poll not found in club")
+    return poll
 
 async def get_poll_candidate_manager(
         session: AsyncSession = Depends(get_db)

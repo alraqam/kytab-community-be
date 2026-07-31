@@ -7,7 +7,7 @@ class Thread(Base, IntIdMixin, TimeActionMixin):
     __tablename__ = "threads"
 
     club_id = Column(BigInteger, ForeignKey("clubs.id", ondelete="CASCADE"), nullable=False)
-    session_id = Column(BigInteger, ForeignKey("sessions.id", ondelete="CASCADE"), nullable=True)
+    session_id = Column(BigInteger, ForeignKey("reading_sessions.id", ondelete="CASCADE"), nullable=True)
     milestone_id = Column(BigInteger, ForeignKey("milestones.id", ondelete="CASCADE"), nullable=True)
     is_general = Column(Boolean, default=False)
     title = Column(String(100), nullable=False)

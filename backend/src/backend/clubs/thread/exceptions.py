@@ -27,3 +27,15 @@ class PostReactionAlreadyExists(Conflict):
 
 class MilestoneNotReachedError(Forbidden):
     pass
+
+class ThreadNotInClubError(NotFound):
+    pass
+
+class ThreadNotInMilestoneError(NotFound):
+    pass
+
+class PostNotInThreadError(NotFound):
+    pass
+
+class ReactionNotInPostError(NotFound):
+    pass

@@ -3,7 +3,7 @@ from fastapi_utils.cbv import cbv
 
 from src.backend.clubs.reading_session.dependencies import get_reading_session_or_404, get_milestone_or_404
 from src.backend.clubs.reading_session.models import ReadingSession, Milestone
-from src.backend.clubs.thread.dependencies import get_thread_manager, get_thread_or_404
+from src.backend.clubs.thread.dependencies import get_thread_manager, get_thread_session_or_404
 from src.backend.clubs.thread.managers.thread import ThreadManager
 from src.backend.clubs.thread.models import Thread
 from src.backend.clubs.thread.schemas import GetThread, CreateThread, UpdateThread
@@ -44,7 +44,7 @@ class ThreadSessionRouter:
     async def update_thread(
             self,
             request: UpdateThread,
-            thread: Thread = Depends(get_thread_or_404),
+            thread: Thread = Depends(get_thread_session_or_404),
     ):
         await self.manager.update_thread(self.user, self.club, thread, request)
 
@@ -54,7 +54,7 @@ class ThreadSessionRouter:
     )
     async def lock_thread(
             self,
-            thread: Thread = Depends(get_thread_or_404),
+            thread: Thread = Depends(get_thread_session_or_404),
     ):
         await self.manager.update_thread_lock(self.user, self.club, thread)
 
@@ -64,7 +64,7 @@ class ThreadSessionRouter:
     )
     async def unlock_thread(
             self,
-            thread: Thread = Depends(get_thread_or_404),
+            thread: Thread = Depends(get_thread_session_or_404),
     ):
         await self.manager.update_thread_unlock(self.user, self.club, thread)
 
@@ -74,7 +74,7 @@ class ThreadSessionRouter:
     )
     async def pin_thread(
             self,
-            thread: Thread = Depends(get_thread_or_404),
+            thread: Thread = Depends(get_thread_session_or_404),
     ):
         await self.manager.update_thread_pin(self.user, self.club, thread)
 
@@ -84,7 +84,7 @@ class ThreadSessionRouter:
     )
     async def unpin_thread(
             self,
-            thread: Thread = Depends(get_thread_or_404),
+            thread: Thread = Depends(get_thread_session_or_404),
     ):
         await self.manager.update_thread_unpin(self.user, self.club, thread)
 
@@ -94,7 +94,7 @@ class ThreadSessionRouter:
     )
     async def delete_thread(
             self,
-            thread: Thread = Depends(get_thread_or_404)
+            thread: Thread = Depends(get_thread_session_or_404)
     ):
         await self.manager.delete_thread(self.user, self.club, thread)
 
@@ -110,12 +110,12 @@ class ThreadSessionRouter:
         return result
 
     @router.get(
-        "/all",
-        summary="getting all club milestone threads",
-        response_model=list[GetThread]
+        "/{thead_id}/reveal",
+        summary="getting and revealing thread by id",
+        response_model=GetThread
     )
-    async def get_all_session_milestone_threads(
+    async def get_session_milestone_threads(
             self,
+            thread: Thread = Depends(get_thread_session_or_404),
     ):
-        result = await self.manager.get_all_session_milestone_threads(self.reading_session, self.milestone)
-        return result
+        return thread

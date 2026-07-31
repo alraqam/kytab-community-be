@@ -107,7 +107,7 @@ class ReadingSessionManager:
     async def get_session_by_id(
             self,
             session_id: int,
-    ) -> ReadingSession | None:
+    ) -> ReadingSession:
         sessions = await self.session_repo.get_session_by_id(
             session_id=session_id,
         )

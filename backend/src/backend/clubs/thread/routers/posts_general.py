@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
-from src.backend.clubs.thread.dependencies import get_post_manager, get_thread_or_404, get_post_or_404
+from src.backend.clubs.thread.dependencies import get_post_manager, get_thread_general_or_404, get_post_general_or_404
 from src.backend.clubs.thread.managers.posts import PostManager
 from src.backend.clubs.thread.models import Thread, Post
 from src.backend.clubs.thread.schemas import GetPost, CreatePost, UpdatePost
@@ -20,7 +20,7 @@ class PostGeneralRouter:
     manager: PostManager = Depends(get_post_manager)
     user: User = Depends(get_current_user)
     club: Club = Depends(get_club_or_404)
-    thread: Thread = Depends(get_thread_or_404)
+    thread: Thread = Depends(get_thread_general_or_404)
 
     @router.post(
         "/",
@@ -41,7 +41,7 @@ class PostGeneralRouter:
     async def update_post(
             self,
             request: UpdatePost,
-            post: Post = Depends(get_post_or_404),
+            post: Post = Depends(get_post_general_or_404),
     ):
         await self.manager.update_post(self.user, self.thread, post, request)
 
@@ -51,7 +51,7 @@ class PostGeneralRouter:
     )
     async def delete_post(
             self,
-            post: Post = Depends(get_post_or_404)
+            post: Post = Depends(get_post_general_or_404)
     ):
         await self.manager.delete_post(self.user, self.thread, post)
 

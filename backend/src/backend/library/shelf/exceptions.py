@@ -21,3 +21,6 @@ class ShelfItemNotFoundError(NotFound):
 
 class WorkAlreadyInShelfError(Conflict):
     pass
+
+class ShelfItemNotInShelfError(NotFound):
+    pass

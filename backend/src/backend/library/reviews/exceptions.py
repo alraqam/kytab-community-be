@@ -30,3 +30,11 @@ class ReviewLikeAlreadyExists(Conflict):
 class EmptyReviewError(BadRequest):
     pass
 
+class ReviewNotInWorkError(NotFound):
+    pass
+
+class CommentNotInReviewError(NotFound):
+    pass
+
+class LikeNotInReviewError(NotFound):
+    pass

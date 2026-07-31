@@ -35,3 +35,6 @@ class UserVoteExistsError(Conflict):
 
 class PollVoteNotFoundError(NotFound):
     """Raised when a poll vote with the given ID does not exist."""
+
+class PollNotInClubError(NotFound):
+    pass

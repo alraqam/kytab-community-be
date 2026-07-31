@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
 
-from src.backend.clubs.thread.dependencies import get_thread_manager, get_thread_or_404
+from src.backend.clubs.thread.dependencies import get_thread_manager, get_thread_general_or_404
 from src.backend.clubs.thread.managers.thread import ThreadManager
 from src.backend.clubs.thread.models import Thread
 from src.backend.clubs.thread.schemas import GetThread, CreateThread, UpdateThread
@@ -40,7 +40,7 @@ class ThreadGeneralRouter:
     async def update_thread(
             self,
             request: UpdateThread,
-            thread: Thread = Depends(get_thread_or_404),
+            thread: Thread = Depends(get_thread_general_or_404),
     ):
         await self.manager.update_thread(self.user, self.club, thread, request)
 
@@ -50,7 +50,7 @@ class ThreadGeneralRouter:
     )
     async def lock_thread(
             self,
-            thread: Thread = Depends(get_thread_or_404),
+            thread: Thread = Depends(get_thread_general_or_404),
     ):
         await self.manager.update_thread_lock(self.user, self.club, thread)
 
@@ -60,7 +60,7 @@ class ThreadGeneralRouter:
     )
     async def unlock_thread(
             self,
-            thread: Thread = Depends(get_thread_or_404),
+            thread: Thread = Depends(get_thread_general_or_404),
     ):
         await self.manager.update_thread_unlock(self.user, self.club, thread)
 
@@ -70,7 +70,7 @@ class ThreadGeneralRouter:
     )
     async def pin_thread(
             self,
-            thread: Thread = Depends(get_thread_or_404),
+            thread: Thread = Depends(get_thread_general_or_404),
     ):
         await self.manager.update_thread_pin(self.user, self.club, thread)
 
@@ -80,7 +80,7 @@ class ThreadGeneralRouter:
     )
     async def unpin_thread(
             self,
-            thread: Thread = Depends(get_thread_or_404),
+            thread: Thread = Depends(get_thread_general_or_404),
     ):
         await self.manager.update_thread_unpin(self.user, self.club, thread)
 
@@ -90,7 +90,7 @@ class ThreadGeneralRouter:
     )
     async def delete_thread(
             self,
-            thread: Thread = Depends(get_thread_or_404)
+            thread: Thread = Depends(get_thread_general_or_404)
     ):
         await self.manager.delete_thread(self.user, self.club, thread)
 

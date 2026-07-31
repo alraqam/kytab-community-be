@@ -35,3 +35,12 @@ class MilestoneProgressNotFound(NotFound):
 
 class MilestoneProgressAlreadyExists(Conflict):
     pass
+
+class  ReadingSessionNotInClubError(NotFound):
+    pass
+
+class  MilestoneNotInReadingSessionError(NotFound):
+    pass
+
+class  ProgressNotInMilestone(NotFound):
+    pass

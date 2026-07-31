@@ -1,7 +1,10 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.reading_session.exceptions import IsNotProgressOwner
+from src.backend.clubs.clubs.dependencies import get_club_or_404
+from src.backend.clubs.clubs.models import Club
+from src.backend.clubs.reading_session.exceptions import IsNotProgressOwner, ProgressNotInMilestone, \
+    MilestoneNotInReadingSessionError, ReadingSessionNotInClubError
 from src.backend.clubs.reading_session.models import MilestoneProgress
 from src.backend.identity.auth.models import User
 from src.backend.clubs.reading_session.managers.milestone import MilestoneManager
@@ -17,10 +20,13 @@ async def get_reading_session_manager(
 
 async def get_reading_session_or_404(
         session_id: int,
+        club: Club = Depends(get_club_or_404),
         manager: ReadingSessionManager = Depends(get_reading_session_manager)
 ) -> ReadingSession:
-    result = await manager.get_session_by_id(session_id)
-    return result
+    session = await manager.get_session_by_id(session_id)
+    if session.club_id != club.id:
+        raise ReadingSessionNotInClubError("Reading session not found in this club")
+    return session
 
 async def get_milestone_manager(
         session: AsyncSession = Depends(get_db)
@@ -29,10 +35,13 @@ async def get_milestone_manager(
 
 async def get_milestone_or_404(
         milestone_id: int,
+        session: ReadingSession = Depends(get_reading_session_or_404),
         manager: MilestoneManager = Depends(get_milestone_manager)
 ) -> Milestone:
-    result = await manager.get_milestone_by_id(milestone_id)
-    return result
+    milestone = await manager.get_milestone_by_id(milestone_id)
+    if milestone.session_id != session.id:
+        raise MilestoneNotInReadingSessionError("Milestone not found in this reading session")
+    return milestone
 
 async def is_milestone_progress_owner(
         progress: MilestoneProgress,
@@ -51,7 +60,10 @@ async def get_milestone_progress_manager(
 
 async def get_milestone_progress_or_404(
         progress_id: int,
+        milestone: Milestone = Depends(get_milestone_or_404),
         manager: MilestoneProgressManager = Depends(get_milestone_progress_manager)
 ) -> MilestoneProgress:
-    result = await manager.get_milestone_by_id(progress_id)
-    return result
+    progress = await manager.get_milestone_by_id(progress_id)
+    if progress.milestone_id != milestone.id:
+        raise ProgressNotInMilestone("Progress not found in this milestone")
+    return progress

@@ -28,3 +28,9 @@ class ActiveReadingPeriodError(Conflict):
 
 class NotReadingPeriodOwner(Forbidden):
     pass
+
+class ReadingPeriodNotInShelfItemError(NotFound):
+    pass
+
+class ProgressLogNotInReadingPeriodError(NotFound):
+    pass

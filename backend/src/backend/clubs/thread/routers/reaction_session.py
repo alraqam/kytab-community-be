@@ -3,8 +3,8 @@ from fastapi_utils.cbv import cbv
 
 from src.backend.clubs.reading_session.dependencies import get_reading_session_or_404, get_milestone_or_404
 from src.backend.clubs.reading_session.models import ReadingSession, Milestone
-from src.backend.clubs.thread.dependencies import get_post_reaction_manager, get_post_or_404, get_thread_or_404, \
-    get_post_reaction_or_404
+from src.backend.clubs.thread.dependencies import get_post_reaction_manager, get_post_session_or_404, get_thread_session_or_404, \
+    get_post_reaction_session_or_404
 from src.backend.clubs.thread.managers.reaction import PostReactionManager
 from src.backend.clubs.thread.models import Thread, Post, PostReaction
 from src.backend.clubs.thread.schemas import GetPostReaction, CreatePostReaction
@@ -25,8 +25,8 @@ class PostReactionSessionRouter:
     club: Club = Depends(get_club_or_404)
     session: ReadingSession = Depends(get_reading_session_or_404)
     milestone: Milestone = Depends(get_milestone_or_404)
-    thread: Thread = Depends(get_thread_or_404)
-    post: Post = Depends(get_post_or_404)
+    thread: Thread = Depends(get_thread_session_or_404)
+    post: Post = Depends(get_post_session_or_404)
 
     @router.post(
         "/",
@@ -46,7 +46,7 @@ class PostReactionSessionRouter:
     )
     async def delete_reaction(
             self,
-            reaction: PostReaction = Depends(get_post_reaction_or_404)
+            reaction: PostReaction = Depends(get_post_reaction_session_or_404)
     ):
         await self.manager.delete_reaction(self.user, reaction)
 

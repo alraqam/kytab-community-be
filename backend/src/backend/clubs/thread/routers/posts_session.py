@@ -3,7 +3,7 @@ from fastapi_utils.cbv import cbv
 
 from src.backend.clubs.reading_session.dependencies import get_reading_session_or_404, get_milestone_or_404
 from src.backend.clubs.reading_session.models import ReadingSession, Milestone
-from src.backend.clubs.thread.dependencies import get_post_manager, get_thread_or_404, get_post_or_404
+from src.backend.clubs.thread.dependencies import get_post_manager, get_thread_session_or_404, get_post_session_or_404
 from src.backend.clubs.thread.managers.posts import PostManager
 from src.backend.clubs.thread.models import Thread, Post
 from src.backend.clubs.thread.schemas import GetPost, CreatePost, UpdatePost, GetPostPartial
@@ -24,7 +24,7 @@ class PostSessionRouter:
     club: Club = Depends(get_club_or_404)
     reading_session: ReadingSession = Depends(get_reading_session_or_404)
     milestone: Milestone = Depends(get_milestone_or_404)
-    thread: Thread = Depends(get_thread_or_404)
+    thread: Thread = Depends(get_thread_session_or_404)
 
     @router.post(
         "/",
@@ -45,7 +45,7 @@ class PostSessionRouter:
     async def update_post(
             self,
             request: UpdatePost,
-            post: Post = Depends(get_post_or_404),
+            post: Post = Depends(get_post_session_or_404),
     ):
         await self.manager.update_post(self.user, self.thread, post, request)
 
@@ -55,20 +55,9 @@ class PostSessionRouter:
     )
     async def delete_post(
             self,
-            post: Post = Depends(get_post_or_404)
+            post: Post = Depends(get_post_session_or_404)
     ):
         await self.manager.delete_post(self.user, self.thread, post)
-
-    @router.get(
-        "/all",
-        summary="getting session all posts",
-        response_model=list[GetPost]
-    )
-    async def get_all_posts(
-            self,
-    ):
-        result = await self.manager.get_all_posts(self.thread)
-        return result
 
     @router.get(
         "/",
@@ -81,3 +70,13 @@ class PostSessionRouter:
         result = await self.manager.get_posts(self.thread, self.reading_session, self.milestone, self.user)
         return result
 
+    @router.get(
+        "/{post_id}/reveal",
+        summary="getting and revealing post by id",
+        response_model=GetPost
+    )
+    async def get_session_milestone_threads(
+            self,
+            post: Post = Depends(get_post_session_or_404),
+    ):
+        return post

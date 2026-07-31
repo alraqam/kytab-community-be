@@ -1,6 +1,7 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.backend.library.shelf.exceptions import ShelfItemNotInShelfError
 from src.backend.core.dependencies import get_db
 from src.backend.library.shelf.models import Shelf, ShelfItem
 
@@ -28,6 +29,10 @@ async def get_shelf_item_manager(
 
 async def get_shelf_item_or_404(
         shelf_item_id: int,
+        shelf: Shelf = Depends(get_shelf_or_404),
         manager: ShelfItemManager = Depends(get_shelf_item_manager)
 ) -> ShelfItem:
-    return await manager.get_shelf_item_by_id(shelf_item_id)
+    shelf_item = await manager.get_shelf_item_by_id(shelf_item_id)
+    if shelf_item.shelf_id != shelf.id:
+        raise ShelfItemNotInShelfError("Shelf item not found in this shelf")
+    return shelf_item
