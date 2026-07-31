@@ -56,6 +56,8 @@ from src.backend.clubs.thread.routers.reaction_general import router as reaction
 from src.backend.clubs.voting.routers.voting_poll import router as voting_poll_router
 from src.backend.clubs.voting.routers.poll_candidate import router as poll_candidate_router
 from src.backend.clubs.voting.routers.vote_poll import router as vote_poll_router
+from src.backend.clubs.events.routers.event import router as event_router
+from src.backend.clubs.events.routers.rsvp import router as event_rsvp_router
 
 
 
@@ -84,6 +86,8 @@ clubs_public_router.include_router(club_block_router)
 voting_poll_router.include_router(poll_candidate_router)
 voting_poll_router.include_router(vote_poll_router)
 clubs_public_router.include_router(voting_poll_router)
+event_router.include_router(event_rsvp_router)
+clubs_public_router.include_router(event_router)
 
 app.include_router(auth_router)
 app.include_router(session_router)

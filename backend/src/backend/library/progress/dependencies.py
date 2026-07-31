@@ -1,7 +1,7 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.library.shelf.dependencies import  get_shelf_item_or_404
+from src.backend.library.shelf.dependencies import  get_shelf_item_or_404
 from src.backend.identity.auth.models import User
 from src.backend.core.dependencies import get_db
 from src.backend.library.progress.exceptions import IsNotProgressLogOwnerError, ReadingPeriodNotInShelfItemError, \
