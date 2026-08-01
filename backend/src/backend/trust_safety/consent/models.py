@@ -16,7 +16,7 @@ class ConsentRecords(Base, IntIdMixin, TimeActionMixin):
     __tablename__ = "consent_records"
 
     user_id = Column(BigInteger, ForeignKey("users.id", ondelete="SET NULL"), nullable=False)
-    document_id = Column(BigInteger, ForeignKey("users.id", ondelete="SET NULL"), nullable=False)
+    document_id = Column(BigInteger, ForeignKey("legal_documents.id", ondelete="SET NULL"), nullable=False)
 
     __table_args__ = (
         UniqueConstraint("user_id", "document_id", name="uq_user_document"),

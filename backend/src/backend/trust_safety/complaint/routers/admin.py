@@ -23,7 +23,6 @@ class ComplaintAdminRouter:
     @router.put(
         "/{complaint_id}/resolve",
         summary="resolving complaints",
-        response_model=GetComplaint,
     )
     async def resolve_complaint(
             self,
@@ -34,7 +33,6 @@ class ComplaintAdminRouter:
     @router.put(
         "/{complaint_id}/dismiss",
         summary="dismissing complaints",
-        response_model=GetComplaint,
     )
     async def dismiss_complaint(
             self,

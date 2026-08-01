@@ -38,6 +38,7 @@ class ConsentManager:
         except IntegrityError as e:
             if "uq_user_document_consent" in str(e.orig):
                 raise DocumentAlreadyConsentedError("Document already consented")
+            raise
 
     async def get_user_consents(
             self,

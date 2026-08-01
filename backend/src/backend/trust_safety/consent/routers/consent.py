@@ -18,7 +18,7 @@ class ConsentRouter:
     user: User = Depends(get_current_user)
 
     @router.post(
-        "/create consent",
+        "/create-consent",
         summary="creating consents",
         response_model=GetConsent,
     )
