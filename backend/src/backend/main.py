@@ -59,6 +59,10 @@ from src.backend.clubs.voting.routers.vote_poll import router as vote_poll_route
 from src.backend.clubs.events.routers.event import router as event_router
 from src.backend.clubs.events.routers.rsvp import router as event_rsvp_router
 
+from src.backend.trust_safety.complaint.routers.public import router as public_complaint_router
+from src.backend.trust_safety.complaint.routers.admin import router as admin_complaint_router
+from src.backend.trust_safety.consent.routers.document import router as document_router
+from src.backend.trust_safety.consent.routers.consent import router as consent_router
 
 
 app = FastAPI(
@@ -116,6 +120,10 @@ app.include_router(clubs_admin_router)
 app.include_router(user_membership_router)
 app.include_router(invitation_router)
 app.include_router(request_router)
+app.include_router(public_complaint_router)
+app.include_router(admin_complaint_router)
+app.include_router(document_router)
+app.include_router(consent_router)
 
 app.add_exception_handler(Unauthorized, unauthorized_exception_handler)
 app.add_exception_handler(Forbidden, forbidden_exception_handler)
