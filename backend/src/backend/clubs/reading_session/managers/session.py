@@ -2,6 +2,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from backend.clubs.club_membership.services import is_club_member
 from src.backend.catalog.books.managers.work import WorkManager
 from src.backend.clubs.club_membership.services import is_owner_or_moderator
 from src.backend.clubs.clubs.models import Club
@@ -89,7 +90,9 @@ class ReadingSessionManager:
     async def get_club_active_sessions(
             self,
             club: Club,
+            user: User,
     ) -> list[ReadingSession]:
+        await is_club_member(club, user, self.session)
         sessions = await self.session_repo.get_club_active_sessions(
             club_id=club.id,
         )
@@ -98,7 +101,9 @@ class ReadingSessionManager:
     async def get_club_sessions(
             self,
             club: Club,
+            user: User,
     ) -> list[ReadingSession]:
+        await is_club_member(club, user, self.session)
         sessions = await self.session_repo.get_club_sessions(
             club_id=club.id,
         )

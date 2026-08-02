@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 class ComplaintObjectType(str, Enum):
     review = "review"
     comment = "comment"
+    post = "post"
     club = "club"
     user = "user"
 
@@ -27,6 +28,9 @@ class CreateComplaint(BaseModel):
     category: ComplaintCategory
     comment: str = Field(max_length=500)
 
+class WarnComplaintTarget(BaseModel):
+    message: str = Field(max_length=500)
+
 class GetComplaint(BaseModel):
     id: int
     reporter_id: int
@@ -35,6 +39,7 @@ class GetComplaint(BaseModel):
     category: str
     comment: str | None = None
     status: str
+    is_escalated: bool
     resolved_by_id: int | None = None
     created_at: datetime
     resolved_at: datetime | None = None

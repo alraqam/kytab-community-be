@@ -80,7 +80,7 @@ class ReadingSessionRouter:
     )
     async def get_club_active_sessions(self):
         """Returns the club's current active reading session."""
-        result = await self.manager.get_club_active_sessions(self.club)
+        result = await self.manager.get_club_active_sessions(self.club, self.user)
         return result
 
     @router.get(
@@ -90,7 +90,7 @@ class ReadingSessionRouter:
     )
     async def get_club_sessions(self):
         """Returns all reading sessions for the club."""
-        result = await self.manager.get_club_sessions(self.club)
+        result = await self.manager.get_club_sessions(self.club, self.user)
         return result
 
     @router.get(

@@ -37,8 +37,6 @@ class ShelfManager:
             if not is_follower:
                 raise PrivateShelfError("Shelf is followers only")
 
-
-
     async def create_default_shelves(
             self,
             user: User,

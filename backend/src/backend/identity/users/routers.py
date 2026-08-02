@@ -11,7 +11,7 @@ from src.backend.identity.users.schemas import UpdateUserRole, UpdateUserActivit
 
 router = APIRouter(
     prefix="/users",
-    tags=["user"]
+    tags=["admin"]
 )
 
 @cbv(router)

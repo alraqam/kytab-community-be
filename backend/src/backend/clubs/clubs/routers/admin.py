@@ -53,3 +53,14 @@ class ClubAdminRouter:
     ):
         result = await self.manager.get_all_clubs(filters)
         return result
+
+    @router.get(
+        "/{club_id}",
+        summary="getting club by id",
+        response_model=GetClub,
+    )
+    async def get_club_by_id(
+            self,
+            club: Club = Depends(get_club_or_404),
+    ):
+        return club

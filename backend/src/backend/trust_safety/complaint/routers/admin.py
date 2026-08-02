@@ -8,7 +8,7 @@ from src.backend.trust_safety.complaint.dependencies import get_complaint_manage
 from src.backend.trust_safety.complaint.filters import ComplaintFilter
 from src.backend.trust_safety.complaint.managers import ComplaintManager
 from src.backend.trust_safety.complaint.models import Complaint
-from src.backend.trust_safety.complaint.schemas import GetComplaint
+from src.backend.trust_safety.complaint.schemas import GetComplaint, WarnComplaintTarget
 
 router = APIRouter(
     prefix="/admin/complaint",
@@ -39,6 +39,47 @@ class ComplaintAdminRouter:
             complaint: Complaint = Depends(get_complaint_or_404)
     ):
         return await self.manager.dismiss_complaint(self.user, complaint)
+
+    @router.put(
+        "/{complaint_id}/remove-content",
+        summary="removing reported content",
+    )
+    async def remove_content(
+            self,
+            complaint: Complaint = Depends(get_complaint_or_404)
+    ):
+        await self.manager.remove_complaint_content(self.user, complaint)
+
+    @router.put(
+        "/{complaint_id}/warn",
+        summary="warning the reported user",
+    )
+    async def warn_target(
+            self,
+            request: WarnComplaintTarget,
+            complaint: Complaint = Depends(get_complaint_or_404)
+    ):
+        await self.manager.warn_complaint_target(self.user, complaint, request)
+
+    @router.put(
+        "/{complaint_id}/suspend",
+        summary="suspending the reported user",
+    )
+    async def suspend_target(
+            self,
+            complaint: Complaint = Depends(get_complaint_or_404)
+    ):
+        await self.manager.suspend_complaint_target(self.user, complaint)
+
+    @router.put(
+        "/{complaint_id}/ban",
+        summary="banning the reported user",
+    )
+    async def ban_target(
+            self,
+            complaint: Complaint = Depends(get_complaint_or_404)
+    ):
+        await self.manager.ban_complaint_target(self.user, complaint)
 
     @router.get(
         "/",

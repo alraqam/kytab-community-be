@@ -34,9 +34,9 @@ class ReviewRepository:
     async def update_review(
             self,
             review: Review,
-            rating: float,
-            text: str,
-            contains_spoiler: bool,
+            rating: float| None,
+            text: str| None,
+            contains_spoiler: bool| None,
     ) -> None:
         updates = {
             "rating": rating,
@@ -46,6 +46,15 @@ class ReviewRepository:
         for field, value in updates.items():
             if value is not None:
                 setattr(review, field, value)
+        await self.session.flush()
+
+    async def update_is_edited(
+            self,
+            review: Review,
+            status: bool,
+    ) -> None:
+        review.status = status
+        self.session.add(review)
         await self.session.flush()
 
     async def delete_review(

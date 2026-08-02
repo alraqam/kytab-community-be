@@ -14,3 +14,4 @@ class Complaint(Base, IntIdMixin, TimeActionMixin):
     status = Column(String(100), nullable=False, default="pending")
     resolved_by_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=True)
     resolved_at = Column(DateTime, nullable=True)
+    is_escalated = Column(Boolean, nullable=False, default=False)

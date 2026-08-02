@@ -5,7 +5,7 @@ from src.backend.identity.auth.models import User
 from src.backend.catalog.books.dependencies.work import get_work_manager, get_work_or_404
 from src.backend.catalog.books.managers.work import WorkManager
 from src.backend.catalog.books.models import Work
-from src.backend.catalog.books.schemas.work import CreateWork, UpdateWork, GetWork
+from src.backend.catalog.books.schemas.work import CreateWork, UpdateWork, GetWork, MergeWork
 
 from src.backend.catalog.librarian.dependencies import is_librarian
 
@@ -52,4 +52,17 @@ class LibrarianWorkRouter:
             work: Work = Depends(get_work_or_404)
     ):
         await self.manager.delete_work(work.id)
+
+    @router.put(
+        "/{work_id}/merge",
+        summary="merging duplicate work into this work",
+        response_model=GetWork,
+    )
+    async def merge_work(
+            self,
+            request: MergeWork,
+            work: Work = Depends(get_work_or_404)
+    ):
+        result = await self.manager.merge_works(request.source_work_id, work.id)
+        return result
 

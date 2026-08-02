@@ -1,10 +1,13 @@
 from dataclasses import dataclass
 
-from sqlalchemy import select
+from sqlalchemy import select, update, delete, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.catalog.books.filters import WorkFilter
-from src.backend.catalog.books.models import Work
+from src.backend.catalog.books.models import Work, Edition, WorkAuthor, WorkGenre, WorkSeries
+from src.backend.clubs.reading_session.models import ReadingSession
+from src.backend.library.reviews.models import Review
+from src.backend.library.shelf.models import ShelfItem
 
 
 @dataclass
@@ -111,3 +114,70 @@ class WorkRepository:
         result = await self.session.execute(stmt)
         works = list(result.scalars().all())
         return works
+
+    async def merge_works(
+            self,
+            source_id: int,
+            target_id: int,
+    ) -> None:
+        """Reassigns everything referencing the source work to the target work.
+
+        Drops rows that would collide with a unique constraint already
+        satisfied on the target (e.g. the same shelf already holding the
+        target work), then repoints the remaining rows.
+
+        Args:
+            source_id: ID of the duplicate work being merged away.
+            target_id: ID of the canonical work absorbing the source.
+        """
+        conflicting_shelf_ids = select(ShelfItem.shelf_id).where(ShelfItem.work_id == target_id)
+        await self.session.execute(
+            delete(ShelfItem).where(
+                and_(ShelfItem.work_id == source_id, ShelfItem.shelf_id.in_(conflicting_shelf_ids))
+            )
+        )
+        await self.session.execute(
+            update(ShelfItem).where(ShelfItem.work_id == source_id).values(work_id=target_id)
+        )
+
+        await self.session.execute(
+            update(Edition).where(Edition.work_id == source_id).values(work_id=target_id)
+        )
+        await self.session.execute(
+            update(Review).where(Review.work_id == source_id).values(work_id=target_id)
+        )
+        await self.session.execute(
+            update(ReadingSession).where(ReadingSession.work_id == source_id).values(work_id=target_id)
+        )
+
+        conflicting_author_ids = select(WorkAuthor.author_id).where(WorkAuthor.work_id == target_id)
+        await self.session.execute(
+            delete(WorkAuthor).where(
+                and_(WorkAuthor.work_id == source_id, WorkAuthor.author_id.in_(conflicting_author_ids))
+            )
+        )
+        await self.session.execute(
+            update(WorkAuthor).where(WorkAuthor.work_id == source_id).values(work_id=target_id)
+        )
+
+        conflicting_genre_ids = select(WorkGenre.genre_id).where(WorkGenre.work_id == target_id)
+        await self.session.execute(
+            delete(WorkGenre).where(
+                and_(WorkGenre.work_id == source_id, WorkGenre.genre_id.in_(conflicting_genre_ids))
+            )
+        )
+        await self.session.execute(
+            update(WorkGenre).where(WorkGenre.work_id == source_id).values(work_id=target_id)
+        )
+
+        conflicting_series_ids = select(WorkSeries.series_id).where(WorkSeries.work_id == target_id)
+        await self.session.execute(
+            delete(WorkSeries).where(
+                and_(WorkSeries.work_id == source_id, WorkSeries.series_id.in_(conflicting_series_ids))
+            )
+        )
+        await self.session.execute(
+            update(WorkSeries).where(WorkSeries.work_id == source_id).values(work_id=target_id)
+        )
+
+        await self.session.flush()

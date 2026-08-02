@@ -1,11 +1,13 @@
 from dataclasses import dataclass
 from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import select, and_, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.backend.clubs.thread.models import Thread, Post
 from src.backend.trust_safety.complaint.filters import ComplaintFilter
 from src.backend.trust_safety.complaint.models import Complaint
+from src.backend.trust_safety.complaint.schemas import ComplaintObjectType
 
 
 @dataclass
@@ -51,6 +53,33 @@ class ComplaintRepository:
         complaint.resolved_at = datetime.now()
         self.session.add(complaint)
         await self.session.flush()
+
+    async def update_escalated(
+            self,
+            complaint: Complaint,
+            is_escalated: bool,
+    ) -> None:
+        complaint.is_escalated = is_escalated
+        self.session.add(complaint)
+        await self.session.flush()
+
+    async def get_club_complaints(
+            self,
+            club_id: int,
+    ) -> list[Complaint]:
+        club_post_ids = (
+            select(Post.id)
+            .join(Thread, Thread.id == Post.thread_id)
+            .where(Thread.club_id == club_id)
+        )
+        stmt = select(Complaint).where(
+            or_(
+                and_(Complaint.object_type == ComplaintObjectType.club, Complaint.object_id == club_id),
+                and_(Complaint.object_type == ComplaintObjectType.post, Complaint.object_id.in_(club_post_ids)),
+            )
+        )
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
 
     async def get_complaints(
             self,

@@ -17,6 +17,11 @@ class UpdateWork(BaseModel):
     description: str | None = None
     primary_language: str | None = Field(default=None, max_length=100)
 
+class MergeWork(BaseModel):
+    """Request payload for merging a duplicate work into this work."""
+
+    source_work_id: int
+
 class GetWork(BaseModel):
     """Work data returned in API responses."""
 

@@ -7,7 +7,8 @@ from src.backend.identity.auth.dependencies import get_auth_manager, get_current
 from src.backend.identity.auth.exceptions import InvalidTokenError, LinkExpiredError
 from src.backend.identity.auth.managers.auth import AuthManager
 from src.backend.identity.auth.models import User
-from src.backend.identity.auth.schemas import UserRegister, ChangeUserPassword, ResetPassword, UpdateUser, RefreshToken
+from src.backend.identity.auth.schemas import UserRegister, ChangeUserPassword, ResetPassword, UpdateUser, RefreshToken, \
+    ForgotPassword
 from src.backend.identity.auth.services.email import decode_verification_token
 from src.backend.identity.users.dependencies import get_user_manager
 
@@ -166,9 +167,9 @@ class AuthRouter:
     )
     async def forgot_password(
             self,
-            user: User = Depends(get_current_user)
+            request: ForgotPassword
     ):
-        result = await self.manager.forgot_password(user)
+        result = await self.manager.forgot_password(request)
         return result
 
     @router.post(

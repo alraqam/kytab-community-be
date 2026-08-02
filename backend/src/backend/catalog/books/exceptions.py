@@ -35,3 +35,6 @@ class SeriesWorkLinkExistsError(Conflict):
 
 class InvalidWorkEditionError(Conflict):
     pass
+
+class DuplicateMergeError(Conflict):
+    pass

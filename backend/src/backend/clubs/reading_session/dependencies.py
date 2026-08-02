@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.backend.clubs.clubs.dependencies import get_club_or_404
 from src.backend.clubs.clubs.models import Club
 from src.backend.clubs.reading_session.exceptions import IsNotProgressOwner, ProgressNotInMilestone, \
-    MilestoneNotInReadingSessionError, ReadingSessionNotInClubError
-from src.backend.clubs.reading_session.models import MilestoneProgress
+    MilestoneNotInReadingSessionError, ReadingSessionNotInClubError, PromptNotInMilestoneError
+from src.backend.clubs.reading_session.models import MilestoneProgress, DiscussionPrompt
 from src.backend.identity.auth.models import User
 from src.backend.clubs.reading_session.managers.milestone import MilestoneManager
 from src.backend.clubs.reading_session.managers.session import ReadingSessionManager
@@ -67,3 +67,20 @@ async def get_milestone_progress_or_404(
     if progress.milestone_id != milestone.id:
         raise ProgressNotInMilestone("Progress not found in this milestone")
     return progress
+
+from src.backend.clubs.reading_session.managers.prompt import DiscussionPromptManager
+
+async def get_discussion_prompt_manager(
+        session: AsyncSession = Depends(get_db)
+) -> DiscussionPromptManager:
+    return DiscussionPromptManager(session)
+
+async def get_discussion_prompt_or_404(
+        prompt_id: int,
+        milestone: Milestone = Depends(get_milestone_or_404),
+        manager: DiscussionPromptManager = Depends(get_discussion_prompt_manager)
+) -> DiscussionPrompt:
+    prompt = await manager.get_prompt_by_id(prompt_id)
+    if prompt.milestone_id != milestone.id:
+        raise PromptNotInMilestoneError("Prompt not found in this milestone")
+    return prompt

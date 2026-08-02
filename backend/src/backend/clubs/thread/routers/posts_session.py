@@ -57,7 +57,7 @@ class PostSessionRouter:
             self,
             post: Post = Depends(get_post_session_or_404)
     ):
-        await self.manager.delete_post(self.user, self.thread, post)
+        await self.manager.delete_post(self.user, self.club, self.thread, post)
 
     @router.get(
         "/",

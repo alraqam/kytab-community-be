@@ -44,3 +44,9 @@ class  MilestoneNotInReadingSessionError(NotFound):
 
 class  ProgressNotInMilestone(NotFound):
     pass
+
+class DiscussionPromptNotFoundError(NotFound):
+    pass
+
+class PromptNotInMilestoneError(NotFound):
+    pass

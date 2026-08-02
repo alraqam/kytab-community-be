@@ -44,9 +44,11 @@ from src.backend.clubs.club_membership.routers.requests import router as request
 from src.backend.clubs.club_membership.routers.invitation import router as invitation_router
 from src.backend.clubs.club_membership.routers.user_membership import router as user_membership_router
 from src.backend.clubs.club_membership.routers.block import router as club_block_router
+from src.backend.clubs.club_membership.routers.moderation import router as club_moderation_router
 from src.backend.clubs.reading_session.routers.session import router as reading_sessions_router
 from src.backend.clubs.reading_session.routers.milestone import router as milestone_router
 from src.backend.clubs.reading_session.routers.progress import router as milestone_progress_router
+from src.backend.clubs.reading_session.routers.prompt import router as discussion_prompt_router
 from src.backend.clubs.thread.routers.thread_general import router as thread_general_router
 from src.backend.clubs.thread.routers.thread_session import router as thread_session_router
 from src.backend.clubs.thread.routers.posts_general import router as post_general_router
@@ -61,11 +63,15 @@ from src.backend.clubs.events.routers.rsvp import router as event_rsvp_router
 
 from src.backend.trust_safety.complaint.routers.public import router as public_complaint_router
 from src.backend.trust_safety.complaint.routers.admin import router as admin_complaint_router
+from src.backend.trust_safety.complaint.routers.club import router as club_complaint_router
 from src.backend.trust_safety.consent.routers.document import router as document_router
 from src.backend.trust_safety.consent.routers.consent import router as consent_router
 
 from src.backend.notifications.routers.preference import router as preference_router
 from src.backend.notifications.routers.notification import router as notification_router
+
+from src.backend.administration.announcements.routers.admin import router as announcement_admin_router
+from src.backend.administration.announcements.routers.public import router as announcement_public_router
 
 
 app = FastAPI(
@@ -80,6 +86,7 @@ post_session_router.include_router(reaction_session_router)
 thread_session_router.include_router(post_session_router)
 milestone_router.include_router(thread_session_router)
 milestone_router.include_router(milestone_progress_router)
+milestone_router.include_router(discussion_prompt_router)
 reading_sessions_router.include_router(milestone_router)
 clubs_public_router.include_router(reading_sessions_router)
 reading_period_router.include_router(progress_logs_router)
@@ -90,6 +97,8 @@ review_router.include_router(review_like_router)
 work_router.include_router(review_router)
 clubs_public_router.include_router(membership_router)
 clubs_public_router.include_router(club_block_router)
+clubs_public_router.include_router(club_moderation_router)
+clubs_public_router.include_router(club_complaint_router)
 voting_poll_router.include_router(poll_candidate_router)
 voting_poll_router.include_router(vote_poll_router)
 clubs_public_router.include_router(voting_poll_router)
@@ -129,6 +138,9 @@ app.include_router(document_router)
 app.include_router(consent_router)
 app.include_router(preference_router)
 app.include_router(notification_router)
+
+app.include_router(announcement_admin_router)
+app.include_router(announcement_public_router)
 
 app.add_exception_handler(Unauthorized, unauthorized_exception_handler)
 app.add_exception_handler(Forbidden, forbidden_exception_handler)

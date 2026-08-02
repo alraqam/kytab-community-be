@@ -66,3 +66,17 @@ class GetMilestoneProgress(BaseModel):
     is_finished: bool
     created_at: datetime
     updated_at: datetime
+
+class CreateDiscussionPrompt(BaseModel):
+    text: str
+
+class UpdateDiscussionPrompt(BaseModel):
+    text: str | None = None
+
+class GetDiscussionPrompt(BaseModel):
+    id: int
+    milestone_id: int
+    created_by_id: int
+    text: str
+    created_at: datetime
+    updated_at: datetime

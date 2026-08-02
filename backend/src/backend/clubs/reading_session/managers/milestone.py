@@ -1,9 +1,10 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.backend.clubs.clubs.models import Club
 from src.backend.clubs.reading_session.exceptions import MilestoneValueError
 from src.backend.clubs.reading_session.schemas import MilestoneBoundaryType
 from src.backend.clubs.reading_session.filters import MilestoneFilter
-from src.backend.clubs.club_membership.services import is_owner_or_moderator
+from src.backend.clubs.club_membership.services import is_owner_or_moderator, is_club_member
 from src.backend.clubs.clubs.managers import ClubManager
 from src.backend.clubs.reading_session.exceptions import DateInPastError, MilestoneAlreadyExistsError, \
     MilestoneNotFoundError
@@ -150,8 +151,11 @@ class MilestoneManager:
     async def get_session_milestones(
             self,
             reading_session: ReadingSession,
+            club: Club,
+            user: User,
             filters: MilestoneFilter
     ) -> list[Milestone]:
+        await is_club_member(club, user, self.session)
         milestones = await self.milestone_repo.get_session_milestones(
             session_id=reading_session.id,
             filters=filters

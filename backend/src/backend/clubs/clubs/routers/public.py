@@ -22,7 +22,7 @@ class ClubRouter:
 
     @router.post(
         "/",
-        summary="creating clubs",
+        summary="creating club",
         response_model=GetClub,
     )
     async def create_club(
@@ -34,7 +34,7 @@ class ClubRouter:
 
     @router.put(
         "/{club_id}",
-        summary="updating clubs",
+        summary="updating club",
     )
     async def update_club(
             self,
@@ -45,7 +45,7 @@ class ClubRouter:
 
     @router.delete(
         "/{club_id}",
-        summary="archiving clubs",
+        summary="archiving club",
     )
     async def archive_club(
             self,
@@ -64,17 +64,6 @@ class ClubRouter:
     ):
         result = await self.manager.get_clubs_list(filters)
         return result
-
-    @router.get(
-        "/{club_id}",
-        summary="getting club by id",
-        response_model=GetClub,
-    )
-    async def get_club_by_id(
-            self,
-            club: Club = Depends(get_club_or_404),
-    ):
-        return club
 
     @router.put(
         "/{club_id}/transfer",

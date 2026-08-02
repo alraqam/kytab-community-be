@@ -37,4 +37,11 @@ class MilestoneProgress(Base, IntIdMixin, TimeActionMixin):
         UniqueConstraint("user_id", "session_id", name="uq_session_user"),
     )
 
+class DiscussionPrompt(Base, IntIdMixin, TimeActionMixin):
+    __tablename__ = "discussion_prompts"
+
+    milestone_id = Column(BigInteger, ForeignKey("milestones.id", ondelete="CASCADE"), nullable=False)
+    created_by_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    text = Column(String(512), nullable=False)
+
 

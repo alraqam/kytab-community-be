@@ -10,6 +10,7 @@ class ComplaintFilter(Filter):
     object_type: ComplaintObjectType | None = None
     category: ComplaintCategory | None = None
     status: ComplaintStatus | None = None
+    is_escalated: bool | None = None
     order_by: list[str] | None = None
 
     class Constants(Filter.Constants):

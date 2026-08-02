@@ -10,7 +10,8 @@ from src.backend.identity.auth.exceptions import InvalidUsernameOrPasswordError,
     UsernameAlreadyExists, EmailAlreadyExists, InvalidTokenError
 from src.backend.identity.auth.models import User
 from src.backend.identity.auth.repository import SessionRepository
-from src.backend.identity.auth.schemas import Token, UserRegister, ChangeUserPassword, ResetPassword, UpdateUser
+from src.backend.identity.auth.schemas import Token, UserRegister, ChangeUserPassword, ResetPassword, UpdateUser, \
+    ForgotPassword
 from src.backend.identity.auth.services.email import create_verification_token, create_password_reset_token, \
     decode_password_reset_token, send_verification_email, send_password_reset_email
 from src.backend.identity.auth.services.security import PasswordService, TokenService, hash_token
@@ -256,8 +257,9 @@ class AuthManager:
 
     async def forgot_password(
             self,
-            user: User
+            request: ForgotPassword
     ):
+        user = await self.user_repo.get_user_by_email(request.email)
         if user and user.is_verified:
             token = create_password_reset_token(user)
             await send_password_reset_email(user.email, token)

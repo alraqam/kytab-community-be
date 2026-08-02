@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.identity.auth.models import User
+from src.backend.identity.users.dependencies import is_admin
 from src.backend.catalog.books.models import Work
 from src.backend.library.reviews.dependencies import is_review_owner
 from src.backend.library.reviews.exceptions import ReviewNotFound, EmptyReviewError
@@ -45,6 +46,7 @@ class ReviewManager:
     ) -> None:
         await is_review_owner(user, review)
         await self.review_repo.update_review(review, request.rating, request.text, request.contains_spoiler)
+        await self.review_repo.update_is_edited(review, True)
         await self.session.commit()
 
     async def delete_review(
@@ -53,6 +55,15 @@ class ReviewManager:
             review: Review,
     ) -> None:
         await is_review_owner(user, review)
+        await self.review_repo.delete_review(review)
+        await self.session.commit()
+
+    async def admin_delete_review(
+            self,
+            user: User,
+            review: Review,
+    ) -> None:
+        await is_admin(user)
         await self.review_repo.delete_review(review)
         await self.session.commit()
 

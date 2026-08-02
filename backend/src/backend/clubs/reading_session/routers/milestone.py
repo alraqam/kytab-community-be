@@ -8,7 +8,6 @@ from src.backend.clubs.reading_session.dependencies import get_milestone_manager
 from src.backend.clubs.reading_session.managers.milestone import MilestoneManager
 from src.backend.clubs.reading_session.models import ReadingSession, Milestone
 from src.backend.clubs.reading_session.schemas import GetMilestone, CreateMilestone, UpdateMilestone
-from src.backend.identity.auth.dependencies import get_session_or_404
 from src.backend.clubs.clubs.dependencies import get_club_or_404
 from src.backend.clubs.clubs.models import Club
 from src.backend.identity.auth.dependencies import get_current_user
@@ -68,7 +67,7 @@ class MilestoneRouter:
             self,
             filters: MilestoneFilter = FilterDepends(MilestoneFilter),
     ):
-        result = await self.manager.get_session_milestones(self.session, filters)
+        result = await self.manager.get_session_milestones(self.session, self.club, self.user, filters)
         return result
 
     @router.get(

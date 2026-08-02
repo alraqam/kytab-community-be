@@ -1,5 +1,4 @@
-from sqlite3 import IntegrityError
-
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.identity.auth.models import User
@@ -83,7 +82,7 @@ class ReviewCommentManager:
             user: User,
             comment: ReviewComment,
     ) -> None:
-        await is_admin(user.id)
+        await is_admin(user)
 
         await self.comment_repo.delete_comment(
             comment=comment,

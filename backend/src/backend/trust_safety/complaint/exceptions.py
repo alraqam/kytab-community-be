@@ -6,3 +6,6 @@ class ComplaintNotFoundError(NotFound):
 
 class ComplaintStatusError(BadRequest):
     pass
+
+class InvalidComplaintActionError(BadRequest):
+    pass

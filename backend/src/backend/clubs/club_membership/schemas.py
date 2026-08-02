@@ -70,3 +70,8 @@ class GetBlockedMember(BaseModel):
 
 class InvitationEmail(BaseModel):
     token: str
+
+class ClubModerationSummary(BaseModel):
+    pending_join_requests: int
+    pending_complaints: int
+    total_complaints: int

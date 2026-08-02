@@ -6,7 +6,7 @@ from src.backend.clubs.reading_session.models import ReadingSession, Milestone
 from src.backend.clubs.thread.schemas import GetPost, GetPostPartial
 from src.backend.clubs.reading_session.managers.milestone import MilestoneManager
 from src.backend.clubs.reading_session.managers.progress import MilestoneProgressManager
-from src.backend.clubs.club_membership.services import is_club_member
+from src.backend.clubs.club_membership.services import is_club_member, is_owner_or_moderator
 from src.backend.clubs.thread.dependencies import is_post_owner
 from src.backend.clubs.thread.exceptions import LockedThreadError, PostNotFoundError
 from src.backend.clubs.thread.managers.thread import ThreadManager
@@ -16,6 +16,7 @@ from src.backend.clubs.thread.schemas import CreatePost, UpdatePost
 from src.backend.clubs.clubs.managers import ClubManager
 from src.backend.clubs.clubs.models import Club
 from src.backend.identity.auth.models import User
+from src.backend.identity.users.dependencies import is_admin
 from src.backend.identity.users.managers import UserManager
 from src.backend.notifications.managers.notification import NotificationManager
 from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
@@ -112,14 +113,29 @@ class PostManager:
     async def delete_post(
             self,
             user: User,
+            club: Club,
             thread: Thread,
             post: Post,
     ) -> None:
-        await is_post_owner(post, user)
+        if post.author_id == user.id:
+            await is_post_owner(post, user)
+        else:
+            is_owner_or_moderator(club, user.id)
 
         if thread.is_locked:
             raise LockedThreadError("Thread is locked")
 
+        await self.post_repo.delete_post(
+            post=post,
+        )
+        await self.session.commit()
+
+    async def admin_delete_post(
+            self,
+            user: User,
+            post: Post,
+    ) -> None:
+        await is_admin(user)
         await self.post_repo.delete_post(
             post=post,
         )
