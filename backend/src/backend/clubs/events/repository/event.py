@@ -1,8 +1,9 @@
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from src.backend.clubs.events.models import ClubEvent
 
@@ -101,3 +102,16 @@ class ClubEventRepository:
         result = await self.session.execute(stmt)
         event = result.scalars().all()
         return event
+
+    async def get_event_with_time(
+            self,
+            start_date: date,
+    ) -> list[ClubEvent]:
+        stmt = (
+            select(ClubEvent)
+            .where(ClubEvent.start_at == start_date)
+            .options(selectinload(ClubEvent.club))
+        )
+        result = await self.session.execute(stmt)
+        events = result.scalars().all()
+        return events

@@ -3,6 +3,7 @@ from datetime import timedelta, timezone, datetime
 
 from jose import jwt, JWTError
 
+from src.backend.celery_app import celery_app
 from src.backend.clubs.club_membership.models import ClubInvitation
 from src.backend.core.services import _send_email_sync
 from src.backend.core.settings import settings
@@ -32,7 +33,11 @@ async def decode_club_invite_token(token: str) -> int:
     except (KeyError, ValueError):
         raise InvalidTokenError("Invalid token")
 
-async def send_club_invite_email(to_email: str, token: str) -> None:
+@celery_app.task
+def send_club_invite_email(to_email: str, token: str) -> None:
+    asyncio.run(_send_club_invite_email(to_email, token))
+
+async def _send_club_invite_email(to_email: str, token: str) -> None:
     link = f"{settings.FRONTEND_URL}/club_invite?token={token}"
     html = f'<p>Click <a href="{link}">here</a> for more information. Expires in 14 days.</p>'
     await asyncio.to_thread(_send_email_sync, to_email, "Club invitation", html)

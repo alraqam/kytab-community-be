@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 
 from jose import jwt, JWTError
 
+from src.backend.celery_app import celery_app
 from src.backend.core.services import _send_email_sync
 from src.backend.core.settings import settings
 from src.backend.identity.auth.exceptions import InvalidTokenTypeError, InvalidTokenError
@@ -49,12 +50,20 @@ async def decode_password_reset_token(token: str, manager) -> int:
         raise InvalidTokenError("Invalid token")
     return user.id
 
-async def send_verification_email(to_email: str, token: str) -> None:
+@celery_app.task
+def send_verification_email(to_email: str, token: str) -> None:
+    asyncio.run(_send_verification_email_async(to_email, token))
+
+async def _send_verification_email_async(to_email: str, token: str) -> None:
     link = f"{settings.FRONTEND_URL}/verify-email?token={token}"
     html = f'<p>Click <a href="{link}">here</a> to verify your email. Expires in 24h.</p>'
     await asyncio.to_thread(_send_email_sync, to_email, "Verify your email", html)
 
-async def send_password_reset_email(to_email: str, token: str) -> None:
+@celery_app.task
+def send_password_reset_email(to_email: str, token: str) -> None:
+    asyncio.run(_send_password_reset_email(to_email, token))
+
+async def _send_password_reset_email(to_email: str, token: str) -> None:
     link = f"{settings.FRONTEND_URL}/password_reset?token={token}"
     html = f'<p>Click <a href="{link}">here</a> to reset your password. Expires in 10 minutes.</p>'
     await asyncio.to_thread(_send_email_sync, to_email, "Password reset", html)

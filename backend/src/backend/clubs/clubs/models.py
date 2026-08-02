@@ -16,6 +16,7 @@ class Club(Base, IntIdMixin, TimeActionMixin):
     is_archived = Column(Boolean, default=False)
 
     members = relationship("ClubMembership", backref="club", lazy="selectin")
+    events = relationship("ClubEvent", backref="club", lazy="selectin")
 
 class ClubGenre (Base, IntIdMixin):
     __tablename__ = "club_genre"

@@ -119,7 +119,7 @@ class ClubInvitationManager:
             invited_user_id=invited_user.id
         )
         token = create_club_invite_token(invitation)
-        await send_club_invite_email(invited_user.email, token)
+        send_club_invite_email.delay(invited_user.email, token)
 
         await self.session.commit()
 

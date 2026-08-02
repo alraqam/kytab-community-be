@@ -2,7 +2,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.clubs.club_membership.services import is_club_member
+from src.backend.clubs.club_membership.services import is_club_member
 from src.backend.catalog.books.managers.work import WorkManager
 from src.backend.clubs.club_membership.services import is_owner_or_moderator
 from src.backend.clubs.clubs.models import Club

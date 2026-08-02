@@ -300,3 +300,9 @@ class ClubMembershipManager:
             club_id=club.id,
         )
 
+    async def get_club_members(
+            self,
+            club: Club,
+    ) -> list[ClubMembership]:
+        memberships = await self.membership_repo.get_memberships(club)
+        return memberships

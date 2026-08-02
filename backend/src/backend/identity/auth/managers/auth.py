@@ -103,7 +103,7 @@ class AuthManager:
             )
         )
         token = create_verification_token(user.id)
-        await send_verification_email(user.email, token)
+        send_verification_email.delay(user.email, token)
 
         profile = await self.profile_manager.create(
             CreateProfile(
@@ -262,7 +262,7 @@ class AuthManager:
         user = await self.user_repo.get_user_by_email(request.email)
         if user and user.is_verified:
             token = create_password_reset_token(user)
-            await send_password_reset_email(user.email, token)
+            send_password_reset_email.delay(user.email, token)
         return {"Reset link has been sent"}
 
     async def reset_password(

@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, date
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -157,6 +157,15 @@ class ClubEventManager:
         await is_club_member(club, user, self.session)
         events = await self.event_repo.get_club_future_events(
             club_id=club.id,
+        )
+        return events
+
+    async def get_event_with_date(
+            self,
+            start_date: date
+    ):
+        events = await self.event_repo.get_event_with_time(
+            start_date=start_date,
         )
         return events
 

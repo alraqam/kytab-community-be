@@ -30,6 +30,10 @@ class Settings(BaseSettings):
 
     CLUB_INVITE_SECRET_KEY:str
 
+    REDIS_URL: str
+    CELERY_BROKER_URL: str
+    CELERY_RESULT_BACKEND: str
+
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env"
     )

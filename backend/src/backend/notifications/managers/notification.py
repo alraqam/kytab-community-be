@@ -78,7 +78,7 @@ class NotificationManager:
             )
 
         if preference is not None and preference.email_enabled and not preference.is_muted:
-            await send_notification_email(user.email, title, body)
+            send_notification_email.delay(user.email, title, body)
 
         return notification
 
