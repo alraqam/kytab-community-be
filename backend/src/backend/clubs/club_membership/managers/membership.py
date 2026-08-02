@@ -14,6 +14,8 @@ from src.backend.clubs.clubs.managers import ClubManager
 from src.backend.clubs.clubs.models import Club
 from src.backend.identity.auth.models import User
 from src.backend.identity.users.managers import UserManager
+from src.backend.notifications.managers.notification import NotificationManager
+from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
 
 
 class ClubMembershipManager:
@@ -32,6 +34,7 @@ class ClubMembershipManager:
         self.user_manager = UserManager(session)
         self.membership_repo = ClubMembershipRepository(session)
         self.club_blocked_manager = ClubBlockedManager(session)
+        self.notification_manager = NotificationManager(session)
 
     async def get_user_club_membership(
             self,
@@ -162,6 +165,13 @@ class ClubMembershipManager:
         await self.membership_repo.delete_membership(membership)
         await self.session.commit()
 
+        await self.notification_manager.notify(
+            member,
+            category=NotificationCategory.general,
+            title=f"You were removed from {club.name}",
+            club_id=club.id,
+        )
+
 
     async def get_memberships(
             self,
@@ -244,6 +254,13 @@ class ClubMembershipManager:
         await self.membership_repo.change_member_role(membership, MemberRole.club_moderator)
         await self.session.commit()
 
+        await self.notification_manager.notify(
+            member,
+            category=NotificationCategory.general,
+            title=f"You were made a moderator of {club.name}",
+            club_id=club.id,
+        )
+
     async def remove_moderator(
             self,
             club: Club,
@@ -275,4 +292,11 @@ class ClubMembershipManager:
 
         await self.membership_repo.change_member_role(membership, MemberRole.member)
         await self.session.commit()
+
+        await self.notification_manager.notify(
+            member,
+            category=NotificationCategory.general,
+            title=f"You are no longer a moderator of {club.name}",
+            club_id=club.id,
+        )
 

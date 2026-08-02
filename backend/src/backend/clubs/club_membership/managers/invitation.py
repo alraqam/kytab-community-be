@@ -7,7 +7,7 @@ from src.backend.clubs.club_membership.email import create_club_invite_token, se
 from src.backend.clubs.club_membership.managers.block import ClubBlockedManager
 from src.backend.identity.auth.exceptions import InvalidTokenError
 from src.backend.clubs.club_membership.exceptions import UnavailableInvitationError, InvitationNotFoundError, \
-    DuplicateInvitationError
+    DuplicateInvitationError, InviteeEmailDisabledError
 from src.backend.clubs.club_membership.managers.membership import ClubMembershipManager
 from src.backend.clubs.club_membership.models import ClubInvitation
 from src.backend.clubs.club_membership.repository.invitation import ClubInvitationRepository
@@ -16,6 +16,8 @@ from src.backend.clubs.club_membership.services import is_owner_or_moderator
 from src.backend.clubs.clubs.managers import ClubManager
 from src.backend.identity.auth.models import User
 from src.backend.identity.users.managers import UserManager
+from src.backend.notifications.managers.notification import NotificationManager
+from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
 
 
 
@@ -36,6 +38,7 @@ class ClubInvitationManager:
         self.membership_manager = ClubMembershipManager(session)
         self.club_blocked_manager = ClubBlockedManager(session)
         self.invitation_repo = ClubInvitationRepository(session)
+        self.notification_manager = NotificationManager(session)
 
     async def send_invitation(
             self,
@@ -74,6 +77,16 @@ class ClubInvitationManager:
         )
 
         await self.session.commit()
+
+        await self.notification_manager.create_notification(
+            user_id=invited_user.id,
+            category=NotificationCategory.club_invite,
+            title=f"You've been invited to join {club.name}",
+            body=f"{user.username} invited you to join {club.name}",
+            object_type=NotificationObjectType.invitation,
+            object_id=invitation.id,
+            club_id=club.id,
+        )
         return invitation
 
 
@@ -94,15 +107,31 @@ class ClubInvitationManager:
         if existing:
             raise DuplicateInvitationError("Invitation already pending")
 
+        preference = await self.notification_manager.get_effective_preference(
+            invited_user.id, NotificationCategory.club_invite, club.id
+        )
+        if preference is not None and (not preference.email_enabled or preference.is_muted):
+            raise InviteeEmailDisabledError("Invited user does not accept email invitations")
+
         invitation = await self.invitation_repo.create_invitation(
             club_id=club.id,
             invited_by_id=user.id,
             invited_user_id=invited_user.id
         )
         token = create_club_invite_token(invitation)
-        await send_club_invite_email(user.email, token)
+        await send_club_invite_email(invited_user.email, token)
 
         await self.session.commit()
+
+        await self.notification_manager.create_notification(
+            user_id=invited_user.id,
+            category=NotificationCategory.club_invite,
+            title=f"You've been invited to join {club.name}",
+            body=f"{user.username} invited you to join {club.name}",
+            object_type=NotificationObjectType.invitation,
+            object_id=invitation.id,
+            club_id=club.id,
+        )
         return invitation
 
     async def get_invitation_email(
@@ -143,6 +172,16 @@ class ClubInvitationManager:
         await self.membership_manager.join_club(user, club)
 
         await self.session.commit()
+
+        inviter = await self.user_manager.get_user_by_id(invitation.invited_by_id)
+        await self.notification_manager.notify(
+            inviter,
+            category=NotificationCategory.general,
+            title=f"{user.username} accepted your invite to {club.name}",
+            object_type=NotificationObjectType.invitation,
+            object_id=invitation.id,
+            club_id=club.id,
+        )
 
     async def decline_invitation(
             self,

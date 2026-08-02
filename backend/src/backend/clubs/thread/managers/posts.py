@@ -1,3 +1,5 @@
+import re
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.clubs.reading_session.models import ReadingSession, Milestone
@@ -14,6 +16,11 @@ from src.backend.clubs.thread.schemas import CreatePost, UpdatePost
 from src.backend.clubs.clubs.managers import ClubManager
 from src.backend.clubs.clubs.models import Club
 from src.backend.identity.auth.models import User
+from src.backend.identity.users.managers import UserManager
+from src.backend.notifications.managers.notification import NotificationManager
+from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
+
+MENTION_PATTERN = re.compile(r"@(\w+)")
 
 class PostManager:
     def __init__(
@@ -26,6 +33,29 @@ class PostManager:
         self.thread_manager = ThreadManager(session)
         self.milestone_progress_manager = MilestoneProgressManager(session)
         self.milestone_manager = MilestoneManager(session)
+        self.user_manager = UserManager(session)
+        self.notification_manager = NotificationManager(session)
+
+    async def _notify_mentions(
+            self,
+            user: User,
+            club: Club,
+            post: Post,
+    ) -> None:
+        usernames = set(MENTION_PATTERN.findall(post.body))
+        for username in usernames:
+            mentioned = await self.user_manager.get_user_by_username(username)
+            if not mentioned or mentioned.id == user.id:
+                continue
+            await self.notification_manager.notify(
+                mentioned,
+                category=NotificationCategory.mention,
+                title=f"{user.username} mentioned you in {club.name}",
+                body=post.title,
+                object_type=NotificationObjectType.post,
+                object_id=post.id,
+                club_id=club.id,
+            )
 
     async def create_post(
             self,
@@ -53,6 +83,9 @@ class PostManager:
             parent_post_id=request.parent_post_id,
         )
         await self.session.commit()
+
+        if not request.is_spoiler:
+            await self._notify_mentions(user, club, response)
         return response
 
 

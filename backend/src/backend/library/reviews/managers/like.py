@@ -2,10 +2,13 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.identity.auth.models import User
+from src.backend.identity.users.managers import UserManager
 from src.backend.library.reviews.dependencies import is_review_like_owner
 from src.backend.library.reviews.exceptions import ReviewLikeNotFoundError, ReviewLikeAlreadyExists
 from src.backend.library.reviews.models import Review, ReviewLike
 from src.backend.library.reviews.repositories.like import ReviewLikeRepository
+from src.backend.notifications.managers.notification import NotificationManager
+from src.backend.notifications.schemas import NotificationCategory
 
 
 class ReviewLikeManager:
@@ -16,6 +19,8 @@ class ReviewLikeManager:
     ):
         self.session = session
         self.like_repo = ReviewLikeRepository(session)
+        self.user_manager = UserManager(session)
+        self.notification_manager = NotificationManager(session)
 
     async def create_like(
             self,
@@ -28,6 +33,14 @@ class ReviewLikeManager:
                 review_id=review.id,
             )
             await self.session.commit()
+
+            if review.user_id != user.id:
+                owner = await self.user_manager.get_user_by_id(review.user_id)
+                await self.notification_manager.notify(
+                    owner,
+                    category=NotificationCategory.general,
+                    title=f"{user.username} liked your review",
+                )
             return response
         except IntegrityError:
             await self.session.rollback()

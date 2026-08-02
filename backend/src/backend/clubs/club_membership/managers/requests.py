@@ -14,6 +14,8 @@ from src.backend.clubs.club_membership.services import is_owner_or_moderator
 from src.backend.clubs.clubs.managers import ClubManager
 from src.backend.identity.auth.models import User
 from src.backend.identity.users.managers import UserManager
+from src.backend.notifications.managers.notification import NotificationManager
+from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
 
 
 class ClubJoinRequestManager:
@@ -33,6 +35,7 @@ class ClubJoinRequestManager:
         self.membership_manager = ClubMembershipManager(session)
         self.club_blocked_manager = ClubBlockedManager(session)
         self.request_repo = ClubJoinRequestRepository(session)
+        self.notification_manager = NotificationManager(session)
 
     async def send_join_request(
             self,
@@ -62,6 +65,19 @@ class ClubJoinRequestManager:
         )
 
         await self.session.commit()
+
+        owners_and_moderators = await self.membership_manager.get_club_owner_moderator(club)
+        recipients = []
+        for membership in owners_and_moderators:
+            recipients.append(await self.user_manager.get_user_by_id(membership.user_id))
+        await self.notification_manager.notify_many(
+            recipients,
+            category=NotificationCategory.general,
+            title=f"{user.username} requested to join {club.name}",
+            object_type=NotificationObjectType.join_request,
+            object_id=join_request.id,
+            club_id=club.id,
+        )
         return join_request
 
     async def accept_join_request(
@@ -93,6 +109,15 @@ class ClubJoinRequestManager:
         await self.membership_manager.join_club(member, club)
         await self.session.commit()
 
+        await self.notification_manager.notify(
+            member,
+            category=NotificationCategory.join_approval,
+            title=f"Your request to join {club.name} was approved",
+            object_type=NotificationObjectType.join_request,
+            object_id=join_request.id,
+            club_id=club.id,
+        )
+
     async def reject_join_request(
             self,
             user: User,
@@ -119,6 +144,16 @@ class ClubJoinRequestManager:
             status=JoinRequestStatus.rejected,
         )
         await self.session.commit()
+
+        member = await self.user_manager.get_user_by_id(join_request.user_id)
+        await self.notification_manager.notify(
+            member,
+            category=NotificationCategory.join_approval,
+            title=f"Your request to join {club.name} was declined",
+            object_type=NotificationObjectType.join_request,
+            object_id=join_request.id,
+            club_id=club.id,
+        )
 
     async def get_request_by_id(
             self,

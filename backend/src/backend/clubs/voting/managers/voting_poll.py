@@ -15,6 +15,8 @@ from src.backend.clubs.voting.models import VotingPoll
 from src.backend.clubs.voting.schemas import VotingStatus, CreateVotingPoll, UpdateVotingPoll
 from src.backend.identity.auth.models import User
 from src.backend.identity.users.managers import UserManager
+from src.backend.notifications.managers.notification import NotificationManager
+from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
 
 
 class VotingPollManager:
@@ -35,6 +37,31 @@ class VotingPollManager:
         self.votes_manager = VotePollManager(session)
         self.candidate_manager = PollCandidateManager(session)
         self.membership_manager = ClubMembershipManager(session)
+        self.notification_manager = NotificationManager(session)
+
+    async def _notify_other_members(
+            self,
+            user: User,
+            club: Club,
+            category: str,
+            title: str,
+            object_type: str,
+            object_id: int,
+    ) -> None:
+        memberships = await self.membership_manager.get_memberships(club, user)
+        recipients = [
+            await self.user_manager.get_user_by_id(membership.user_id)
+            for membership in memberships
+            if membership.user_id != user.id
+        ]
+        await self.notification_manager.notify_many(
+            recipients,
+            category=category,
+            title=title,
+            object_type=object_type,
+            object_id=object_id,
+            club_id=club.id,
+        )
 
     async def create_poll(
             self,
@@ -73,6 +100,14 @@ class VotingPollManager:
         )
 
         await self.session.commit()
+
+        await self._notify_other_members(
+            user, club,
+            category=NotificationCategory.poll_opening,
+            title=f"A new poll is open in {club.name}",
+            object_type=NotificationObjectType.poll,
+            object_id=response.id,
+        )
         return response
 
     async def update_voting_poll(
@@ -132,6 +167,14 @@ class VotingPollManager:
             status=VotingStatus.closed
         )
         await self.session.commit()
+
+        await self._notify_other_members(
+            user, club,
+            category=NotificationCategory.poll_closing,
+            title=f"The poll in {club.name} has closed",
+            object_type=NotificationObjectType.poll,
+            object_id=poll.id,
+        )
 
     async def delete_voting_poll(
             self,

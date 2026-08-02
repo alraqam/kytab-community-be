@@ -98,6 +98,12 @@ class UserManager:
             raise UserNotFoundError("User not found")
         return user
 
+    async def get_user_by_username(
+            self,
+            username: str,
+    ) -> User | None:
+        return await self.user_repo.get_user_by_username(username)
+
     async def get_all_users(
             self,
             filters: UserFilter

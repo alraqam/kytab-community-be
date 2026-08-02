@@ -64,6 +64,9 @@ from src.backend.trust_safety.complaint.routers.admin import router as admin_com
 from src.backend.trust_safety.consent.routers.document import router as document_router
 from src.backend.trust_safety.consent.routers.consent import router as consent_router
 
+from src.backend.notifications.routers.preference import router as preference_router
+from src.backend.notifications.routers.notification import router as notification_router
+
 
 app = FastAPI(
     version="1.0.0",
@@ -124,6 +127,8 @@ app.include_router(public_complaint_router)
 app.include_router(admin_complaint_router)
 app.include_router(document_router)
 app.include_router(consent_router)
+app.include_router(preference_router)
+app.include_router(notification_router)
 
 app.add_exception_handler(Unauthorized, unauthorized_exception_handler)
 app.add_exception_handler(Forbidden, forbidden_exception_handler)

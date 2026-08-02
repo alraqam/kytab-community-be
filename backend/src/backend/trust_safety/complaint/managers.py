@@ -10,6 +10,8 @@ from src.backend.trust_safety.complaint.filters import ComplaintFilter
 from src.backend.trust_safety.complaint.models import Complaint
 from src.backend.trust_safety.complaint.repository import ComplaintRepository
 from src.backend.trust_safety.complaint.schemas import CreateComplaint, ComplaintObjectType, ComplaintStatus
+from src.backend.notifications.managers.notification import NotificationManager
+from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
 
 
 class ComplaintManager:
@@ -23,6 +25,7 @@ class ComplaintManager:
         self.club_manager = ClubManager(session)
         self.comment_manager = ReviewCommentManager(session)
         self.user_manager = UserManager(session)
+        self.notification_manager = NotificationManager(session)
 
 
     async def create_compliant(
@@ -64,6 +67,15 @@ class ComplaintManager:
         await self.complaint_repo.update_complaint_status(complaint, ComplaintStatus.reviewed)
         await self.session.commit()
 
+        reporter = await self.user_manager.get_user_by_id(complaint.reporter_id)
+        await self.notification_manager.notify(
+            reporter,
+            category=NotificationCategory.general,
+            title="Your report has been reviewed",
+            object_type=NotificationObjectType.complaint,
+            object_id=complaint.id,
+        )
+
     async def dismiss_complaint(
             self,
             user: User,
@@ -77,6 +89,15 @@ class ComplaintManager:
         )
         await self.complaint_repo.update_complaint_status(complaint, ComplaintStatus.dismissed)
         await self.session.commit()
+
+        reporter = await self.user_manager.get_user_by_id(complaint.reporter_id)
+        await self.notification_manager.notify(
+            reporter,
+            category=NotificationCategory.general,
+            title="Your report has been dismissed",
+            object_type=NotificationObjectType.complaint,
+            object_id=complaint.id,
+        )
 
     async def get_complaints(
             self,

@@ -54,3 +54,6 @@ class MemberBlockedError(Conflict):
 
 class DuplicateInvitationError(Conflict):
     pass
+
+class InviteeEmailDisabledError(Conflict):
+    pass

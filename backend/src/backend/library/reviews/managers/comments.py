@@ -4,11 +4,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.identity.auth.models import User
 from src.backend.identity.users.dependencies import is_admin
+from src.backend.identity.users.managers import UserManager
 from src.backend.library.reviews.dependencies import is_review_comment_owner
-from src.backend.library.reviews.exceptions import ReviewCommentNotFoundError
+from src.backend.library.reviews.exceptions import ReviewCommentNotFoundError, ReviewLikeAlreadyExists
 from src.backend.library.reviews.models import ReviewComment, Review
 from src.backend.library.reviews.repositories.comments import ReviewCommentRepository
 from src.backend.library.reviews.schemas import CreateReviewComment, UpdateReviewComment
+from src.backend.notifications.managers.notification import NotificationManager
+from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
 
 
 class ReviewCommentManager:
@@ -19,6 +22,9 @@ class ReviewCommentManager:
     ):
         self.session = session
         self.comment_repo = ReviewCommentRepository(session)
+        self.user_manager = UserManager(session)
+        self.notification_manager = NotificationManager(session)
+
     async def create_comment(
             self,
             user: User,
@@ -32,6 +38,16 @@ class ReviewCommentManager:
                 text=request.text,
             )
             await self.session.commit()
+
+            if review.user_id != user.id:
+                owner = await self.user_manager.get_user_by_id(review.user_id)
+                await self.notification_manager.notify(
+                    owner,
+                    category=NotificationCategory.general,
+                    title=f"{user.username} commented on your review",
+                    object_type=NotificationObjectType.comment,
+                    object_id=response.id,
+                )
             return response
         except IntegrityError:
             raise ReviewLikeAlreadyExists("Like for this review already exists")

@@ -10,6 +10,9 @@ from src.backend.clubs.events.models import EventRSVP, ClubEvent
 from src.backend.clubs.events.repository.rsvp import EventRSVPRepository
 from src.backend.clubs.events.schemas import CreateEventRSVP
 from src.backend.identity.auth.models import User
+from src.backend.identity.users.managers import UserManager
+from src.backend.notifications.managers.notification import NotificationManager
+from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
 
 
 class EventRSVPManager:
@@ -19,6 +22,8 @@ class EventRSVPManager:
     ):
         self.session = session
         self.rsvp_repo = EventRSVPRepository(session)
+        self.user_manager = UserManager(session)
+        self.notification_manager = NotificationManager(session)
 
     async def create_rsvp(
             self,
@@ -39,6 +44,17 @@ class EventRSVPManager:
         )
 
         await self.session.commit()
+
+        if event.created_by_id != user.id:
+            creator = await self.user_manager.get_user_by_id(event.created_by_id)
+            await self.notification_manager.notify(
+                creator,
+                category=NotificationCategory.general,
+                title=f"{user.username} RSVP'd {request.status} to {event.title}",
+                object_type=NotificationObjectType.event,
+                object_id=event.id,
+                club_id=club.id,
+            )
         return response
 
     async def get_event_rsvps(
