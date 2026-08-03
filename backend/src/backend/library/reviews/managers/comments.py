@@ -14,6 +14,7 @@ from src.backend.notifications.schemas import NotificationCategory, Notification
 
 
 class ReviewCommentManager:
+    """Handles business logic for review comments: creation, updates, deletion, and comment notifications."""
 
     def __init__(
             self,
@@ -30,26 +31,33 @@ class ReviewCommentManager:
             review: Review,
             request: CreateReviewComment
     ) -> ReviewComment:
-        try:
-            response = await self.comment_repo.create_comment(
-                user_id=user.id,
-                review_id=review.id,
-                text=request.text,
-            )
-            await self.session.commit()
+        """Creates a comment on a review and notifies the review's author.
 
-            if review.user_id != user.id:
-                owner = await self.user_manager.get_user_by_id(review.user_id)
-                await self.notification_manager.notify(
-                    owner,
-                    category=NotificationCategory.general,
-                    title=f"{user.username} commented on your review",
-                    object_type=NotificationObjectType.comment,
-                    object_id=response.id,
-                )
-            return response
-        except IntegrityError:
-            raise ReviewLikeAlreadyExists("Like for this review already exists")
+        Args:
+            user: User creating the comment.
+            review: Review instance being commented on.
+            request: CreateReviewComment payload with the comment text.
+
+        Returns:
+            Newly created ReviewComment instance.
+        """
+        response = await self.comment_repo.create_comment(
+            user_id=user.id,
+            review_id=review.id,
+            text=request.text,
+        )
+        await self.session.commit()
+
+        if review.user_id != user.id:
+            owner = await self.user_manager.get_user_by_id(review.user_id)
+            await self.notification_manager.notify(
+                owner,
+                category=NotificationCategory.general,
+                title=f"{user.username} commented on your review",
+                object_type=NotificationObjectType.comment,
+                object_id=response.id,
+            )
+        return response
 
     async def update_comment(
             self,
@@ -57,6 +65,16 @@ class ReviewCommentManager:
             comment: ReviewComment,
             request: UpdateReviewComment
     ) -> None:
+        """Updates a comment's text.
+
+        Args:
+            user: User requesting the update; must own the comment.
+            comment: ReviewComment instance to update.
+            request: UpdateReviewComment payload with the new text.
+
+        Raises:
+            IsNotReviewCommentOwnerError: When the user did not create the comment.
+        """
         await is_review_comment_owner(user, comment)
 
         await self.comment_repo.update_comment(
@@ -70,6 +88,15 @@ class ReviewCommentManager:
             user: User,
             comment: ReviewComment,
     ) -> None:
+        """Deletes a comment owned by the given user.
+
+        Args:
+            user: User requesting the deletion; must own the comment.
+            comment: ReviewComment instance to delete.
+
+        Raises:
+            IsNotReviewCommentOwnerError: When the user did not create the comment.
+        """
         await is_review_comment_owner(user, comment)
 
         await self.comment_repo.delete_comment(
@@ -82,6 +109,15 @@ class ReviewCommentManager:
             user: User,
             comment: ReviewComment,
     ) -> None:
+        """Deletes a comment on behalf of an admin, regardless of ownership.
+
+        Args:
+            user: User requesting the deletion; must be an admin.
+            comment: ReviewComment instance to delete.
+
+        Raises:
+            PermissionDeniedError: When the user is not an admin.
+        """
         await is_admin(user)
 
         await self.comment_repo.delete_comment(
@@ -93,6 +129,14 @@ class ReviewCommentManager:
             self,
             review: Review,
     ) -> list[ReviewComment]:
+        """Lists all comments on a review.
+
+        Args:
+            review: Review instance to list comments for.
+
+        Returns:
+            List of matching ReviewComment instances.
+        """
         comments = await self.comment_repo.get_review_comments(review_id=review.id)
         return comments
 
@@ -100,6 +144,17 @@ class ReviewCommentManager:
             self,
             comment_id: int,
     ) -> ReviewComment:
+        """Fetches a single comment by ID.
+
+        Args:
+            comment_id: ID of the comment to fetch.
+
+        Returns:
+            Matching ReviewComment instance.
+
+        Raises:
+            ReviewCommentNotFoundError: When no comment matches the ID.
+        """
         result = await self.comment_repo.get_comment_by_id(comment_id=comment_id)
         if not result:
             raise ReviewCommentNotFoundError("Comment not found")

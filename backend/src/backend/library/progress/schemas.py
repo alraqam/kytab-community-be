@@ -25,6 +25,8 @@ class GetProgressLog(BaseModel):
 
 
 class GetReadingPeriod(BaseModel):
+    """Reading period data returned in API responses."""
+
     id: int
     shelf_item_id: int
     started_at: datetime

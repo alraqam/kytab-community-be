@@ -16,10 +16,16 @@ from src.backend.notifications.schemas import NotificationCategory, Notification
 
 
 class ClubEventManager:
+    """Handles business logic for club events: creation, updates, deletion, and retrieval."""
+
     def __init__(
             self,
             session: AsyncSession
     ):
+        """
+        Args:
+            session: Async SQLAlchemy session.
+        """
         self.session = session
         self.event_repo = ClubEventRepository(session)
         self.membership_manager = ClubMembershipManager(session)
@@ -35,6 +41,16 @@ class ClubEventManager:
             object_type: str,
             object_id: int,
     ) -> None:
+        """Notifies every club member except the given user about an event change.
+
+        Args:
+            user: User to exclude from notification (the actor).
+            club: Club whose members will be notified.
+            category: Notification category.
+            title: Notification title text.
+            object_type: Type of the object the notification refers to.
+            object_id: ID of the object the notification refers to.
+        """
         memberships = await self.membership_manager.get_memberships(club, user)
         recipients = [
             await self.user_manager.get_user_by_id(membership.user_id)
@@ -56,6 +72,20 @@ class ClubEventManager:
             club: Club,
             request: CreateClubEvent
     ) -> ClubEvent:
+        """Creates a new club event and notifies the other club members.
+
+        Args:
+            user: User creating the event; must be the club owner or a moderator.
+            club: Club the event belongs to.
+            request: CreateClubEvent payload with event details.
+
+        Returns:
+            Newly created ClubEvent instance.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not an owner or moderator.
+            EventDateInPastError: When the start or end time is in the past, or start is not before end.
+        """
         is_owner_or_moderator(club, user.id)
 
         if request.start_at <= datetime.now(timezone.utc) or request.end_at <= datetime.now(timezone.utc):
@@ -94,6 +124,18 @@ class ClubEventManager:
             event: ClubEvent,
             request: UpdateClubEvent
     ) -> None:
+        """Updates a club event's fields and notifies the other club members.
+
+        Args:
+            user: User updating the event; must be the club owner or a moderator.
+            club: Club the event belongs to.
+            event: ClubEvent instance to update.
+            request: UpdateClubEvent payload with the fields to change.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not an owner or moderator.
+            EventDateInPastError: When the new start or end time is in the past.
+        """
         is_owner_or_moderator(club, user.id)
 
         if request.start_at:
@@ -131,6 +173,16 @@ class ClubEventManager:
             club: Club,
             event: ClubEvent,
     ) -> None:
+        """Deletes a club event.
+
+        Args:
+            user: User deleting the event; must be the club owner or a moderator.
+            club: Club the event belongs to.
+            event: ClubEvent instance to delete.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not an owner or moderator.
+        """
         is_owner_or_moderator(club, user.id)
 
         await self.event_repo.delete_event(
@@ -143,6 +195,18 @@ class ClubEventManager:
             user: User,
             club: Club
     ) -> list[ClubEvent]:
+        """Lists all events for a club.
+
+        Args:
+            user: User requesting the events; must be a club member.
+            club: Club whose events are being listed.
+
+        Returns:
+            List of matching ClubEvent instances.
+
+        Raises:
+            NotClubMemberError: When the user is not a member of the club.
+        """
         await is_club_member(club, user, self.session)
         events = await self.event_repo.get_club_events(
             club_id=club.id,
@@ -154,6 +218,18 @@ class ClubEventManager:
             user: User,
             club: Club
     ) -> list[ClubEvent]:
+        """Lists a club's events that have not yet started.
+
+        Args:
+            user: User requesting the events; must be a club member.
+            club: Club whose future events are being listed.
+
+        Returns:
+            List of matching ClubEvent instances.
+
+        Raises:
+            NotClubMemberError: When the user is not a member of the club.
+        """
         await is_club_member(club, user, self.session)
         events = await self.event_repo.get_club_future_events(
             club_id=club.id,
@@ -164,6 +240,14 @@ class ClubEventManager:
             self,
             start_date: date
     ):
+        """Lists events starting on the given date, with their club preloaded.
+
+        Args:
+            start_date: Date to match against event start times.
+
+        Returns:
+            List of matching ClubEvent instances.
+        """
         events = await self.event_repo.get_event_with_time(
             start_date=start_date,
         )
@@ -173,6 +257,17 @@ class ClubEventManager:
             self,
             event_id: int,
     ) -> ClubEvent:
+        """Fetches a single event by ID.
+
+        Args:
+            event_id: ID of the event to fetch.
+
+        Returns:
+            Matching ClubEvent instance.
+
+        Raises:
+            EventNotFoundError: When no event with the given ID exists.
+        """
         event = await self.event_repo.get_event_by_id(
             event_id=event_id,
         )

@@ -4,6 +4,8 @@ from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
 
 
 class Thread(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a discussion thread, either club-general or scoped to a reading session milestone."""
+
     __tablename__ = "threads"
 
     club_id = Column(BigInteger, ForeignKey("clubs.id", ondelete="CASCADE"), nullable=False)
@@ -17,6 +19,8 @@ class Thread(Base, IntIdMixin, TimeActionMixin):
 
 
 class Post(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a single post within a discussion thread, optionally a reply to another post."""
+
     __tablename__ = "posts"
 
     thread_id = Column(BigInteger, ForeignKey("threads.id", ondelete="CASCADE"), nullable=False)
@@ -29,6 +33,8 @@ class Post(Base, IntIdMixin, TimeActionMixin):
     deleted_at = Column(DateTime, nullable=True)
 
 class PostReaction(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a user's emoji reaction to a post."""
+
     __tablename__ = "post_reactions"
 
     post_id = Column(BigInteger, ForeignKey("posts.id", ondelete="CASCADE"), nullable=True)

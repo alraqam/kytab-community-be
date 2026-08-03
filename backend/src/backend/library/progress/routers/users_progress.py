@@ -15,6 +15,8 @@ router = APIRouter(
 
 @cbv(router)
 class UserProgressRouter:
+    """CBV router for fetching a user's own progress logs and reading periods."""
+
     user: User = Depends(get_current_user)
     progress_log_manager: ProgressLogManager = Depends(get_progress_log_manager)
     reading_period_manager: ReadingPeriodManager = Depends(get_reading_period_manager)
@@ -27,6 +29,7 @@ class UserProgressRouter:
     async def get_my_progress_logs(
             self,
     ):
+        """Fetches the current user's progress logs."""
         result = await self.progress_log_manager.get_my_progress_logs(self.user)
         return result
 
@@ -38,5 +41,6 @@ class UserProgressRouter:
     async def get_my_reading_periods(
             self,
     ):
+        """Fetches the current user's reading periods."""
         result = await self.reading_period_manager.get_my_reading_periods(self.user)
         return result

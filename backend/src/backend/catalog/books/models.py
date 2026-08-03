@@ -4,6 +4,8 @@ from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
 
 
 class Work(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing an abstract literary work, independent of any specific edition."""
+
     __tablename__ = "works"
 
     canonical_title = Column(String(512), nullable=False)
@@ -12,6 +14,8 @@ class Work(Base, IntIdMixin, TimeActionMixin):
 
 
 class Edition(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a specific published edition of a Work (e.g. a particular publisher/printing)."""
+
     __tablename__ = "editions"
 
     work_id = Column(BigInteger, ForeignKey("works.id", ondelete="CASCADE"), nullable=False)
@@ -28,6 +32,8 @@ class Edition(Base, IntIdMixin, TimeActionMixin):
 
 
 class Author(Base, IntIdMixin):
+    """ORM model representing a book author."""
+
     __tablename__ = "authors"
 
     name = Column(String(512), nullable=False)
@@ -35,6 +41,8 @@ class Author(Base, IntIdMixin):
     photo_url = Column(Text, nullable=True)
 
 class WorkAuthor(Base, IntIdMixin):
+    """ORM model linking an Author to a Work, with an optional display order."""
+
     __tablename__ = "work_author"
 
     author_id = Column(BigInteger, ForeignKey("authors.id", ondelete="CASCADE"), nullable=False)
@@ -47,11 +55,15 @@ class WorkAuthor(Base, IntIdMixin):
 
 
 class Series(Base, IntIdMixin):
+    """ORM model representing a book series."""
+
     __tablename__ = "series"
 
     name = Column(String(512), nullable=False)
 
 class WorkSeries(Base, IntIdMixin):
+    """ORM model linking a Work to a Series, with an optional sequence number."""
+
     __tablename__ = "work_series"
 
     work_id = Column(BigInteger, ForeignKey("works.id", ondelete="CASCADE"), nullable=False)
@@ -64,12 +76,16 @@ class WorkSeries(Base, IntIdMixin):
 
 
 class Genre(Base, IntIdMixin):
+    """ORM model representing a book genre/category."""
+
     __tablename__ = "genres"
 
     name = Column(String(512), nullable=False)
     slug  = Column(Text, nullable=False)
 
 class WorkGenre (Base, IntIdMixin):
+    """ORM model linking a Work to a Genre."""
+
     __tablename__ = "work_genre"
 
     work_id = Column(BigInteger, ForeignKey("works.id", ondelete="CASCADE"), nullable=False)

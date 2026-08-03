@@ -25,5 +25,6 @@ class UserAnalyticsAdminRouter:
         response_model=GetPlatformUserAnalytics,
     )
     async def get_platform_analytics(self):
+        """Fetches platform-wide user analytics."""
         result = await self.manager.get_platform_analytics()
         return result

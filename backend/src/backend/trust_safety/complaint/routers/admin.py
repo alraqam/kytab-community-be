@@ -17,6 +17,8 @@ router = APIRouter(
 
 @cbv(router)
 class ComplaintAdminRouter:
+    """CBV router for platform-level moderation of complaints: review, resolve, and enforce."""
+
     manager: ComplaintManager = Depends(get_complaint_manager)
     user: User = Depends(is_admin)
 
@@ -28,6 +30,7 @@ class ComplaintAdminRouter:
             self,
             complaint: Complaint = Depends(get_complaint_or_404)
     ):
+        """Marks a complaint as reviewed."""
         return await self.manager.resolve_complaint(self.user, complaint)
 
     @router.put(
@@ -38,6 +41,7 @@ class ComplaintAdminRouter:
             self,
             complaint: Complaint = Depends(get_complaint_or_404)
     ):
+        """Dismisses a complaint without action."""
         return await self.manager.dismiss_complaint(self.user, complaint)
 
     @router.put(
@@ -48,6 +52,7 @@ class ComplaintAdminRouter:
             self,
             complaint: Complaint = Depends(get_complaint_or_404)
     ):
+        """Deletes the content a complaint reports and resolves the complaint."""
         await self.manager.remove_complaint_content(self.user, complaint)
 
     @router.put(
@@ -59,6 +64,7 @@ class ComplaintAdminRouter:
             request: WarnComplaintTarget,
             complaint: Complaint = Depends(get_complaint_or_404)
     ):
+        """Sends a moderation warning to a complaint's target user."""
         await self.manager.warn_complaint_target(self.user, complaint, request)
 
     @router.put(
@@ -69,6 +75,7 @@ class ComplaintAdminRouter:
             self,
             complaint: Complaint = Depends(get_complaint_or_404)
     ):
+        """Suspends a complaint's target user."""
         await self.manager.suspend_complaint_target(self.user, complaint)
 
     @router.put(
@@ -79,6 +86,7 @@ class ComplaintAdminRouter:
             self,
             complaint: Complaint = Depends(get_complaint_or_404)
     ):
+        """Bans a complaint's target user."""
         await self.manager.ban_complaint_target(self.user, complaint)
 
     @router.get(
@@ -90,5 +98,6 @@ class ComplaintAdminRouter:
             self,
             filters: ComplaintFilter = FilterDepends(ComplaintFilter)
     ):
+        """Lists complaints, optionally filtered."""
         result = await self.manager.get_complaints(filters)
         return result

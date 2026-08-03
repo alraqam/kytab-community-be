@@ -28,11 +28,7 @@ class ProfileRouter:
             self,
             request: UpdateProfileAvatar,
     ):
-        """Updates the current user's avatar URL.
-
-        Args:
-            request: UpdateUserAvatar payload with the new avatar_url.
-        """
+        """Updates the current user's avatar URL."""
         await self.manager.update_avatar(self.user, request)
 
     @router.put(
@@ -43,6 +39,7 @@ class ProfileRouter:
             self,
             request: UpdateProfile,
     ):
+        """Updates the current user's profile fields."""
         await self.manager.update_profile(self.user, request)
 
     @router.put(
@@ -53,6 +50,7 @@ class ProfileRouter:
             self,
             request: UpdateProfileVisibility,
     ):
+        """Updates the current user's profile visibility setting."""
         await self.manager.update_visibility(self.user, request)
 
     @router.get(
@@ -63,6 +61,7 @@ class ProfileRouter:
     async def get_my_profile(
             self,
     ):
+        """Fetches the current user's own profile."""
         result = await self.manager.get_profile_by_user(self.user)
         return result
 
@@ -75,5 +74,6 @@ class ProfileRouter:
             self,
             get_user: User = Depends(get_user_or_404)
     ):
+        """Fetches another user's profile, enforcing visibility rules."""
         result = await self.manager.get_profile(self.user, get_user)
         return result

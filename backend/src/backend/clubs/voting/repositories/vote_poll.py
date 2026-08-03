@@ -67,7 +67,7 @@ class VotePollRepository:
         Returns:
             PollVote instance if found, None otherwise.
         """
-        stmt = select(PollVote).where(PollVote.vote_id == vote_id)
+        stmt = select(PollVote).where(PollVote.id == vote_id)
         result = await self.session.execute(stmt)
         vote = result.scalar_one_or_none()
         return vote

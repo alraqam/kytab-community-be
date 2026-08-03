@@ -13,6 +13,8 @@ from src.backend.identity.auth.models import User
 
 
 class MilestoneProgressManager:
+    """Handles business logic for tracking a user's progress through reading session milestones."""
+
     def __init__(
             self,
             session: AsyncSession
@@ -28,6 +30,22 @@ class MilestoneProgressManager:
             reading_session: ReadingSession,
             milestone: Milestone,
     ) -> MilestoneProgress:
+        """Creates a milestone progress record for a club member in an active session.
+
+        Args:
+            user: User creating their progress record.
+            club: Club the reading session belongs to.
+            reading_session: ReadingSession the milestone belongs to.
+            milestone: Milestone the user is tracking progress against.
+
+        Returns:
+            Newly created MilestoneProgress instance.
+
+        Raises:
+            NotClubMemberError: When the user is not a member of the club.
+            ActiveSessionError: When the reading session is already completed.
+            MilestoneProgressAlreadyExists: When progress for this session already exists.
+        """
         await is_club_member(club, user, self.session)
 
         if reading_session.completed_at:
@@ -52,6 +70,18 @@ class MilestoneProgressManager:
             reading_session: ReadingSession,
             milestone: Milestone,
     ) -> None:
+        """Updates which milestone a progress record points to, for the owning user, in an active session.
+
+        Args:
+            progress: MilestoneProgress instance to update.
+            user: User expected to own the progress record.
+            reading_session: ReadingSession the milestone belongs to.
+            milestone: New Milestone to associate with the progress record.
+
+        Raises:
+            IsNotProgressOwner: When the user does not own the progress record.
+            ActiveSessionError: When the reading session is already completed.
+        """
         await is_milestone_progress_owner(progress, user)
 
         if reading_session.completed_at:
@@ -68,6 +98,15 @@ class MilestoneProgressManager:
             progress: MilestoneProgress,
             user: User,
     ) -> None:
+        """Marks a milestone progress record as finished, for the owning user.
+
+        Args:
+            progress: MilestoneProgress instance to mark finished.
+            user: User expected to own the progress record.
+
+        Raises:
+            IsNotProgressOwner: When the user does not own the progress record.
+        """
         await is_milestone_progress_owner(progress, user)
 
         await self.progress_repo.update_milestone_progress_finished(
@@ -81,6 +120,15 @@ class MilestoneProgressManager:
             progress: MilestoneProgress,
             user: User,
     ) -> None:
+        """Deletes a milestone progress record, for the owning user.
+
+        Args:
+            progress: MilestoneProgress instance to delete.
+            user: User expected to own the progress record.
+
+        Raises:
+            IsNotProgressOwner: When the user does not own the progress record.
+        """
         await is_milestone_progress_owner(progress, user)
 
         await self.progress_repo.delete_milestone_progress(
@@ -93,6 +141,18 @@ class MilestoneProgressManager:
             reading_session: ReadingSession,
             user: User,
     ) -> MilestoneProgress:
+        """Fetches a user's milestone progress record for a reading session.
+
+        Args:
+            reading_session: ReadingSession to look up progress for.
+            user: User whose progress record is fetched.
+
+        Returns:
+            Matching MilestoneProgress instance.
+
+        Raises:
+            MilestoneProgressNotFound: When no progress record exists for the user and session.
+        """
         progress = await self.progress_repo.get_user_milestone_progress(
             session_id=reading_session.id,
             user_id=user.id,
@@ -107,6 +167,19 @@ class MilestoneProgressManager:
             user: User,
             club: Club,
     ) -> list[MilestoneProgress]:
+        """Lists all milestone progress records for a reading session.
+
+        Args:
+            reading_session: ReadingSession to list progress for.
+            user: User requesting the list; must be a club member.
+            club: Club the reading session belongs to.
+
+        Returns:
+            List of matching MilestoneProgress instances.
+
+        Raises:
+            NotClubMemberError: When the user is not a member of the club.
+        """
         await is_club_member(club, user, self.session)
 
         progress = await self.progress_repo.get_session_milestone_progress(
@@ -118,6 +191,17 @@ class MilestoneProgressManager:
             self,
             progress_id: int,
     ) -> MilestoneProgress:
+        """Fetches a milestone progress record by ID.
+
+        Args:
+            progress_id: ID of the progress record to fetch.
+
+        Returns:
+            Matching MilestoneProgress instance.
+
+        Raises:
+            MilestoneProgressNotFound: When no progress record matches the ID.
+        """
         progress = await self.progress_repo.get_milestone_progress_by_id(
             progress_id=progress_id
         )

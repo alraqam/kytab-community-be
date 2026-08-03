@@ -30,14 +30,7 @@ class AuthorRouter:
             self,
             filters: AuthorFilter = FilterDepends(AuthorFilter),
     ):
-        """Returns all authors with optional search and sort.
-
-        Args:
-            filters: AuthorFilter with optional search query and sort order.
-
-        Returns:
-            List of Author instances.
-        """
+        """Returns all authors with optional search and sort."""
         return await self.manager.get_all_authors(filters)
 
     @router.get(
@@ -49,14 +42,7 @@ class AuthorRouter:
             self,
             author: Author = Depends(get_author_or_404),
     ):
-        """Returns the author with the given ID.
-
-        Args:
-            author: Author instance resolved via get_author_or_404.
-
-        Returns:
-            Author instance.
-        """
+        """Returns the author with the given ID."""
         return author
 
     @router.get(
@@ -68,12 +54,5 @@ class AuthorRouter:
             self,
             author: Author = Depends(get_author_or_404),
     ):
-        """Returns all works linked to the given author.
-
-        Args:
-            author: Author instance resolved via get_author_or_404.
-
-        Returns:
-            List of Work instances.
-        """
+        """Returns all works linked to the given author."""
         return await self.manager.get_works_for_author(author.id)

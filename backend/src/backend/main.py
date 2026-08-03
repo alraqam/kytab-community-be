@@ -1,3 +1,5 @@
+"""FastAPI application entrypoint: wires up all feature routers and global exception handlers."""
+
 from fastapi import FastAPI
 
 from src.backend.core.exceptions import Unauthorized, Forbidden, NotFound, Conflict, BadRequest, ServiceUnavailable

@@ -89,11 +89,31 @@ async def get_join_request_or_404(
 async def get_club_blocked_manager(
         session: AsyncSession = Depends(get_db)
 ) -> ClubBlockedManager:
+    """FastAPI dependency that provides a ClubBlockedManager instance.
+
+    Args:
+        session: Async SQLAlchemy session injected by get_db.
+
+    Returns:
+        ClubBlockedManager bound to the current session.
+    """
     return ClubBlockedManager(session)
 
 async def get_club_blocked_or_404(
         join_request_id: int,
         manager: ClubBlockedManager = Depends(get_club_blocked_manager)
 ) -> ClubBlocked:
+    """FastAPI dependency that fetches a club block record by ID or raises if not found.
+
+    Args:
+        join_request_id: Block ID from the path parameter.
+        manager: ClubBlockedManager injected by get_club_blocked_manager.
+
+    Returns:
+        ClubBlocked instance.
+
+    Raises:
+        ClubBlockNotFoundError: When no block with the given ID exists.
+    """
     return await manager.get_block_by_id(join_request_id)
 

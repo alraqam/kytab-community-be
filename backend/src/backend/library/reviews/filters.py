@@ -4,6 +4,8 @@ from src.backend.library.reviews.models import Review
 
 
 class ReviewFilter(Filter):
+    """Query filter for reviews: rating, spoiler flag, free-text search, and ordering."""
+
     rating: float | None = None
     rating__gte: float | None = None
     contains_spoiler: bool | None = None

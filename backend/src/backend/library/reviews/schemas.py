@@ -6,6 +6,8 @@ from src.backend.library.reviews.exceptions import InvalidRatingError
 
 
 class BaseReview(BaseModel):
+    """Base payload for a review's rating, text, and spoiler flag."""
+
     rating: float| None = Field(ge=0.5, le=5.0)
     text: str | None = Field(max_length=5000)
     contains_spoiler: bool
@@ -13,6 +15,17 @@ class BaseReview(BaseModel):
     @field_validator("rating")
     @classmethod
     def validate_rating(cls, value: float) -> float| None:
+        """Ensures the rating, if provided, falls on a 0.5 increment.
+
+        Args:
+            value: Rating value to validate.
+
+        Returns:
+            The validated rating value.
+
+        Raises:
+            InvalidRatingError: When the rating is not a multiple of 0.5.
+        """
         if value is None:
             return value
         if round(value * 2) != value * 2:
@@ -20,12 +33,14 @@ class BaseReview(BaseModel):
         return value
 
 class CreateReview(BaseReview):
-    pass
+    """Request payload for creating a new review."""
 
 class UpdateReview(BaseReview):
-    pass
+    """Request payload for updating an existing review."""
 
 class GetReview(BaseModel):
+    """Response payload representing a review."""
+
     id: int
     work_id: int
     rating: float | None = None
@@ -35,12 +50,18 @@ class GetReview(BaseModel):
     updated_at: datetime  | None = None
 
 class CreateReviewComment(BaseModel):
+    """Request payload for creating a comment on a review."""
+
     text: str = Field(max_length=1000)
 
 class UpdateReviewComment(BaseModel):
+    """Request payload for updating a review comment."""
+
     text: str = Field(max_length=1000)
 
 class GetReviewComment(BaseModel):
+    """Response payload representing a comment on a review."""
+
     id: int
     user_id: int
     review_id: int
@@ -50,6 +71,8 @@ class GetReviewComment(BaseModel):
 
 
 class GetReviewLike(BaseModel):
+    """Response payload representing a like on a review."""
+
     id: int
     user_id: int
     review_id: int

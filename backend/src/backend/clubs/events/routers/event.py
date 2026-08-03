@@ -17,6 +17,8 @@ router = APIRouter(
 
 @cbv(router)
 class ClubEventRouter:
+    """CBV router for club events: create, update, delete, and retrieve."""
+
     event_manager: ClubEventManager = Depends(get_club_event_manager)
     user: User = Depends(get_current_user)
     club: Club = Depends(get_club_or_404)
@@ -30,6 +32,7 @@ class ClubEventRouter:
             self,
             request: CreateClubEvent
     ):
+        """Creates a new club event."""
         result = await self.event_manager.create_event(self.user, self.club, request)
         return result
 
@@ -42,6 +45,7 @@ class ClubEventRouter:
             request: UpdateClubEvent,
             event: ClubEvent = Depends(get_club_event_or_404),
     ):
+        """Updates a club event's fields."""
         await self.event_manager.update_event(self.user, self.club, event, request)
 
     @router.delete(
@@ -52,6 +56,7 @@ class ClubEventRouter:
             self,
             event: ClubEvent = Depends(get_club_event_or_404),
     ):
+        """Deletes a club event."""
         await self.event_manager.delete_event(self.user, self.club, event)
 
     @router.get(
@@ -60,6 +65,7 @@ class ClubEventRouter:
         response_model=list[GetClubEvent]
     )
     async def get_club_events(self):
+        """Lists all events for the club."""
         result = await self.event_manager.get_club_events(self.user, self.club)
         return result
 
@@ -69,6 +75,7 @@ class ClubEventRouter:
         response_model=list[GetClubEvent]
     )
     async def get_club_future_events(self):
+        """Lists the club's events that have not yet started."""
         result = await self.event_manager.get_club_future_events(self.user, self.club)
         return result
 
@@ -81,4 +88,5 @@ class ClubEventRouter:
             self,
             event: ClubEvent = Depends(get_club_event_or_404),
     ):
+        """Fetches a single club event by ID."""
         return event

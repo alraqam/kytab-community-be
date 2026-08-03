@@ -41,6 +41,20 @@ class AuthManager:
             password: str,
             request
     ) -> Token:
+        """Authenticates a user by username and password and starts a new session.
+
+        Args:
+            username: Username to authenticate.
+            password: Plain-text password to verify.
+            request: Incoming Request, used to read the user-agent and client IP for the new session.
+
+        Returns:
+            Newly issued access/refresh Token pair with the created session's ID.
+
+        Raises:
+            InvalidUsernameOrPasswordError: When the username does not exist or the password is wrong.
+            UnverifiedUserError: When the user's email has not been verified.
+        """
         user = await self.user_repo.get_user_by_username(username)
         if not user:
             raise InvalidUsernameOrPasswordError("Invalid username or password")
@@ -147,6 +161,18 @@ class AuthManager:
             self,
             token: str
     ) -> Token:
+        """Issues a new access/refresh token pair from a valid refresh token.
+
+        Args:
+            token: Refresh token string to validate and rotate.
+
+        Returns:
+            Newly issued access/refresh Token pair with the session's ID.
+
+        Raises:
+            InvalidTokenError: When the token is not a refresh token, is malformed, or the
+                associated session is missing, revoked, or expired.
+        """
         payload = self.token_service.decode(token)
         if not payload.get("is_refresh"):
             raise InvalidTokenError("Invalid token")
@@ -174,6 +200,14 @@ class AuthManager:
             self,
             token: str
     ) -> None:
+        """Revokes the session associated with a refresh token.
+
+        Args:
+            token: Refresh token identifying the session to revoke.
+
+        Raises:
+            InvalidTokenError: When the token is invalid, not a refresh token, or has no matching session.
+        """
         try:
             payload = self.token_service.decode(token)
         except jwt.PyJWTError:
@@ -219,6 +253,12 @@ class AuthManager:
             user: User,
             request: ResetPassword
     ) -> None:
+        """Sets a new hashed password for the user without checking the old one.
+
+        Args:
+            user: User whose password is being set.
+            request: ResetPassword payload containing the new password.
+        """
         hashed_password = self.password_service.hash(request.new_password)
         await self.user_repo.update_password(
             user,
@@ -259,6 +299,14 @@ class AuthManager:
             self,
             request: ForgotPassword
     ):
+        """Sends a password-reset email if the address belongs to a verified user.
+
+        Args:
+            request: ForgotPassword payload containing the account email.
+
+        Returns:
+            Confirmation message indicating the reset link has been sent.
+        """
         user = await self.user_repo.get_user_by_email(request.email)
         if user and user.is_verified:
             token = create_password_reset_token(user)
@@ -269,6 +317,14 @@ class AuthManager:
             self,
             request: ResetPassword
     ):
+        """Resets a user's password via a password-reset token and revokes their active sessions.
+
+        Args:
+            request: ResetPassword payload containing the reset token and new password.
+
+        Raises:
+            InvalidTokenError: When the reset token is invalid or expired.
+        """
         user_id = await decode_password_reset_token(request.token, self.user_manager)
         user = await self.user_manager.get_user_by_id(int(user_id))
         await self.set_password(user, request)

@@ -17,6 +17,8 @@ router = APIRouter(
 
 @cbv(router)
 class NotificationRouter:
+    """CBV router for managing the current user's notifications: read, unread count, and deletion."""
+
     manager: NotificationManager = Depends(get_notification_manager)
     user: User = Depends(get_current_user)
 
@@ -25,6 +27,7 @@ class NotificationRouter:
         summary="marking all notifications as read",
     )
     async def mark_all_as_read(self):
+        """Marks all of the current user's notifications as read."""
         await self.manager.mark_all_as_read(self.user)
 
     @router.put(
@@ -35,6 +38,7 @@ class NotificationRouter:
             self,
             notification: Notification = Depends(get_notification_or_404)
     ):
+        """Marks a single notification as read."""
         await self.manager.mark_as_read(self.user, notification)
 
     @router.delete(
@@ -45,6 +49,7 @@ class NotificationRouter:
             self,
             notification: Notification = Depends(get_notification_or_404)
     ):
+        """Deletes a notification."""
         await self.manager.delete_notification(self.user, notification)
 
     @router.get(
@@ -56,6 +61,7 @@ class NotificationRouter:
             self,
             filters: NotificationFilter = FilterDepends(NotificationFilter)
     ):
+        """Lists the current user's notifications, optionally filtered."""
         result = await self.manager.get_user_notifications(self.user, filters)
         return result
 
@@ -64,6 +70,7 @@ class NotificationRouter:
         summary="getting unread notifications count",
     )
     async def get_unread_count(self) -> int:
+        """Returns the current user's unread notification count."""
         result = await self.manager.get_unread_count(self.user)
         return result
 
@@ -76,4 +83,5 @@ class NotificationRouter:
             self,
             notification: Notification = Depends(get_notification_or_404)
     ):
+        """Fetches a single notification by ID."""
         return notification

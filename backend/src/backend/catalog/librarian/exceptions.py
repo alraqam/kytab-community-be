@@ -2,7 +2,7 @@ from src.backend.core.exceptions import NotFound, Conflict
 
 
 class LibrarianSubmissionNotFoundError(NotFound):
-    pass
+    """Raised when the requested librarian submission does not exist."""
 
 class LibrarySubmissionStatusError(Conflict):
-    pass
+    """Raised when a submission's current status does not allow the requested transition."""

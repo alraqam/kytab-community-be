@@ -17,6 +17,8 @@ router = APIRouter(
 
 @cbv(router)
 class LibrarianGenreRouter:
+    """CBV router for librarian management of genres: create, update, delete, and link/unlink to works."""
+
     manager: GenreManager = Depends(get_genre_manager)
     user: User = Depends(is_librarian)
 
@@ -29,6 +31,7 @@ class LibrarianGenreRouter:
             self,
             request: CreateGenre
     ):
+        """Creates a new genre."""
         result = await self.manager.create_genre(request)
         return result
 
@@ -41,6 +44,7 @@ class LibrarianGenreRouter:
             request: UpdateGenre,
             genre: Genre = Depends(get_genre_or_404)
     ):
+        """Updates an existing genre's details."""
         await self.manager.update_genre(genre.id, request)
 
     @router.delete(
@@ -51,6 +55,7 @@ class LibrarianGenreRouter:
             self,
             genre: Genre = Depends(get_genre_or_404)
     ):
+        """Deletes a genre."""
         await self.manager.delete_genre(genre.id)
 
     @router.put(
@@ -61,6 +66,7 @@ class LibrarianGenreRouter:
             self,
             request: AddGenreToWork,
     ):
+        """Links a genre to a work."""
         await self.manager.add_genre_to_work(request)
 
     @router.put(
@@ -72,6 +78,7 @@ class LibrarianGenreRouter:
             genre: Genre = Depends(get_genre_or_404),
             work: Work = Depends(get_work_or_404)
     ):
+        """Removes the link between a genre and a work."""
         await self.manager.remove_genre_from_work(work.id, genre.id)
 
 

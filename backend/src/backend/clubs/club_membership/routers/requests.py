@@ -31,11 +31,7 @@ class ClubJoinRequestRouter:
             self,
             request: SendJoinRequest
     ):
-        """Sends a join request to a private club, or joins directly if public.
-
-        Args:
-            request: SendJoinRequest payload with the target club_id.
-        """
+        """Sends a join request to a private club, or joins directly if public."""
         result = await self.manager.send_join_request(self.user, request)
         return result
 
@@ -47,11 +43,7 @@ class ClubJoinRequestRouter:
             self,
             join_request: ClubJoinRequest = Depends(get_join_request_or_404)
     ):
-        """Accepts a pending join request and adds the requester to the club.
-
-        Args:
-            join_request: ClubJoinRequest instance resolved via get_join_request_or_404.
-        """
+        """Accepts a pending join request and adds the requester to the club."""
         await self.manager.accept_join_request(self.user, join_request)
 
     @router.put(
@@ -62,11 +54,7 @@ class ClubJoinRequestRouter:
             self,
             join_request: ClubJoinRequest = Depends(get_join_request_or_404)
     ):
-        """Rejects a pending join request.
-
-        Args:
-            join_request: ClubJoinRequest instance resolved via get_join_request_or_404.
-        """
+        """Rejects a pending join request."""
         await self.manager.reject_join_request(self.user, join_request)
 
     @router.get(
@@ -78,10 +66,6 @@ class ClubJoinRequestRouter:
             self,
             club: Club = Depends(get_club_or_404)
     ):
-        """Returns all pending, non-expired join requests for a club.
-
-        Args:
-            club: Club instance resolved via get_club_or_404.
-        """
+        """Returns all pending, non-expired join requests for a club."""
         result = await self.manager.get_club_requests(self.user, club)
         return result

@@ -17,6 +17,8 @@ router = APIRouter(
 
 @cbv(router)
 class PostGeneralRouter:
+    """CBV router for posts within a club-general thread: create, update, delete, and list."""
+
     manager: PostManager = Depends(get_post_manager)
     user: User = Depends(get_current_user)
     club: Club = Depends(get_club_or_404)
@@ -31,6 +33,7 @@ class PostGeneralRouter:
             self,
             request: CreatePost
     ):
+        """Creates a new post in the club-general thread."""
         result = await self.manager.create_post(self.user, self.club, self.thread, request)
         return result
 
@@ -43,6 +46,7 @@ class PostGeneralRouter:
             request: UpdatePost,
             post: Post = Depends(get_post_general_or_404),
     ):
+        """Updates a post in the club-general thread."""
         await self.manager.update_post(self.user, self.thread, post, request)
 
     @router.delete(
@@ -53,6 +57,7 @@ class PostGeneralRouter:
             self,
             post: Post = Depends(get_post_general_or_404)
     ):
+        """Deletes a post from the club-general thread."""
         await self.manager.delete_post(self.user, self.club, self.thread, post)
 
     @router.get(
@@ -63,5 +68,6 @@ class PostGeneralRouter:
     async def get_all_posts(
             self,
     ):
+        """Lists all posts in the club-general thread."""
         result = await self.manager.get_all_posts(self.club, self.user, self.thread)
         return result

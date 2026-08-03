@@ -33,6 +33,7 @@ async def get_voting_poll_or_404(
 
     Args:
         poll_id: Voting poll ID from the path parameter.
+        club: Club instance injected by get_club_or_404.
         manager: VotingPollManager injected by get_voting_poll_manager.
 
     Returns:
@@ -40,9 +41,10 @@ async def get_voting_poll_or_404(
 
     Raises:
         PollNotFoundError: When no poll with the given ID exists.
+        PollNotInClubError: When the poll does not belong to the given club.
     """
     poll = await manager.get_poll_by_id(poll_id)
-    if poll.club_id == club.id:
+    if poll.club_id != club.id:
         raise PollNotInClubError("Poll not found in club")
     return poll
 

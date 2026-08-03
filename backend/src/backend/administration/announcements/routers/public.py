@@ -12,6 +12,8 @@ router = APIRouter(
 
 @cbv(router)
 class AnnouncementPublicRouter:
+    """CBV router for public read access to published announcements."""
+
     manager: AnnouncementManager = Depends(get_announcement_manager)
 
     @router.get(
@@ -20,5 +22,6 @@ class AnnouncementPublicRouter:
         response_model=list[GetAnnouncement]
     )
     async def get_published_announcements(self):
+        """Lists all published announcements."""
         result = await self.manager.get_published_announcements()
         return result

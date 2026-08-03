@@ -16,6 +16,8 @@ router = APIRouter(
 
 @cbv(router)
 class LibrarianAuthorRouter:
+    """CBV router for librarian management of authors: create, update, delete, and link/unlink to works."""
+
     manager: AuthorManager = Depends(get_author_manager)
     user: User = Depends(is_librarian)
 
@@ -28,6 +30,7 @@ class LibrarianAuthorRouter:
             self,
             request: CreateAuthor
     ):
+        """Creates a new author."""
         result = await self.manager.create_author(request)
         return result
 
@@ -40,6 +43,7 @@ class LibrarianAuthorRouter:
             request: UpdateAuthor,
             author: Author = Depends(get_author_or_404)
     ):
+        """Updates an existing author's details."""
         await self.manager.update_author(author.id, request)
 
     @router.delete(
@@ -50,6 +54,7 @@ class LibrarianAuthorRouter:
             self,
             author: Author = Depends(get_author_or_404)
     ):
+        """Deletes an author."""
         await self.manager.delete_author(author.id)
 
     @router.put(
@@ -60,6 +65,7 @@ class LibrarianAuthorRouter:
             self,
             request: AddAuthorToWork,
     ):
+        """Links an author to a work."""
         await self.manager.add_author_to_work(request)
 
     @router.put(
@@ -71,6 +77,7 @@ class LibrarianAuthorRouter:
             author: Author = Depends(get_author_or_404),
             work: Work = Depends(get_work_or_404)
     ):
+        """Removes the link between an author and a work."""
         await self.manager.remove_author_from_work(work.id, author.id)
 
 

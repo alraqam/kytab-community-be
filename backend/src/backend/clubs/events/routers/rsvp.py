@@ -20,6 +20,8 @@ router = APIRouter(
 
 @cbv(router)
 class EventRSVPRouter:
+    """CBV router for RSVPs to a club event: create, list, and view results."""
+
     event_manager: EventRSVPManager = Depends(get_event_rsvp_manager)
     user: User = Depends(get_current_user)
     club: Club = Depends(get_club_or_404)
@@ -34,6 +36,7 @@ class EventRSVPRouter:
             self,
             request: CreateEventRSVP
     ):
+        """Creates an RSVP for the current user on the event."""
         result = await self.event_manager.create_rsvp(self.user, self.club, self.event, request)
         return result
 
@@ -46,6 +49,7 @@ class EventRSVPRouter:
             self,
             filters: EventRSVPFilter = FilterDepends(EventRSVPFilter),
     ):
+        """Lists RSVPs for the event, optionally filtered and sorted."""
         result = await self.event_manager.get_event_rsvps(self.user, self.club, self.event, filters)
         return result
 
@@ -55,5 +59,6 @@ class EventRSVPRouter:
         response_model=dict
     )
     async def get_event_rsvp_results(self):
+        """Tallies RSVP responses for the event by status."""
         result = await self.event_manager.get_event_rsvp_results(self.user, self.club, self.event)
         return result

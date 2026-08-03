@@ -14,6 +14,8 @@ router = APIRouter(
 
 @cbv(router)
 class LibrarianSubmissionPublicRouter:
+    """CBV router allowing any authenticated user to submit a book proposal for librarian review."""
+
     manager: LibrarianSubmissionManager = Depends(get_librarian_submission_manager)
     user: User = Depends(get_current_user)
 
@@ -26,5 +28,6 @@ class LibrarianSubmissionPublicRouter:
             self,
             request: CreateLibrarianSubmission
     ):
+        """Submits a new book proposal for librarian review."""
         result = await self.manager.create(self.user, request)
         return result

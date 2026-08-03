@@ -34,11 +34,7 @@ class PollCandidateRouter:
             self,
             request: CreatePollVote,
     ):
-        """Casts a vote for a candidate in the current poll.
-
-        Args:
-            request: CreatePollVote payload with candidate_id.
-        """
+        """Casts a vote for a candidate in the current poll."""
         result = await self.manager.vote(self.user, self.club, self.poll, request)
         return result
 

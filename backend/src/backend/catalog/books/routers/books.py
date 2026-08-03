@@ -30,18 +30,7 @@ class BooksRouter:
             q: str | None = Query(default=None),
             language: str = Query(default=DEFAULT_LANGUAGE),
     ):
-        """Returns cached books, searching Open Library when the local catalog has no match.
-
-        Args:
-            q: Optional search string. When set and the local catalog has no
-                matching works, Open Library is queried and the results are
-                cached before being returned.
-            language: ISO 639-2 language code used for the Open Library search
-                and for the cached work's primary language.
-
-        Returns:
-            List of Work instances matching the query (or all works when no query is given).
-        """
+        """Returns cached books, searching Open Library when the local catalog has no match."""
         work_repo = WorkRepository(self.session)
         filters = WorkFilter(q=q) if q else None
         works = await work_repo.get_all_works(filters)

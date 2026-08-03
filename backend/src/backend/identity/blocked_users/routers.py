@@ -15,6 +15,8 @@ router = APIRouter(
 
 @cbv(router)
 class BlockedUserRouter:
+    """CBV router for managing user blocks: blocking, unblocking, and listing."""
+
     manager: BlockedUserManager = Depends(get_blocked_user_manager)
     user: User = Depends(get_current_user)
 
@@ -27,6 +29,7 @@ class BlockedUserRouter:
             self,
             request: CreateBlock
     ):
+        """Blocks another user on behalf of the current user."""
         result = await self.manager.block_user(self.user, request)
         return result
 
@@ -38,6 +41,7 @@ class BlockedUserRouter:
             self,
             block: BlockedUser = Depends(get_blocked_user_or_404)
     ):
+        """Removes a block, unblocking the target user."""
         await self.manager.delete_block(self.user, block)
 
     @router.get(
@@ -48,5 +52,6 @@ class BlockedUserRouter:
     async def get_user_blocked(
             self,
     ):
+        """Lists the users blocked by the current user."""
         result = await self.manager.get_user_blocked(self.user)
         return result

@@ -9,7 +9,11 @@ from src.backend.celery_app import celery_app
 
 
 async def _check_expired_invitations() -> None:
-    """Marks expired pending invitations as expired. Triggered every 60 seconds by celery beat."""
+    """Marks expired pending invitations as expired. Triggered every 60 seconds by celery beat.
+
+    Raises:
+        ExpiredInvitationError: When the update fails for any reason.
+    """
     try:
         async with task_session() as session:
             await session.execute(
@@ -28,5 +32,6 @@ async def _check_expired_invitations() -> None:
 
 @celery_app.task
 def check_expired_invitations():
+    """Celery task that marks expired pending club invitations as expired."""
     import asyncio
     asyncio.run(_check_expired_invitations())

@@ -15,10 +15,6 @@ class UserManager:
             self,
             session: AsyncSession,
     ):
-        """
-        Args:
-            session: Async SQLAlchemy session.
-        """
         self.session = session
         self.user_repo = UserRepository(session)
         self.session_repo = SessionRepository(session)
@@ -62,6 +58,15 @@ class UserManager:
             user_id: int,
             request: UpdateUserVerification
     ) -> None:
+        """Updates the verification status of a user resolved by ID.
+
+        Args:
+            user_id: ID of the user to update.
+            request: UpdateUserVerification schema with the new is_verified value.
+
+        Raises:
+            UserNotFoundError: When no user with the given ID exists.
+        """
         user = await self.get_user_by_id(user_id)
         await self.user_repo.update_verification(
             user=user,
@@ -93,6 +98,17 @@ class UserManager:
             self,
             email: str,
     ) -> User:
+        """Fetches a user by email, raising an error if not found.
+
+        Args:
+            email: Email address of the user to retrieve.
+
+        Returns:
+            User instance.
+
+        Raises:
+            UserNotFoundError: When no user with the given email exists.
+        """
         user = await self.user_repo.get_user_by_email(email)
         if not user:
             raise UserNotFoundError("User not found")
@@ -102,6 +118,14 @@ class UserManager:
             self,
             username: str,
     ) -> User | None:
+        """Fetches a user by username.
+
+        Args:
+            username: Username of the user to retrieve.
+
+        Returns:
+            User instance if found, None otherwise.
+        """
         return await self.user_repo.get_user_by_username(username)
 
     async def get_all_users(
@@ -124,6 +148,11 @@ class UserManager:
             self,
             user: User,
     ) -> None:
+        """Soft-deletes a user and revokes all of their active sessions.
+
+        Args:
+            user: User instance to delete.
+        """
         sessions = await self.session_repo.get_user_active_sessions(user.id)
         for session in sessions:
             await self.session_repo.delete(session)

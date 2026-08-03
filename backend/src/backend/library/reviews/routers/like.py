@@ -17,6 +17,8 @@ router = APIRouter(
 
 @cbv(router)
 class ReviewLikeRouter:
+    """CBV router for review likes: create, delete, and retrieval."""
+
     like_manager: ReviewLikeManager = Depends(get_review_like_manager)
     user: User = Depends(get_current_user)
     review: Review = Depends(get_review_or_404)
@@ -30,6 +32,7 @@ class ReviewLikeRouter:
     async def create_like(
             self,
     ):
+        """Creates a like on the review."""
         result = await self.like_manager.create_like(self.user, self.review)
         return result
 
@@ -41,6 +44,7 @@ class ReviewLikeRouter:
             self,
             like: ReviewLike = Depends(get_review_like_or_404),
     ):
+        """Deletes a review like."""
         await self.like_manager.delete_like(self.user, like)
 
     @router.get(
@@ -48,6 +52,7 @@ class ReviewLikeRouter:
         summary="getting review likes count",
     )
     async def get_review_likes_count(self):
+        """Returns the number of likes on the review."""
         result = await self.like_manager.get_review_likes_count(self.review)
         return result
 
@@ -57,6 +62,7 @@ class ReviewLikeRouter:
         response_model=list[GetReviewLike]
     )
     async def get_review_likes(self):
+        """Lists all likes on the review."""
         result = await self.like_manager.get_review_likes(self.review)
         return result
 
@@ -69,4 +75,5 @@ class ReviewLikeRouter:
             self,
             like: ReviewLike = Depends(get_review_like_or_404),
     ):
+        """Fetches a single review like by ID."""
         return like

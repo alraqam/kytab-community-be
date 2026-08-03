@@ -6,6 +6,8 @@ from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
 
 
 class ReviewComment(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a user's comment on a review."""
+
     __tablename__ = "review_comments"
 
     user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
@@ -15,6 +17,8 @@ class ReviewComment(Base, IntIdMixin, TimeActionMixin):
 
 
 class ReviewLike(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a user's like on a review."""
+
     __tablename__ = "review_likes"
 
     user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
@@ -26,6 +30,8 @@ class ReviewLike(Base, IntIdMixin, TimeActionMixin):
 
 
 class Review(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a user's review of a work, with an optional rating and text."""
+
     __tablename__ = "reviews"
 
     user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)

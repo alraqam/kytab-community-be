@@ -2,16 +2,16 @@ from src.backend.core.exceptions import NotFound, Forbidden, Conflict
 
 
 class NotificationNotFoundError(NotFound):
-    pass
+    """Raised when the requested notification does not exist."""
 
 class IsNotNotificationOwnerError(Forbidden):
-    pass
+    """Raised when a user tries to access or change a notification they don't own."""
 
 class NotificationPreferenceNotFoundError(NotFound):
-    pass
+    """Raised when the requested notification preference does not exist."""
 
 class IsNotNotificationPreferenceOwnerError(Forbidden):
-    pass
+    """Raised when a user tries to access or change a notification preference they don't own."""
 
 class NotificationPreferenceAlreadyExistsError(Conflict):
-    pass
+    """Raised when a preference for the given category and club already exists for the user."""

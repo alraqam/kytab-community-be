@@ -30,12 +30,7 @@ class UserRouter:
             request: UpdateUserRole,
             user: User = Depends(get_user_or_404)
     ):
-        """Updates the role of the specified user.
-
-        Args:
-            request: UpdateUserRole payload with the new role.
-            user: Target user resolved from the path parameter.
-        """
+        """Updates the role of the specified user."""
         await self.manager.update_user_role(user, request)
 
     @router.put(
@@ -47,12 +42,7 @@ class UserRouter:
             request: UpdateUserActivity,
             user: User = Depends(get_user_or_404)
     ):
-        """Updates the active status of the specified user.
-
-        Args:
-            request: UpdateUserActivity payload with the new is_active value.
-            user: Target user resolved from the path parameter.
-        """
+        """Updates the active status of the specified user."""
         await self.manager.update_user_activity(user, request)
 
     @router.delete(
@@ -63,11 +53,7 @@ class UserRouter:
             self,
             user: User = Depends(get_user_or_404)
     ):
-        """Permanently deletes the specified user.
-
-        Args:
-            user: Target user resolved from the path parameter.
-        """
+        """Permanently deletes the specified user."""
         await self.manager.delete_user(user)
 
     @router.get(
@@ -79,14 +65,7 @@ class UserRouter:
             self,
             user: User = Depends(get_user_or_404)
     ):
-        """Returns the specified user.
-
-        Args:
-            user: Target user resolved from the path parameter.
-
-        Returns:
-            User instance.
-        """
+        """Returns the specified user."""
         return user
 
     @router.get(
@@ -98,13 +77,6 @@ class UserRouter:
             self,
             filters: UserFilter = FilterDepends(UserFilter)
     ):
-        """Returns all users matching the given filter parameters.
-
-        Args:
-            filters: UserFilter with optional search, role, and sort parameters.
-
-        Returns:
-            List of User instances.
-        """
+        """Returns all users matching the given filter parameters."""
         users = await self.manager.get_all_users(filters)
         return users

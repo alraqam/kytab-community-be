@@ -10,6 +10,8 @@ from src.backend.trust_safety.consent.schemas import CreateLegalDocument
 
 
 class LegalDocumentManager:
+    """Handles legal document business logic: publishing versions and toggling which one is current."""
+
     def __init__(
             self,
             session: AsyncSession
@@ -23,6 +25,18 @@ class LegalDocumentManager:
             user: User,
             request: CreateLegalDocument,
     ) -> LegalDocument:
+        """Publishes a new legal document version.
+
+        Args:
+            user: User performing the action; must be an admin.
+            request: CreateLegalDocument payload with the document type, version, and content.
+
+        Returns:
+            Newly created LegalDocument instance.
+
+        Raises:
+            PermissionDeniedError: When the user is not an admin.
+        """
         await is_admin(user)
         result = await self.document_repo.create_document(
             document_type=request.document_type,
@@ -38,6 +52,15 @@ class LegalDocumentManager:
             user: User,
             document: LegalDocument
     ) -> None:
+        """Marks a document as the current version.
+
+        Args:
+            user: User performing the action; must be an admin.
+            document: LegalDocument instance to mark as current.
+
+        Raises:
+            PermissionDeniedError: When the user is not an admin.
+        """
         await is_admin(user)
         await self.document_repo.update_is_current(
             document=document,
@@ -50,6 +73,15 @@ class LegalDocumentManager:
             user: User,
             document: LegalDocument
     ) -> None:
+        """Unmarks a document as the current version.
+
+        Args:
+            user: User performing the action; must be an admin.
+            document: LegalDocument instance to unmark.
+
+        Raises:
+            PermissionDeniedError: When the user is not an admin.
+        """
         await is_admin(user)
         await self.document_repo.update_is_current(
             document=document,
@@ -61,6 +93,14 @@ class LegalDocumentManager:
             self,
             filters: LegalDocumentFilter
     ) -> list[LegalDocument]:
+        """Lists legal documents matching the given filters.
+
+        Args:
+            filters: LegalDocumentFilter with search, type, and status criteria.
+
+        Returns:
+            List of matching LegalDocument instances.
+        """
         documents = await self.document_repo.get_documents(filters)
         return documents
 
@@ -68,6 +108,17 @@ class LegalDocumentManager:
             self,
             document_id: int
     ) -> LegalDocument:
+        """Fetches a single legal document by ID.
+
+        Args:
+            document_id: ID of the document to fetch.
+
+        Returns:
+            Matching LegalDocument instance.
+
+        Raises:
+            DocumentNotFoundError: When no document matches the ID.
+        """
         result = await self.document_repo.get_document_by_id(document_id)
         if not result:
             raise DocumentNotFoundError("Document not found")

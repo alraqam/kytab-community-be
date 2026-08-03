@@ -15,6 +15,8 @@ router = APIRouter(
 
 @cbv(router)
 class ReadingGoalRouter:
+    """CBV router for a user's personal reading goals: create, update, delete, and retrieve."""
+
     goal_manager: ReadingGoalManager = Depends(get_goal_manager)
     user: User = Depends(get_current_user)
 
@@ -27,6 +29,7 @@ class ReadingGoalRouter:
             self,
             request: CreateReadingGoal
     ):
+        """Creates a new reading goal for the current user."""
         result = await self.goal_manager.create_goal(self.user, request)
         return result
 
@@ -39,6 +42,7 @@ class ReadingGoalRouter:
             request: UpdateReadingGoal,
             goal: ReadingGoal = Depends(get_goal_or_404),
     ):
+        """Updates the current user's reading goal target count."""
         await self.goal_manager.update_goal(self.user, goal, request)
 
     @router.delete(
@@ -49,6 +53,7 @@ class ReadingGoalRouter:
             self,
             goal: ReadingGoal = Depends(get_goal_or_404),
     ):
+        """Deletes the current user's reading goal."""
         await self.goal_manager.delete_goal(self.user, goal)
 
     @router.get(
@@ -57,6 +62,7 @@ class ReadingGoalRouter:
         response_model=list[GetReadingGoal]
     )
     async def get_user_goals(self):
+        """Lists all reading goals belonging to the current user."""
         result = await self.goal_manager.get_user_goals(self.user)
         return result
 
@@ -69,5 +75,6 @@ class ReadingGoalRouter:
             self,
             goal_id: int
     ):
+        """Fetches a single reading goal by ID."""
         result = await self.goal_manager.get_goal_by_id(goal_id)
         return result

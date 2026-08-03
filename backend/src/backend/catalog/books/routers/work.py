@@ -45,14 +45,7 @@ class WorkRouter:
             self,
             filters: WorkFilter = FilterDepends(WorkFilter),
     ):
-        """Returns all works with optional search and sort.
-
-        Args:
-            filters: WorkFilter with optional search query and sort order.
-
-        Returns:
-            List of Work instances.
-        """
+        """Returns all works with optional search and sort."""
         return await self.manager.get_all_works(filters)
 
     @router.get(
@@ -64,14 +57,7 @@ class WorkRouter:
             self,
             work: Work = Depends(get_work_or_404),
     ):
-        """Returns the work with the given ID.
-
-        Args:
-            work: Work instance resolved via get_work_or_404.
-
-        Returns:
-            Work instance.
-        """
+        """Returns the work with the given ID."""
         return work
 
     @router.get(
@@ -83,14 +69,7 @@ class WorkRouter:
             self,
             work: Work = Depends(get_work_or_404),
     ):
-        """Returns all editions linked to the given work.
-
-        Args:
-            work: Work instance resolved via get_work_or_404.
-
-        Returns:
-            List of Edition instances.
-        """
+        """Returns all editions linked to the given work."""
         return await self.edition_manager.get_editions_by_work(work.id)
 
     @router.get(
@@ -102,14 +81,7 @@ class WorkRouter:
             self,
             work: Work = Depends(get_work_or_404),
     ):
-        """Returns all author linked to the given work.
-
-        Args:
-            work: Work instance resolved via get_work_or_404.
-
-        Returns:
-            List of Author instances.
-        """
+        """Returns all author linked to the given work."""
         return await self.author_manager.get_authors_for_work(work.id)
 
     @router.get(
@@ -121,14 +93,7 @@ class WorkRouter:
             self,
             work: Work = Depends(get_work_or_404),
     ):
-        """Returns all genre linked to the given work.
-
-        Args:
-            work: Work instance resolved via get_work_or_404.
-
-        Returns:
-            List of Genre instances.
-        """
+        """Returns all genre linked to the given work."""
         return await self.genre_manager.get_genres_for_work(work.id)
 
     @router.get(
@@ -140,12 +105,5 @@ class WorkRouter:
             self,
             work: Work = Depends(get_work_or_404),
     ):
-        """Returns all genre linked to the given work.
-
-        Args:
-            work: Work instance resolved via get_work_or_404.
-
-        Returns:
-            List of Genre instances.
-        """
+        """Returns all series linked to the given work."""
         return await self.series_manager.get_series_for_work(work.id)

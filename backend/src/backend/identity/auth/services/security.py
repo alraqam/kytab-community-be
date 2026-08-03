@@ -103,4 +103,12 @@ class PasswordService:
         )
 
 def hash_token(token: str) -> str:
+    """Hashes a token with SHA-256 for safe storage/comparison.
+
+    Args:
+        token: Plain-text token string to hash.
+
+    Returns:
+        Hex-encoded SHA-256 digest of the token.
+    """
     return hashlib.sha256(token.encode()).hexdigest()

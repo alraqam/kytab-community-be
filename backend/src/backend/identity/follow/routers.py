@@ -15,6 +15,8 @@ router = APIRouter(
 
 @cbv(router)
 class FollowRouter:
+    """CBV router for follow relationships: following, unfollowing, and listing followers/followings."""
+
     manager: FollowManager = Depends(get_follow_manager)
     user: User = Depends(get_current_user)
 
@@ -27,6 +29,7 @@ class FollowRouter:
             self,
             request: CreateFollow
     ):
+        """Follows another user."""
         result = await self.manager.follow_user(self.user, request)
         return result
 
@@ -38,6 +41,7 @@ class FollowRouter:
             self,
             follow: Follow = Depends(get_follow_or_404)
     ):
+        """Removes a follow relationship."""
         await self.manager.unfollow(self.user, follow)
 
     @router.get(
@@ -48,6 +52,7 @@ class FollowRouter:
     async def get_user_followers(
             self,
     ):
+        """Lists the current user's followers."""
         result = await self.manager.get_user_followers(self.user)
         return result
 
@@ -59,5 +64,6 @@ class FollowRouter:
     async def get_user_followings(
             self,
     ):
+        """Lists the users the current user is following."""
         result = await self.manager.get_user_followings(self.user)
         return result

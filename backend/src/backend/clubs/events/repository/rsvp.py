@@ -9,6 +9,8 @@ from src.backend.clubs.events.models import EventRSVP
 
 @dataclass
 class EventRSVPRepository:
+    """Data-access layer for event RSVP persistence and queries."""
+
     session: AsyncSession
 
     async def create_rsvp(
@@ -17,6 +19,16 @@ class EventRSVPRepository:
             user_id: int,
             response: str,
     ) -> EventRSVP:
+        """Inserts a new RSVP for a user on an event.
+
+        Args:
+            event_id: ID of the event being RSVP'd to.
+            user_id: ID of the user submitting the RSVP.
+            response: RSVP response status.
+
+        Returns:
+            Newly created EventRSVP instance.
+        """
         result = EventRSVP(
             event_id=event_id,
             user_id=user_id,
@@ -30,6 +42,14 @@ class EventRSVPRepository:
             self,
             rsvp_id: int
     ) -> EventRSVP | None:
+        """Fetches a single RSVP by ID.
+
+        Args:
+            rsvp_id: ID of the RSVP to fetch.
+
+        Returns:
+            Matching EventRSVP instance, or None if not found.
+        """
         stmt = select(EventRSVP).where(EventRSVP.id == rsvp_id)
         result = await self.session.execute(stmt)
         rsvp = result.scalar_one_or_none()
@@ -40,6 +60,15 @@ class EventRSVPRepository:
             event_id: int,
             filters: EventRSVPFilter  | None = None
     ) -> list[EventRSVP]:
+        """Lists RSVPs for an event, optionally filtered and sorted.
+
+        Args:
+            event_id: ID of the event whose RSVPs are being listed.
+            filters: EventRSVPFilter to apply, or None for no filtering.
+
+        Returns:
+            List of matching EventRSVP instances.
+        """
         stmt = select(EventRSVP).where(EventRSVP.event_id == event_id)
         if filters:
             stmt = filters.filter(stmt)

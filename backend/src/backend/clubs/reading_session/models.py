@@ -16,6 +16,8 @@ class ReadingSession(Base, IntIdMixin, TimeActionMixin):
     completed_at = Column(DateTime, nullable=True)
 
 class Milestone(Base, IntIdMixin, TimeActionMixin):
+    """ORM model for a reading progress checkpoint within a reading session."""
+
     __tablename__ = "milestones"
 
     session_id = Column(BigInteger, ForeignKey("reading_sessions.id", ondelete="CASCADE"), nullable=False)
@@ -26,6 +28,8 @@ class Milestone(Base, IntIdMixin, TimeActionMixin):
     order_index = Column(Integer, nullable=False, default=0)
 
 class MilestoneProgress(Base, IntIdMixin, TimeActionMixin):
+    """ORM model tracking a single user's progress toward a milestone in a reading session."""
+
     __tablename__ = "milestone_progress"
 
     session_id = Column(BigInteger, ForeignKey("reading_sessions.id", ondelete="CASCADE"), nullable=False)
@@ -38,6 +42,8 @@ class MilestoneProgress(Base, IntIdMixin, TimeActionMixin):
     )
 
 class DiscussionPrompt(Base, IntIdMixin, TimeActionMixin):
+    """ORM model for a discussion question attached to a reading session milestone."""
+
     __tablename__ = "discussion_prompts"
 
     milestone_id = Column(BigInteger, ForeignKey("milestones.id", ondelete="CASCADE"), nullable=False)

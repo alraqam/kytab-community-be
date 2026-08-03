@@ -4,6 +4,8 @@ from src.backend.core.models import Base, IntIdMixin, TimeActionMixin
 
 
 class Announcement(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a site-wide administrative announcement."""
+
     __tablename__ = "announcements"
 
     created_by_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)

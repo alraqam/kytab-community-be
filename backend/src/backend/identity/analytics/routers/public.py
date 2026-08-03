@@ -26,6 +26,7 @@ class UserAnalyticsRouter:
         response_model=GetUserAnalytics,
     )
     async def get_my_analytics(self):
+        """Fetches the current user's reading analytics."""
         result = await self.manager.get_user_analytics(self.user, self.user)
         return result
 
@@ -38,5 +39,6 @@ class UserAnalyticsRouter:
             self,
             get_user: User = Depends(get_user_or_404)
     ):
+        """Fetches another user's reading analytics."""
         result = await self.manager.get_user_analytics(get_user, self.user)
         return result

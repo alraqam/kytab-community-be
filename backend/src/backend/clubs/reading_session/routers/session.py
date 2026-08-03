@@ -35,11 +35,7 @@ class ReadingSessionRouter:
             self,
             request: CreateReadingSession
     ):
-        """Creates a new reading session for the club.
-
-        Args:
-            request: CreateReadingSession payload with book_id and deadline.
-        """
+        """Creates a new reading session for the club."""
         result = await self.manager.create_session(self.user, self.club, request)
         return result
 
@@ -51,11 +47,7 @@ class ReadingSessionRouter:
             self,
             reading_session: ReadingSession = Depends(get_reading_session_or_404)
     ):
-        """Marks the specified reading session as completed.
-
-        Args:
-            reading_session: ReadingSession instance resolved via get_reading_session_or_404.
-        """
+        """Marks the specified reading session as completed."""
         await self.manager.complete_session(self.user, self.club, reading_session)
 
     @router.delete(
@@ -66,11 +58,7 @@ class ReadingSessionRouter:
             self,
             reading_session: ReadingSession = Depends(get_reading_session_or_404)
     ):
-        """Deletes a non-active reading session.
-
-        Args:
-            reading_session: ReadingSession instance resolved via get_reading_session_or_404.
-        """
+        """Deletes a non-active reading session."""
         await self.manager.delete_session(self.user, self.club, reading_session)
 
     @router.get(
@@ -102,7 +90,7 @@ class ReadingSessionRouter:
             self,
             reading_session: ReadingSession = Depends(get_reading_session_or_404)
     ):
-        """Returns all reading sessions for the club."""
+        """Lists all milestone progress records for the reading session."""
         result = await self.progress_manager.get_session_milestone_progress(reading_session, self.user, self.club)
         return result
 
@@ -115,5 +103,6 @@ class ReadingSessionRouter:
             self,
             reading_session: ReadingSession = Depends(get_reading_session_or_404)
     ):
+        """Fetches the current user's milestone progress for the reading session."""
         result = await self.progress_manager.get_user_milestone_progress(reading_session, self.user)
         return result

@@ -16,6 +16,8 @@ from src.backend.library.shelf.schemas import CreateShelfItem, ShelfVisibility
 
 
 class ShelfItemManager:
+    """Handles shelf item business logic: adding, removing, and moving works between shelves."""
+
     def __init__(
             self,
             session: AsyncSession
@@ -35,6 +37,23 @@ class ShelfItemManager:
             shelf: Shelf,
             request: CreateShelfItem
     ) -> ShelfItem:
+        """Adds a work, and optionally a specific edition, to a shelf.
+
+        Args:
+            user: User adding the item.
+            shelf: Shelf the item is being added to.
+            request: CreateShelfItem payload with the work and optional edition IDs.
+
+        Returns:
+            Newly created ShelfItem instance.
+
+        Raises:
+            IsNotShelfOwnerError: When the user does not own the shelf.
+            WorkNotFoundError: When the given work does not exist.
+            EditionNotFoundError: When the given edition does not exist.
+            InvalidWorkEditionError: When the given edition does not belong to the given work.
+            WorkAlreadyInShelfError: When the work is already present in one of the user's shelves.
+        """
         await is_shelf_owner(user, shelf)
 
         work = await self.work_manager.get_work_by_id(request.work_id)
@@ -63,6 +82,16 @@ class ShelfItemManager:
             user: User,
             shelf_item: ShelfItem,
     ) -> None:
+        """Removes an item from its shelf.
+
+        Args:
+            user: User requesting the removal.
+            shelf_item: ShelfItem to remove.
+
+        Raises:
+            ShelfNotFoundError: When the shelf item has no associated shelf.
+            IsNotShelfOwnerError: When the user does not own the shelf.
+        """
         shelf = await self.shelf_item_repo.get_shelf_by_item(shelf_item.id)
         if not shelf:
             raise ShelfNotFoundError("Shelf not found")
@@ -81,6 +110,16 @@ class ShelfItemManager:
             shelf_item: ShelfItem,
             shelf: Shelf
     ) -> None:
+        """Moves a shelf item to a different shelf.
+
+        Args:
+            user: User requesting the move.
+            shelf_item: ShelfItem to move.
+            shelf: Destination shelf.
+
+        Raises:
+            IsNotShelfOwnerError: When the user does not own the destination shelf.
+        """
         await is_shelf_owner(user, shelf)
 
         result = await self.shelf_item_repo.change_shelf(
@@ -96,6 +135,20 @@ class ShelfItemManager:
             current_user: User,
             shelf: Shelf
     ) -> list[ShelfItem]:
+        """Lists a shelf's items after verifying the current user can view the shelf.
+
+        Args:
+            user: Owner of the shelf.
+            current_user: User requesting the items.
+            shelf: Shelf whose items are being listed.
+
+        Returns:
+            List of ShelfItem instances on the shelf.
+
+        Raises:
+            PrivateShelfError: When the shelf's visibility does not permit the current
+                user to view it.
+        """
         await self.shelf_manager.ensure_shelf_access(shelf, current_user, user)
         items = await self.shelf_item_repo.get_shelf_items(shelf.id)
         return items
@@ -105,6 +158,18 @@ class ShelfItemManager:
             user: User,
             shelf: Shelf
     ) -> list[ShelfItem]:
+        """Lists the items on a shelf owned by the given user.
+
+        Args:
+            user: User requesting the items, expected to own the shelf.
+            shelf: Shelf whose items are being listed.
+
+        Returns:
+            List of ShelfItem instances on the shelf.
+
+        Raises:
+            IsNotShelfOwnerError: When the user does not own the shelf.
+        """
         if user.id != shelf.user_id:
             raise IsNotShelfOwnerError("Is not shelf owner")
         items = await self.shelf_item_repo.get_shelf_items(shelf.id)
@@ -114,6 +179,17 @@ class ShelfItemManager:
             self,
             shelf_item_id: int,
     ) -> ShelfItem:
+        """Fetches a single shelf item by ID.
+
+        Args:
+            shelf_item_id: ID of the shelf item to fetch.
+
+        Returns:
+            Matching ShelfItem instance.
+
+        Raises:
+            ShelfItemNotFoundError: When no shelf item matches the ID.
+        """
         result = await self.shelf_item_repo.get_shelf_item_by_id(shelf_item_id=shelf_item_id)
         if not result:
             raise ShelfItemNotFoundError("Shelf item not found")
@@ -123,6 +199,17 @@ class ShelfItemManager:
             self,
             shelf_item_id: int
     ) -> Shelf:
+        """Fetches the shelf that contains the given shelf item.
+
+        Args:
+            shelf_item_id: ID of the shelf item whose shelf is being fetched.
+
+        Returns:
+            Matching Shelf instance.
+
+        Raises:
+            ShelfNotFoundError: When no shelf contains a shelf item with this ID.
+        """
         result = await self.shelf_item_repo.get_shelf_by_item(shelf_item_id=shelf_item_id)
         if not result:
             raise ShelfNotFoundError("Shelf not found")

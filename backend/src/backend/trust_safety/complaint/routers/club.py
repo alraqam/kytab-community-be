@@ -17,6 +17,8 @@ router = APIRouter(
 
 @cbv(router)
 class ComplaintClubRouter:
+    """CBV router for club owner/moderator handling of complaints filed within a club."""
+
     manager: ComplaintManager = Depends(get_complaint_manager)
     user: User = Depends(get_current_user)
     club: Club = Depends(get_club_or_404)
@@ -27,6 +29,7 @@ class ComplaintClubRouter:
         response_model=list[GetComplaint]
     )
     async def get_club_complaints(self):
+        """Lists complaints filed within the club."""
         result = await self.manager.get_club_complaints(self.user, self.club)
         return result
 
@@ -38,4 +41,5 @@ class ComplaintClubRouter:
             self,
             complaint: Complaint = Depends(get_complaint_or_404)
     ):
+        """Escalates a club complaint to platform-level moderation."""
         await self.manager.escalate_complaint(self.user, self.club, complaint)

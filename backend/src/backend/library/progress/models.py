@@ -3,6 +3,8 @@ from sqlalchemy import Column, BigInteger, ForeignKey, Date, UniqueConstraint, I
 from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
 
 class ReadingPeriod  (Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a user's active or completed reading period for a shelf item."""
+
     __tablename__ = "reading_periods"
 
     shelf_item_id = Column(BigInteger, ForeignKey("shelf_items.id", ondelete="CASCADE"), nullable=False)
@@ -10,6 +12,8 @@ class ReadingPeriod  (Base, IntIdMixin, TimeActionMixin):
     finished_at = Column(DateTime, nullable=True)
 
 class ProgressLog(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a single day's reading progress entry within a reading period."""
+
     __tablename__ = "progress_logs"
 
     user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)

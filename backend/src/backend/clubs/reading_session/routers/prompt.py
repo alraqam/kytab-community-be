@@ -19,6 +19,8 @@ router = APIRouter(
 
 @cbv(router)
 class DiscussionPromptRouter:
+    """CBV router for managing discussion prompts on a milestone: create, update, delete, and list."""
+
     manager: DiscussionPromptManager = Depends(get_discussion_prompt_manager)
     user: User = Depends(get_current_user)
     club: Club = Depends(get_club_or_404)
@@ -34,6 +36,7 @@ class DiscussionPromptRouter:
             self,
             request: CreateDiscussionPrompt
     ):
+        """Creates a new discussion prompt for the milestone."""
         result = await self.manager.create_prompt(self.user, self.club, self.milestone, request)
         return result
 
@@ -46,6 +49,7 @@ class DiscussionPromptRouter:
             request: UpdateDiscussionPrompt,
             prompt: DiscussionPrompt = Depends(get_discussion_prompt_or_404),
     ):
+        """Updates a discussion prompt's text."""
         await self.manager.update_prompt(self.user, self.club, prompt, request)
 
     @router.delete(
@@ -56,6 +60,7 @@ class DiscussionPromptRouter:
             self,
             prompt: DiscussionPrompt = Depends(get_discussion_prompt_or_404)
     ):
+        """Deletes a discussion prompt."""
         await self.manager.delete_prompt(self.user, self.club, prompt)
 
     @router.get(
@@ -66,5 +71,6 @@ class DiscussionPromptRouter:
     async def get_milestone_prompts(
             self,
     ):
+        """Lists all discussion prompts for the milestone."""
         result = await self.manager.get_milestone_prompts(self.user, self.club, self.milestone)
         return result

@@ -5,6 +5,8 @@ from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
 
 
 class Club(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a book club, its ownership, and its visibility settings."""
+
     __tablename__ = "clubs"
 
     name = Column(String(256), nullable=False)
@@ -19,6 +21,8 @@ class Club(Base, IntIdMixin, TimeActionMixin):
     events = relationship("ClubEvent", backref="club", lazy="selectin")
 
 class ClubGenre (Base, IntIdMixin):
+    """ORM model representing the association between a club and one of its genres."""
+
     __tablename__ = "club_genre"
 
     club_id = Column(BigInteger, ForeignKey("clubs.id", ondelete="CASCADE"), nullable=False)

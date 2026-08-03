@@ -5,6 +5,8 @@ from pydantic import BaseModel
 
 
 class NotificationCategory(str, Enum):
+    """Categories of events that can trigger a notification."""
+
     club_invite = "club_invite"
     join_approval = "join_approval"
     mention = "mention"
@@ -15,6 +17,8 @@ class NotificationCategory(str, Enum):
     general = "general"
 
 class NotificationObjectType(str, Enum):
+    """Types of entities a notification can reference via object_type/object_id."""
+
     club = "club"
     invitation = "invitation"
     join_request = "join_request"
@@ -26,11 +30,15 @@ class NotificationObjectType(str, Enum):
     complaint = "complaint"
 
 class DigestFrequency(str, Enum):
+    """How often a digest of notifications should be sent for a preference."""
+
     none = "none"
     daily = "daily"
     weekly = "weekly"
 
 class GetNotification(BaseModel):
+    """Response payload representing a notification."""
+
     id: int
     user_id: int
     club_id: int | None = None
@@ -43,6 +51,8 @@ class GetNotification(BaseModel):
     created_at: datetime
 
 class CreateNotificationPreference(BaseModel):
+    """Request payload for creating a notification preference for a category, optionally scoped to a club."""
+
     club_id: int | None = None
     category: NotificationCategory
     in_app_enabled: bool = True
@@ -51,12 +61,16 @@ class CreateNotificationPreference(BaseModel):
     digest_frequency: DigestFrequency = DigestFrequency.none
 
 class UpdateNotificationPreference(BaseModel):
+    """Request payload for updating a notification preference's delivery channels and digest frequency."""
+
     in_app_enabled: bool | None = None
     email_enabled: bool | None = None
     push_enabled: bool | None = None
     digest_frequency: DigestFrequency | None = None
 
 class GetNotificationPreference(BaseModel):
+    """Response payload representing a notification preference."""
+
     id: int
     user_id: int
     club_id: int | None = None

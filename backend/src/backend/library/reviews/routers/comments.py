@@ -18,6 +18,8 @@ router = APIRouter(
 
 @cbv(router)
 class ReviewCommentRouter:
+    """CBV router for review comments: create, update, delete, and retrieval."""
+
     comment_manager: ReviewCommentManager = Depends(get_review_comment_manager)
     user: User = Depends(get_current_user)
     review: Review = Depends(get_review_or_404)
@@ -32,6 +34,7 @@ class ReviewCommentRouter:
             self,
             request: CreateReviewComment
     ):
+        """Creates a comment on the review."""
         result = await self.comment_manager.create_comment(self.user, self.review, request)
         return result
 
@@ -44,6 +47,7 @@ class ReviewCommentRouter:
             request: UpdateReviewComment,
             comment: ReviewComment = Depends(get_review_comment_or_404),
     ):
+        """Updates a review comment's text."""
         await self.comment_manager.update_comment(self.user, comment, request)
 
     @router.delete(
@@ -54,6 +58,7 @@ class ReviewCommentRouter:
             self,
             comment: ReviewComment = Depends(get_review_comment_or_404),
     ):
+        """Deletes a review comment."""
         await self.comment_manager.delete_comment(self.user, comment)
 
     @router.get(
@@ -62,6 +67,7 @@ class ReviewCommentRouter:
         response_model=list[GetReviewComment]
     )
     async def get_review_comments(self):
+        """Lists all comments on the review."""
         result = await self.comment_manager.get_review_comments(self.review)
         return result
 
@@ -74,4 +80,5 @@ class ReviewCommentRouter:
             self,
             comment: ReviewComment = Depends(get_review_comment_or_404),
     ):
+        """Fetches a single review comment by ID."""
         return comment

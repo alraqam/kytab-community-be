@@ -17,6 +17,8 @@ router = APIRouter(
 
 @cbv(router)
 class LibrarianWorkRouter:
+    """CBV router for librarian management of works: create, update, delete, and merge duplicates."""
+
     manager: WorkManager = Depends(get_work_manager)
     user: User = Depends(is_librarian)
 
@@ -29,6 +31,7 @@ class LibrarianWorkRouter:
             self,
             request: CreateWork
     ):
+        """Creates a new work."""
         result = await self.manager.create_work(request)
         return result
 
@@ -41,6 +44,7 @@ class LibrarianWorkRouter:
             request: UpdateWork,
             work: Work = Depends(get_work_or_404)
     ):
+        """Updates an existing work's details."""
         await self.manager.update_work(work.id, request)
 
     @router.delete(
@@ -51,6 +55,7 @@ class LibrarianWorkRouter:
             self,
             work: Work = Depends(get_work_or_404)
     ):
+        """Deletes a work."""
         await self.manager.delete_work(work.id)
 
     @router.put(
@@ -63,6 +68,7 @@ class LibrarianWorkRouter:
             request: MergeWork,
             work: Work = Depends(get_work_or_404)
     ):
+        """Merges a duplicate work into this work."""
         result = await self.manager.merge_works(request.source_work_id, work.id)
         return result
 

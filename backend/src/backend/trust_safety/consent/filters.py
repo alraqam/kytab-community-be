@@ -5,6 +5,7 @@ from src.backend.trust_safety.consent.schemas import DocumentType
 
 
 class LegalDocumentFilter(Filter):
+    """Query filter for legal documents: free-text search, document type, current status, and ordering."""
 
     q: str | None = None
     document_type: DocumentType | None = None

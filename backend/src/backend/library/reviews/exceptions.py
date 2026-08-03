@@ -13,28 +13,28 @@ class ReviewNotFound(NotFound):
     """Raised when a review with the given ID does not exist."""
 
 class IsNotReviewCommentOwnerError(Forbidden):
-    pass
+    """Raised when a user tries to modify a review comment they did not create."""
 
 class ReviewCommentNotFoundError(NotFound):
-    pass
+    """Raised when a review comment with the given ID does not exist."""
 
 class IsNotReviewLikeOwnerError(Forbidden):
-    pass
+    """Raised when a user tries to modify a review like they did not create."""
 
 class ReviewLikeNotFoundError(NotFound):
-    pass
+    """Raised when a review like with the given ID does not exist."""
 
 class ReviewLikeAlreadyExists(Conflict):
-    pass
+    """Raised when a user tries to like a review they have already liked."""
 
 class EmptyReviewError(BadRequest):
-    pass
+    """Raised when a review is created without a rating or text."""
 
 class ReviewNotInWorkError(NotFound):
-    pass
+    """Raised when a review does not belong to the given work."""
 
 class CommentNotInReviewError(NotFound):
-    pass
+    """Raised when a comment does not belong to the given review."""
 
 class LikeNotInReviewError(NotFound):
-    pass
+    """Raised when a like does not belong to the given review."""

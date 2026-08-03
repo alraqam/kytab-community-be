@@ -2,10 +2,10 @@ from src.backend.core.exceptions import NotFound, Forbidden, Conflict, BadReques
 
 
 class ClubNotFoundError(NotFound):
-    pass
+    """Raised when the requested club does not exist."""
 
 class InvalidCoverUrlError(BadRequest):
-    pass
+    """Raised when a club cover URL is not a valid URL format."""
 
 class IsNotClubOwnerError(Forbidden):
-    pass
+    """Raised when the user is not the owner of the club."""

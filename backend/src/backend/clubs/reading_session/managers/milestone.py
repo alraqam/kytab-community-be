@@ -19,6 +19,8 @@ from src.backend.notifications.schemas import NotificationCategory, Notification
 
 
 class MilestoneManager:
+    """Handles business logic for reading session milestones: creation, updates, deletion, and retrieval."""
+
     def __init__(
             self,
             session: AsyncSession
@@ -37,6 +39,14 @@ class MilestoneManager:
             title: str,
             object_id: int,
     ) -> None:
+        """Notifies all club members except the acting user about a reading schedule change.
+
+        Args:
+            user: User who triggered the schedule change.
+            club: Club whose members will be notified.
+            title: Notification title text.
+            object_id: ID of the milestone the notification refers to.
+        """
         memberships = await self.membership_manager.get_memberships(club, user)
         recipients = [
             await self.user_manager.get_user_by_id(membership.user_id)
@@ -58,6 +68,22 @@ class MilestoneManager:
             reading_session: ReadingSession,
             request: CreateMilestone
     ) -> Milestone:
+        """Creates a new milestone for a reading session and notifies club members.
+
+        Args:
+            user: Owner or moderator creating the milestone.
+            reading_session: ReadingSession the milestone belongs to.
+            request: CreateMilestone payload with label, boundary, and target date.
+
+        Returns:
+            Newly created Milestone instance.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not the club owner or a moderator.
+            DateInPastError: When the target date is outside the session's date range.
+            MilestoneAlreadyExistsError: When a milestone with the same boundary already exists.
+            MilestoneValueError: When a percent boundary value exceeds 100.
+        """
         club = await self.club_manager.get_club_by_id(reading_session.club_id)
         is_owner_or_moderator(club, user.id)
 
@@ -96,6 +122,20 @@ class MilestoneManager:
             milestone: Milestone,
             request: UpdateMilestone
     ) -> None:
+        """Updates a milestone's fields and notifies club members of the schedule change.
+
+        Args:
+            user: Owner or moderator updating the milestone.
+            reading_session: ReadingSession the milestone belongs to.
+            milestone: Milestone instance to update.
+            request: UpdateMilestone payload with the fields to change.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not the club owner or a moderator.
+            DateInPastError: When the target date is outside the session's date range.
+            MilestoneAlreadyExistsError: When a milestone with the same boundary already exists.
+            MilestoneValueError: When a percent boundary value exceeds 100.
+        """
         club = await self.club_manager.get_club_by_id(reading_session.club_id)
         is_owner_or_moderator(club, user.id)
 
@@ -132,6 +172,16 @@ class MilestoneManager:
             reading_session: ReadingSession,
             milestone: Milestone,
     ) -> None:
+        """Deletes a milestone and notifies club members of the schedule change.
+
+        Args:
+            user: Owner or moderator deleting the milestone.
+            reading_session: ReadingSession the milestone belongs to.
+            milestone: Milestone instance to delete.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not the club owner or a moderator.
+        """
         club = await self.club_manager.get_club_by_id(reading_session.club_id)
         is_owner_or_moderator(club, user.id)
 
@@ -155,6 +205,20 @@ class MilestoneManager:
             user: User,
             filters: MilestoneFilter
     ) -> list[Milestone]:
+        """Lists a reading session's milestones matching the given filters.
+
+        Args:
+            reading_session: ReadingSession whose milestones are listed.
+            club: Club the session belongs to.
+            user: User requesting the milestones; must be a club member.
+            filters: MilestoneFilter with search and ordering criteria.
+
+        Returns:
+            List of matching Milestone instances.
+
+        Raises:
+            NotClubMemberError: When the user is not a member of the club.
+        """
         await is_club_member(club, user, self.session)
         milestones = await self.milestone_repo.get_session_milestones(
             session_id=reading_session.id,
@@ -166,6 +230,17 @@ class MilestoneManager:
             self,
             milestone_id: int,
     ) -> Milestone:
+        """Fetches a milestone by ID.
+
+        Args:
+            milestone_id: ID of the milestone to fetch.
+
+        Returns:
+            Matching Milestone instance.
+
+        Raises:
+            MilestoneNotFoundError: When no milestone matches the ID.
+        """
         milestone = await self.milestone_repo.get_milestone_by_id(
             milestone_id=milestone_id,
         )

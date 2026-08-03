@@ -53,6 +53,14 @@ class UserRepository:
             self,
             email: str
     ) -> User | None:
+        """Fetches a user by email address.
+
+        Args:
+            email: Email address to search for.
+
+        Returns:
+            User instance if found, None otherwise.
+        """
         stmt = select(User).where(User.email == email)
         result = await self.session.execute(stmt)
         user = result.scalar_one_or_none()
@@ -145,12 +153,11 @@ class UserRepository:
             username: str,
             email: str,
     ) -> None:
-        """Updates the user's username, fullname, and email fields.
+        """Updates the user's username and email fields.
 
         Args:
             user: User instance to update.
             username: New username string.
-            fullname: New fullname string.
             email: New email string.
         """
         user.username = username
@@ -179,6 +186,12 @@ class UserRepository:
             user: User,
             is_verified: bool
     ) -> None:
+        """Updates a user's verification status and flushes the session.
+
+        Args:
+            user: User instance to update.
+            is_verified: New verification status boolean.
+        """
         user.is_verified = is_verified
         self.session.add(user)
         await self.session.flush()
@@ -188,6 +201,12 @@ class UserRepository:
             user: User,
             is_deleted: bool
     ):
+        """Sets a user's deleted flag and deleted timestamp.
+
+        Args:
+            user: User instance to update.
+            is_deleted: True to mark deleted, False to restore.
+        """
         user.is_deleted = is_deleted
         user.deleted_at = datetime.now(timezone.utc) if is_deleted else None
         await self.session.flush()

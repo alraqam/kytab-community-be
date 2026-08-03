@@ -20,6 +20,8 @@ class User(Base, IntIdMixin, TimeActionMixin):
     deleted_at = Column(DateTime(timezone=True), nullable=True)
 
 class Session(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a user's login session tied to a hashed refresh token."""
+
     __tablename__ = "sessions"
 
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))

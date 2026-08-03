@@ -20,6 +20,8 @@ router = APIRouter(
 
 @cbv(router)
 class MilestoneRouter:
+    """CBV router for managing milestones within a reading session: create, update, delete, and retrieve."""
+
     manager: MilestoneManager = Depends(get_milestone_manager)
     user: User = Depends(get_current_user)
     club: Club = Depends(get_club_or_404)
@@ -34,6 +36,7 @@ class MilestoneRouter:
             self,
             request: CreateMilestone
     ):
+        """Creates a new milestone for the reading session."""
         result = await self.manager.create_milestone(self.user, self.session, request)
         return result
 
@@ -46,6 +49,7 @@ class MilestoneRouter:
             request: UpdateMilestone,
             milestone: Milestone = Depends(get_milestone_or_404),
     ):
+        """Updates a milestone's fields."""
         await self.manager.update_milestone(self.user, self.session, milestone, request)
 
     @router.delete(
@@ -56,6 +60,7 @@ class MilestoneRouter:
             self,
             milestone: Milestone = Depends(get_milestone_or_404)
     ):
+        """Deletes a milestone."""
         await self.manager.delete_milestone(self.user, self.session, milestone)
 
     @router.get(
@@ -67,6 +72,7 @@ class MilestoneRouter:
             self,
             filters: MilestoneFilter = FilterDepends(MilestoneFilter),
     ):
+        """Lists the reading session's milestones, optionally filtered and sorted."""
         result = await self.manager.get_session_milestones(self.session, self.club, self.user, filters)
         return result
 
@@ -79,4 +85,5 @@ class MilestoneRouter:
             self,
             milestone: Milestone = Depends(get_milestone_or_404),
     ):
+        """Fetches a single milestone by ID."""
         return milestone

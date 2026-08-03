@@ -20,10 +20,6 @@ class ProfileManager:
             self,
             session: AsyncSession,
     ):
-        """
-        Args:
-            session: Async SQLAlchemy session.
-        """
         self.session = session
         self.profile_repo = ProfileRepository(session)
         self.user_repo = UserRepository(session)
@@ -34,6 +30,14 @@ class ProfileManager:
             self,
             request: CreateProfile
     ) -> Profile:
+        """Creates a new profile for a user.
+
+        Args:
+            request: CreateProfile payload with user_id and fullname.
+
+        Returns:
+            Newly created Profile instance.
+        """
         profile = await self.profile_repo.create(request.user_id, request.fullname)
         return profile
 
@@ -41,6 +45,17 @@ class ProfileManager:
             self,
             user: User
     ) -> Profile:
+        """Fetches the profile belonging to the given user.
+
+        Args:
+            user: User whose profile to fetch.
+
+        Returns:
+            Matching Profile instance.
+
+        Raises:
+            ProfileNotFoundError: When the user has no profile.
+        """
         profile = await self.profile_repo.get_profile_by_user(user.id)
         if not profile:
             raise ProfileNotFoundError("Profile not found")
@@ -51,6 +66,18 @@ class ProfileManager:
             user: User,
             get_user: User
     ) -> Profile:
+        """Fetches another user's profile, enforcing visibility rules.
+
+        Args:
+            user: User requesting to view the profile.
+            get_user: User whose profile is being requested.
+
+        Returns:
+            Matching Profile instance.
+
+        Raises:
+            PrivateProfileError: When the profile's visibility is private.
+        """
         profile = await self.get_profile_by_user(get_user)
         if profile.visibility == ProfileVisibilityEnum.private:
             raise PrivateProfileError("Private profile error")
@@ -64,6 +91,15 @@ class ProfileManager:
             user: User,
             request: UpdateProfileAvatar
     ) -> None:
+        """Updates the current user's avatar URL after validating its format.
+
+        Args:
+            user: User whose avatar to update.
+            request: UpdateProfileAvatar payload with the new avatar_url.
+
+        Raises:
+            InvalidAvatarUrlError: When avatar_url is not a valid HTTP/HTTPS URL.
+        """
         profile = await self.get_profile_by_user(user)
 
         if not is_valid_url(request.avatar_url):
@@ -80,6 +116,15 @@ class ProfileManager:
             user: User,
             request: UpdateProfile
     ) -> None:
+        """Updates the current user's profile fields after validating link URLs.
+
+        Args:
+            user: User whose profile to update.
+            request: UpdateProfile payload with the fields to change.
+
+        Raises:
+            InvalidLinkUrlError: When any provided link is not a valid HTTP/HTTPS URL.
+        """
         profile = await self.get_profile_by_user(user)
 
         if any(not is_valid_url(link) for link in request.links or ()):
@@ -100,6 +145,12 @@ class ProfileManager:
             user: User,
             request: UpdateProfileVisibility
     ) -> None:
+        """Updates the current user's profile visibility setting.
+
+        Args:
+            user: User whose profile visibility to update.
+            request: UpdateProfileVisibility payload with the new visibility value.
+        """
         profile = await self.get_profile_by_user(user)
 
         await self.profile_repo.update_visibility(

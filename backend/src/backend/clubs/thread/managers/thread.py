@@ -15,10 +15,17 @@ from src.backend.identity.auth.models import User
 
 
 class ThreadManager:
+    """Handles business logic for discussion threads: creation, updates, lock/pin state, deletion, and milestone-gated retrieval."""
+
     def __init__(
             self,
             session: AsyncSession
     ):
+        """Initializes the manager and its dependent repositories and managers.
+
+        Args:
+            session: Async SQLAlchemy session.
+        """
         self.session = session
         self.thread_repo = ThreadRepository(session)
         self.club_manager = ClubManager(session)
@@ -33,6 +40,21 @@ class ThreadManager:
             milestone: Milestone,
             request: CreateThread
     ) -> Thread:
+        """Creates a new thread scoped to a reading session milestone.
+
+        Args:
+            user: User creating the thread; must be a club owner or moderator.
+            club: Club the thread belongs to.
+            reading_session: Reading session the milestone belongs to.
+            milestone: Milestone the thread is scoped to.
+            request: CreateThread payload with the thread title.
+
+        Returns:
+            Newly created Thread instance.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not a club owner or moderator.
+        """
         is_owner_or_moderator(club, user.id)
 
         response = await self.thread_repo.create_thread(
@@ -52,6 +74,19 @@ class ThreadManager:
             club: Club,
             request: CreateThread
     ) -> Thread:
+        """Creates a new club-general thread, not scoped to any reading session.
+
+        Args:
+            user: User creating the thread; must be a club owner or moderator.
+            club: Club the thread belongs to.
+            request: CreateThread payload with the thread title.
+
+        Returns:
+            Newly created Thread instance.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not a club owner or moderator.
+        """
         is_owner_or_moderator(club, user.id)
 
         response = await self.thread_repo.create_thread(
@@ -72,6 +107,18 @@ class ThreadManager:
             thread: Thread,
             request: UpdateThread
     ) -> None:
+        """Updates a thread's title.
+
+        Args:
+            user: User requesting the update; must be a club owner or moderator.
+            club: Club the thread belongs to.
+            thread: Thread instance to update.
+            request: UpdateThread payload with the new title.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not a club owner or moderator.
+            LockedThreadError: When the thread is locked.
+        """
         is_owner_or_moderator(club, user.id)
 
         if thread.is_locked:
@@ -89,6 +136,17 @@ class ThreadManager:
             club: Club,
             thread: Thread,
     ) -> None:
+        """Locks a thread, preventing further posts and edits.
+
+        Args:
+            user: User requesting the lock; must be a club owner or moderator.
+            club: Club the thread belongs to.
+            thread: Thread instance to lock.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not a club owner or moderator.
+            LockedThreadError: When the thread is already locked.
+        """
         is_owner_or_moderator(club, user.id)
 
         if thread.is_locked:
@@ -106,6 +164,17 @@ class ThreadManager:
             club: Club,
             thread: Thread,
     ) -> None:
+        """Unlocks a previously locked thread.
+
+        Args:
+            user: User requesting the unlock; must be a club owner or moderator.
+            club: Club the thread belongs to.
+            thread: Thread instance to unlock.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not a club owner or moderator.
+            LockedThreadError: When the thread is not locked.
+        """
         is_owner_or_moderator(club, user.id)
 
         if not thread.is_locked:
@@ -123,6 +192,17 @@ class ThreadManager:
             club: Club,
             thread: Thread,
     ) -> None:
+        """Pins a thread.
+
+        Args:
+            user: User requesting the pin; must be a club owner or moderator.
+            club: Club the thread belongs to.
+            thread: Thread instance to pin.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not a club owner or moderator.
+            PinnedThreadError: When the thread is already pinned.
+        """
         is_owner_or_moderator(club, user.id)
 
         if thread.is_pinned:
@@ -140,6 +220,17 @@ class ThreadManager:
             club: Club,
             thread: Thread,
     ) -> None:
+        """Unpins a previously pinned thread.
+
+        Args:
+            user: User requesting the unpin; must be a club owner or moderator.
+            club: Club the thread belongs to.
+            thread: Thread instance to unpin.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not a club owner or moderator.
+            LockedThreadError: When the thread is not pinned.
+        """
         is_owner_or_moderator(club, user.id)
 
         if not thread.is_pinned:
@@ -157,6 +248,16 @@ class ThreadManager:
             club: Club,
             thread: Thread,
     ) -> None:
+        """Deletes a thread.
+
+        Args:
+            user: User requesting the deletion; must be a club owner or moderator.
+            club: Club the thread belongs to.
+            thread: Thread instance to delete.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not a club owner or moderator.
+        """
         is_owner_or_moderator(club, user.id)
 
         await self.thread_repo.delete_thread(
@@ -168,6 +269,14 @@ class ThreadManager:
             self,
             club: Club
     ) -> list[Thread]:
+        """Lists all club-general threads for a club, pinned threads first.
+
+        Args:
+            club: Club to list threads for.
+
+        Returns:
+            List of Thread instances.
+        """
         threads = await self.thread_repo.get_club_general_threads(
             club_id=club.id,
         )
@@ -178,6 +287,15 @@ class ThreadManager:
             reading_session: ReadingSession,
             milestone: Milestone,
     ) -> list[Thread]:
+        """Lists all threads scoped to a session milestone, without progress gating.
+
+        Args:
+            reading_session: Reading session the milestone belongs to.
+            milestone: Milestone to list threads for.
+
+        Returns:
+            List of Thread instances.
+        """
         threads = await self.thread_repo.get_session_milestone_threads(
             session_id=reading_session.id,
             milestone_id=milestone.id,
@@ -190,6 +308,20 @@ class ThreadManager:
             reading_session: ReadingSession,
             milestone: Milestone,
     ) -> list[Thread]:
+        """Lists threads scoped to a session milestone, gated by the user's reading progress.
+
+        Args:
+            user: User requesting the threads.
+            reading_session: Reading session the milestone belongs to.
+            milestone: Milestone to list threads for.
+
+        Returns:
+            List of Thread instances.
+
+        Raises:
+            MilestoneNotReachedError: When the user has no recorded progress, or has not
+                yet reached the given milestone.
+        """
         threads = await self.thread_repo.get_session_milestone_threads(
             session_id=reading_session.id,
             milestone_id=milestone.id,
@@ -212,6 +344,17 @@ class ThreadManager:
             self,
             thread_id: int,
     ) -> Thread:
+        """Fetches a thread by ID.
+
+        Args:
+            thread_id: ID of the thread to fetch.
+
+        Returns:
+            Matching Thread instance.
+
+        Raises:
+            ThreadNotFoundError: When no thread with the given ID exists.
+        """
         thread = await self.thread_repo.get_thread_by_id(
             thread_id=thread_id,
         )

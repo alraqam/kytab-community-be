@@ -9,6 +9,8 @@ from src.backend.trust_safety.consent.models import LegalDocument
 
 @dataclass
 class LegalDocumentRepository:
+    """Data-access layer for legal document persistence and queries."""
+
     session: AsyncSession
 
     async def create_document(
@@ -18,6 +20,17 @@ class LegalDocumentRepository:
             is_current: bool,
             content: str,
     ) -> LegalDocument:
+        """Inserts a new legal document version.
+
+        Args:
+            document_type: Type of the legal document.
+            document_version: Version identifier for this document.
+            is_current: Whether this version should be marked as current.
+            content: Full text content of the document.
+
+        Returns:
+            Newly created LegalDocument instance.
+        """
         result = LegalDocument(
             document_type=document_type,
             document_version=document_version,
@@ -33,6 +46,12 @@ class LegalDocumentRepository:
             document: LegalDocument,
             status: bool,
     ) -> None:
+        """Sets a document's current-version flag.
+
+        Args:
+            document: LegalDocument instance to update.
+            status: New current-version flag value.
+        """
         document.is_current = status
         self.session.add(document)
         await self.session.flush()
@@ -41,6 +60,14 @@ class LegalDocumentRepository:
             self,
             filters: LegalDocumentFilter
     ) -> list[LegalDocument]:
+        """Lists legal documents, optionally filtered and sorted.
+
+        Args:
+            filters: LegalDocumentFilter to apply, or None for no filtering.
+
+        Returns:
+            List of matching LegalDocument instances.
+        """
         stmt = select(LegalDocument)
         if filters:
             stmt = filters.filter(stmt)
@@ -53,6 +80,14 @@ class LegalDocumentRepository:
             self,
             document_id: int
     ) -> LegalDocument | None:
+        """Fetches a single legal document by ID.
+
+        Args:
+            document_id: ID of the document to fetch.
+
+        Returns:
+            Matching LegalDocument instance, or None if not found.
+        """
         stmt = select(LegalDocument).where(LegalDocument.id == document_id)
         result = await self.session.execute(stmt)
         document = result.scalar_one_or_none()

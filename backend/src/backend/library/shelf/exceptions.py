@@ -2,25 +2,25 @@ from src.backend.core.exceptions import Forbidden, BadRequest, NotFound, Conflic
 
 
 class IsNotShelfOwnerError(Forbidden):
-    pass
+    """Raised when a user who is not the shelf's owner attempts to modify or access it."""
 
 class ShelfAlreadyExistsError(Conflict):
-    pass
+    """Raised when the user already has a shelf with the given name."""
 
 class DefaultShelfError(BadRequest):
-    pass
+    """Raised when an attempt is made to rename or delete a default shelf."""
 
 class ShelfNotFoundError(NotFound):
-    pass
+    """Raised when the requested shelf does not exist."""
 
 class PrivateShelfError(Forbidden):
-    pass
+    """Raised when a shelf's visibility does not permit the requesting user to view it."""
 
 class ShelfItemNotFoundError(NotFound):
-    pass
+    """Raised when the requested shelf item does not exist."""
 
 class WorkAlreadyInShelfError(Conflict):
-    pass
+    """Raised when the work is already present in the user's shelf."""
 
 class ShelfItemNotInShelfError(NotFound):
-    pass
+    """Raised when the shelf item does not belong to the specified shelf."""

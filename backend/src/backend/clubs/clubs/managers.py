@@ -15,6 +15,8 @@ from src.backend.identity.users.repository import UserRepository
 
 
 class ClubManager:
+    """Handles club business logic: creation, updates, archiving, and ownership transfer."""
+
     def __init__(
             self,
             session: AsyncSession
@@ -29,6 +31,15 @@ class ClubManager:
             user: User,
             request: CreateClub,
     ) -> Club:
+        """Creates a new club and registers the creating user as its owner.
+
+        Args:
+            user: User creating the club.
+            request: CreateClub payload with name and description.
+
+        Returns:
+            Newly created Club instance.
+        """
         result = await self.club_repo.create_club(
             name=request.name,
             description=request.description,
@@ -44,6 +55,17 @@ class ClubManager:
             club: Club,
             request: UpdateClub,
     ) -> None:
+        """Updates a club's details after verifying the user is an owner or moderator.
+
+        Args:
+            user: User requesting the update.
+            club: Club instance to update.
+            request: UpdateClub payload with the fields to change.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not an owner or moderator of the club.
+            InvalidCoverUrlError: When the provided cover URL is not a valid URL format.
+        """
         is_owner_or_moderator(club, user.id)
         if request.cover is not None and not is_valid_url(request.cover):
                 raise InvalidCoverUrlError("Invalid cover url format")
@@ -62,6 +84,15 @@ class ClubManager:
             club: Club,
             user: User | None = None,
     ) -> None:
+        """Archives a club, optionally restricting the action to the club's owner.
+
+        Args:
+            club: Club instance to archive.
+            user: User requesting the archive, or None to skip the ownership check.
+
+        Raises:
+            IsNotClubOwnerError: When a user is given and is not the club's owner.
+        """
         if user:
             is_club_owner(club, user)
         await self.club_repo.update_status(
@@ -74,6 +105,11 @@ class ClubManager:
             self,
             club: Club,
     ) -> None:
+        """Restores a previously archived club.
+
+        Args:
+            club: Club instance to unarchive.
+        """
         await self.club_repo.update_status(
             club=club,
             status=False
@@ -84,6 +120,14 @@ class ClubManager:
             self,
             filters,
     ) -> list[Club]:
+        """Lists non-secret, non-archived clubs matching the given filters.
+
+        Args:
+            filters: ClubPublicFilter with search and ordering criteria.
+
+        Returns:
+            List of matching Club instances.
+        """
         result = await self.club_repo.get_clubs_list(filters)
         return result
 
@@ -91,6 +135,14 @@ class ClubManager:
             self,
             filters
     ) -> list[Club]:
+        """Lists all clubs matching the given filters, including secret and archived ones.
+
+        Args:
+            filters: ClubFilter with search and ordering criteria.
+
+        Returns:
+            List of matching Club instances.
+        """
         result = await self.club_repo.get_all_clubs(filters)
         return result
 
@@ -98,6 +150,17 @@ class ClubManager:
             self,
             club_id: int
     ) -> Club:
+        """Fetches a single club by ID.
+
+        Args:
+            club_id: ID of the club to fetch.
+
+        Returns:
+            Matching Club instance.
+
+        Raises:
+            ClubNotFoundError: When no club matches the ID.
+        """
         result = await self.club_repo.get_club_by_id(
             club_id=club_id
         )
@@ -112,6 +175,18 @@ class ClubManager:
             user: User,
             request: ManageClubModerators
     ) -> None:
+        """Transfers club ownership from the current owner to another member.
+
+        Args:
+            club: Club instance whose ownership is being transferred.
+            user: Current owner of the club requesting the transfer.
+            request: ManageClubModerators payload with the new owner's user ID.
+
+        Raises:
+            IsNotClubOwnerError: When the requesting user is not the club's owner.
+            UserNotFoundError: When no user matches the given user ID.
+            NotClubMemberError: When the current owner or the new owner has no membership in the club.
+        """
         is_club_owner(club, user)
         new_owner = await self.user_repo.get_user_by_id(request.user_id)
         if not new_owner:

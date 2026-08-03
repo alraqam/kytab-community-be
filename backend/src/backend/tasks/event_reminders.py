@@ -10,6 +10,7 @@ from src.backend.notifications.schemas import NotificationCategory, Notification
 from src.backend.celery_app import celery_app
 
 async def _send_event_reminders():
+    """Notifies all members of clubs with an event starting in exactly 3 days."""
     date = (datetime.now(timezone.utc) + timedelta(days=3)).date()
 
     async with task_session() as session:
@@ -38,5 +39,6 @@ async def _send_event_reminders():
 
 @celery_app.task
 def send_event_reminders():
+    """Celery task that sends reminder notifications for events happening in 3 days."""
     import asyncio
     asyncio.run(_send_event_reminders())

@@ -19,6 +19,8 @@ router = APIRouter(
 
 @cbv(router)
 class PostSessionRouter:
+    """CBV router for posts within a reading-session milestone thread: create, update, delete, spoiler-gated listing, and reveal."""
+
     manager: PostManager = Depends(get_post_manager)
     user: User = Depends(get_current_user)
     club: Club = Depends(get_club_or_404)
@@ -35,6 +37,7 @@ class PostSessionRouter:
             self,
             request: CreatePost
     ):
+        """Creates a new post in the session milestone thread."""
         result = await self.manager.create_post(self.user, self.club, self.thread, request)
         return result
 
@@ -47,6 +50,7 @@ class PostSessionRouter:
             request: UpdatePost,
             post: Post = Depends(get_post_session_or_404),
     ):
+        """Updates a post in the session milestone thread."""
         await self.manager.update_post(self.user, self.thread, post, request)
 
     @router.delete(
@@ -57,6 +61,7 @@ class PostSessionRouter:
             self,
             post: Post = Depends(get_post_session_or_404)
     ):
+        """Deletes a post from the session milestone thread."""
         await self.manager.delete_post(self.user, self.club, self.thread, post)
 
     @router.get(
@@ -67,6 +72,7 @@ class PostSessionRouter:
     async def get_posts(
             self,
     ):
+        """Lists posts in the thread, hiding spoiler content the user has not reached yet."""
         result = await self.manager.get_posts(self.club, self.thread, self.reading_session, self.milestone, self.user)
         return result
 
@@ -79,4 +85,5 @@ class PostSessionRouter:
             self,
             post: Post = Depends(get_post_session_or_404),
     ):
+        """Fetches and reveals a single post regardless of the user's milestone progress."""
         return await self.manager.reveal_post(self.club, self.user, post)

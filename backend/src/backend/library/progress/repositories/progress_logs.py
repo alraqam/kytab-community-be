@@ -9,6 +9,8 @@ from src.backend.library.progress.models import ProgressLog
 
 @dataclass
 class ProgressLogRepository:
+    """Data-access layer for progress log persistence and queries."""
+
     session: AsyncSession
 
     async def create_progress_log(
@@ -18,6 +20,17 @@ class ProgressLogRepository:
             pages_read: int,
             note: str | None
     ) -> ProgressLog:
+        """Inserts a new progress log dated today.
+
+        Args:
+            user_id: ID of the user the log belongs to.
+            period_id: ID of the reading period the log belongs to.
+            pages_read: Number of pages read.
+            note: Optional note to attach to the log.
+
+        Returns:
+            Newly created ProgressLog instance.
+        """
         result = ProgressLog(
             user_id=user_id,
             period_id=period_id,
@@ -35,6 +48,13 @@ class ProgressLogRepository:
             pages_read: int,
             note: str | None
     ) -> None:
+        """Adds pages read to an existing log and replaces its note.
+
+        Args:
+            log: ProgressLog instance to update.
+            pages_read: Number of pages to add to the existing total.
+            note: New note value, replacing the existing one.
+        """
         log.pages_read += pages_read
         log.note = note
         self.session.add(log)
@@ -44,6 +64,14 @@ class ProgressLogRepository:
             self,
             log_id: int,
     ) -> ProgressLog | None:
+        """Fetches a single progress log by ID.
+
+        Args:
+            log_id: ID of the progress log to fetch.
+
+        Returns:
+            Matching ProgressLog instance, or None if not found.
+        """
         stmt = select(ProgressLog).where(ProgressLog.id == log_id)
         result = await self.session.execute(stmt)
         log = result.scalar_one_or_none()
@@ -55,6 +83,16 @@ class ProgressLogRepository:
             period_id: int,
             log_date: date
     ) -> ProgressLog | None:
+        """Fetches a user's progress log for a specific reading period and date.
+
+        Args:
+            user_id: ID of the user whose log is fetched.
+            period_id: ID of the reading period the log belongs to.
+            log_date: Date of the log to fetch.
+
+        Returns:
+            Matching ProgressLog instance, or None if not found.
+        """
         stmt = select(ProgressLog).where(
             and_(
                 ProgressLog.user_id == user_id,
@@ -70,6 +108,15 @@ class ProgressLogRepository:
             user_id: int,
             period_id: int,
     ) -> list[ProgressLog]:
+        """Lists a user's progress logs within a reading period.
+
+        Args:
+            user_id: ID of the user whose logs are listed.
+            period_id: ID of the reading period to filter by.
+
+        Returns:
+            List of matching ProgressLog instances.
+        """
         stmt = select(ProgressLog).where(
             and_(
                 ProgressLog.user_id == user_id,
@@ -83,6 +130,14 @@ class ProgressLogRepository:
             self,
             user_id: int,
     ) -> list[ProgressLog]:
+        """Lists all progress logs belonging to a user.
+
+        Args:
+            user_id: ID of the user whose logs are listed.
+
+        Returns:
+            List of matching ProgressLog instances.
+        """
         stmt = select(ProgressLog).where(ProgressLog.user_id == user_id)
         result = await self.session.execute(stmt)
         logs = result.scalars().all()
@@ -93,6 +148,15 @@ class ProgressLogRepository:
             user_id: int,
             period_id: int,
     ) -> int:
+        """Sums the pages read across a user's logs within a reading period.
+
+        Args:
+            user_id: ID of the user whose logs are summed.
+            period_id: ID of the reading period to filter by.
+
+        Returns:
+            Total pages read, or 0 if no logs exist.
+        """
         stmt = select(func.sum(ProgressLog.pages_read)).where(
             and_(
                 ProgressLog.user_id == user_id,

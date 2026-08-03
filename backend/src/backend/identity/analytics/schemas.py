@@ -2,15 +2,21 @@ from pydantic import BaseModel
 
 
 class GenreBreakdown(BaseModel):
+    """Response payload representing a count of finished books for a given genre."""
+
     genre: str
     books_read: int
 
 class MonthlyReadingActivity(BaseModel):
+    """Response payload representing a user's reading activity for a given month."""
+
     month: str
     books_finished: int
     pages_read: int
 
 class GetUserAnalytics(BaseModel):
+    """Response payload representing a user's personal reading analytics overview."""
+
     user_id: int
     want_to_read_count: int
     currently_reading_count: int
@@ -28,10 +34,14 @@ class GetUserAnalytics(BaseModel):
     monthly_activity: list[MonthlyReadingActivity]
 
 class SignupsByMonth(BaseModel):
+    """Response payload representing a count of user signups for a given month."""
+
     month: str
     signups: int
 
 class GetPlatformUserAnalytics(BaseModel):
+    """Response payload representing platform-wide user analytics."""
+
     total_users: int
     active_users: int
     verified_users: int

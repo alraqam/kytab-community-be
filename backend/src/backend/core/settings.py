@@ -6,6 +6,8 @@ print(BASE_DIR)
 
 
 class Settings(BaseSettings):
+    """Application configuration loaded from environment variables and the project .env file."""
+
     ACCESS_EXPIRES: int
     REFRESH_EXPIRES: int
     TOKEN_ALGORITHM: str

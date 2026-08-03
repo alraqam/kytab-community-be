@@ -94,6 +94,22 @@ class ClubMembershipManager:
             user: User,
             club: Club,
     ) -> ClubMembership:
+        """Adds a user to a club as a member, bypassing the public-club restriction.
+
+        Used by invitation and join-request acceptance flows, where visibility
+        was already established through a separate mechanism.
+
+        Args:
+            user: User to add to the club.
+            club: Club to join.
+
+        Returns:
+            Newly created ClubMembership instance.
+
+        Raises:
+            AlreadyClubMemberError: When the user is already a member.
+            MemberBlockedError: When the user is blocked from the club.
+        """
         await self.get_user_club_membership(club, user)
         result = await self.membership_repo.create_membership(
             club_id=club.id,
@@ -304,5 +320,13 @@ class ClubMembershipManager:
             self,
             club: Club,
     ) -> list[ClubMembership]:
+        """Returns all club memberships without checking the caller's own membership.
+
+        Args:
+            club: Club whose members are listed.
+
+        Returns:
+            List of ClubMembership instances.
+        """
         memberships = await self.membership_repo.get_memberships(club)
         return memberships

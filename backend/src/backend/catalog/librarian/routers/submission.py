@@ -17,6 +17,8 @@ router = APIRouter(
 
 @cbv(router)
 class LibrarianSubmissionRouter:
+    """CBV router for librarian review of book submissions: approve, reject, link to a work, and list."""
+
     manager: LibrarianSubmissionManager = Depends(get_librarian_submission_manager)
     user: User = Depends(is_librarian)
 
@@ -28,6 +30,7 @@ class LibrarianSubmissionRouter:
             self,
             submission: LibrarianSubmission = Depends(get_librarian_submission_or_404)
     ):
+        """Approves a pending submission."""
         await self.manager.approve(self.user, submission)
 
     @router.put(
@@ -38,6 +41,7 @@ class LibrarianSubmissionRouter:
             self,
             submission: LibrarianSubmission = Depends(get_librarian_submission_or_404)
     ):
+        """Rejects a pending submission."""
         await self.manager.reject(self.user, submission)
 
     @router.put(
@@ -49,6 +53,7 @@ class LibrarianSubmissionRouter:
             request: SetLibrarianSubmissionWork,
             submission: LibrarianSubmission = Depends(get_librarian_submission_or_404)
     ):
+        """Links an approved submission to its resulting catalog work."""
         await self.manager.set_work_id(submission, request)
 
     @router.get(
@@ -60,6 +65,7 @@ class LibrarianSubmissionRouter:
             self,
             filters: LibrarianSubmissionFilter = FilterDepends(LibrarianSubmissionFilter)
     ):
+        """Lists submissions, optionally filtered and sorted."""
         result = await self.manager.get_submissions(filters)
         return result
 
@@ -72,4 +78,5 @@ class LibrarianSubmissionRouter:
             self,
             submission: LibrarianSubmission = Depends(get_librarian_submission_or_404)
     ):
+        """Returns the submission with the given ID."""
         return submission

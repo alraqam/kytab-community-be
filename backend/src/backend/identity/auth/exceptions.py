@@ -23,19 +23,19 @@ class EmailAlreadyExists(Conflict):
     """Raised when a registration or update attempts to use an already registered email."""
 
 class LinkExpiredError(BadRequest):
-    pass
+    """Raised when a verification or password-reset link has expired."""
 
 class InvalidTokenTypeError(BadRequest):
-    pass
+    """Raised when a token's type claim does not match the expected type."""
 
 class UnverifiedUserError(Forbidden):
-    pass
+    """Raised when an action requires a verified email but the user is unverified."""
 
 class NotSessionOwnerError(Forbidden):
-    pass
+    """Raised when a user attempts to revoke a session they do not own."""
 
 class SessionNotFoundError(NotFound):
-    pass
+    """Raised when no session matches the given ID or token."""
 
 class UserDeletionError(BadRequest):
-    pass
+    """Raised when a user account cannot be deleted."""

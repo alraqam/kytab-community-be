@@ -19,6 +19,8 @@ router = APIRouter(
 
 @cbv(router)
 class ReviewRouter:
+    """CBV router for book reviews: create, update, delete, and retrieval."""
+
     manager: ReviewManager = Depends(get_review_manager)
     user: User = Depends(get_current_user)
     work: Work = Depends(get_work_or_404)
@@ -32,6 +34,7 @@ class ReviewRouter:
             self,
             request: CreateReview,
     ):
+        """Creates a new review for the book."""
         result = await self.manager.create_review(self.user, self.work, request)
         return result
 
@@ -44,6 +47,7 @@ class ReviewRouter:
             request: UpdateReview,
             review: Review = Depends(get_review_or_404)
     ):
+        """Updates a review's rating, text, and/or spoiler flag."""
         await self.manager.update_review(self.user, review, request)
 
     @router.delete(
@@ -54,6 +58,7 @@ class ReviewRouter:
             self,
             review: Review = Depends(get_review_or_404)
     ):
+        """Deletes a review."""
         await self.manager.delete_review(self.user, review)
 
     @router.get(
@@ -65,6 +70,7 @@ class ReviewRouter:
             self,
             filters: ReviewFilter = FilterDepends(ReviewFilter)
     ):
+        """Lists reviews for the book, optionally filtered and sorted."""
         result = await self.manager.get_work_reviews(filters, self.work)
         return result
 
@@ -73,6 +79,7 @@ class ReviewRouter:
         summary="getting average book rating",
     )
     async def get_average_rating(self) -> float:
+        """Returns the book's average rating across its reviews."""
         result = await self.manager.get_average_rating(self.work)
         return result
 
@@ -85,6 +92,7 @@ class ReviewRouter:
             self,
             review_id: int
     ):
+        """Fetches a single review by ID."""
         result = await self.manager.get_review_by_id(review_id)
         return result
 

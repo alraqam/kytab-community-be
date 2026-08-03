@@ -9,6 +9,8 @@ from src.backend.identity.auth.models import User
 
 
 class AnnouncementManager:
+    """Handles announcement business logic: creation, publishing, and retrieval."""
+
     def __init__(
             self,
             session: AsyncSession
@@ -21,6 +23,15 @@ class AnnouncementManager:
             user: User,
             request: CreateAnnouncement,
     ) -> Announcement:
+        """Creates a new announcement authored by the given user.
+
+        Args:
+            user: Admin user creating the announcement.
+            request: CreateAnnouncement payload with title and body.
+
+        Returns:
+            Newly created Announcement instance.
+        """
         result = await self.announcement_repo.create_announcement(
             created_by_id=user.id,
             title=request.title,
@@ -34,6 +45,12 @@ class AnnouncementManager:
             announcement: Announcement,
             request: UpdateAnnouncement,
     ) -> None:
+        """Updates an announcement's title and/or body.
+
+        Args:
+            announcement: Announcement instance to update.
+            request: UpdateAnnouncement payload with the fields to change.
+        """
         await self.announcement_repo.update_announcement(
             announcement=announcement,
             title=request.title,
@@ -45,6 +62,11 @@ class AnnouncementManager:
             self,
             announcement: Announcement,
     ) -> None:
+        """Marks an announcement as published and stamps the publish time.
+
+        Args:
+            announcement: Announcement instance to publish.
+        """
         await self.announcement_repo.update_published_status(announcement, True)
         await self.session.commit()
 
@@ -52,6 +74,11 @@ class AnnouncementManager:
             self,
             announcement: Announcement,
     ) -> None:
+        """Marks an announcement as unpublished and clears the publish time.
+
+        Args:
+            announcement: Announcement instance to unpublish.
+        """
         await self.announcement_repo.update_published_status(announcement, False)
         await self.session.commit()
 
@@ -59,6 +86,11 @@ class AnnouncementManager:
             self,
             announcement: Announcement,
     ) -> None:
+        """Permanently deletes an announcement.
+
+        Args:
+            announcement: Announcement instance to delete.
+        """
         await self.announcement_repo.delete_announcement(announcement)
         await self.session.commit()
 
@@ -66,17 +98,41 @@ class AnnouncementManager:
             self,
             filters: AnnouncementFilter,
     ) -> list[Announcement]:
+        """Lists announcements matching the given filters.
+
+        Args:
+            filters: AnnouncementFilter with search, status, and ordering criteria.
+
+        Returns:
+            List of matching Announcement instances.
+        """
         return await self.announcement_repo.get_announcements(filters)
 
     async def get_published_announcements(
             self,
     ) -> list[Announcement]:
+        """Lists all published announcements.
+
+        Returns:
+            List of published Announcement instances.
+        """
         return await self.announcement_repo.get_published_announcements()
 
     async def get_announcement_by_id(
             self,
             announcement_id: int,
     ) -> Announcement:
+        """Fetches a single announcement by ID.
+
+        Args:
+            announcement_id: ID of the announcement to fetch.
+
+        Returns:
+            Matching Announcement instance.
+
+        Raises:
+            AnnouncementNotFoundError: When no announcement matches the ID.
+        """
         result = await self.announcement_repo.get_announcement_by_id(announcement_id)
         if not result:
             raise AnnouncementNotFoundError("Announcement not found")

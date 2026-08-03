@@ -4,6 +4,8 @@ from src.backend.core.models import Base, IntIdMixin, TimeActionMixin
 
 
 class LibrarianSubmission(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a user-submitted book proposal awaiting librarian review."""
+
     __tablename__ = "librarian_submission"
 
     submitted_by_id = Column(BigInteger, ForeignKey("users.id", ondelete="SET NULL"), nullable=False)

@@ -17,6 +17,8 @@ router = APIRouter(
 
 @cbv(router)
 class LibrarianEditionRouter:
+    """CBV router for librarian management of editions: create, update, and delete."""
+
     manager: EditionManager = Depends(get_edition_manager)
     user: User = Depends(is_librarian)
 
@@ -29,6 +31,7 @@ class LibrarianEditionRouter:
             self,
             request: CreateEdition
     ):
+        """Creates a new edition."""
         result = await self.manager.create_edition(request)
         return result
 
@@ -41,6 +44,7 @@ class LibrarianEditionRouter:
             request: UpdateEdition,
             edition: Edition = Depends(get_edition_or_404)
     ):
+        """Updates an existing edition's details."""
         await self.manager.update_edition(edition.id, request)
 
     @router.delete(
@@ -51,5 +55,6 @@ class LibrarianEditionRouter:
             self,
             edition: Edition = Depends(get_edition_or_404)
     ):
+        """Deletes an edition."""
         await self.manager.delete_edition(edition.id)
 

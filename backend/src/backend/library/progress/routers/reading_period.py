@@ -18,6 +18,8 @@ router = APIRouter(
 
 @cbv(router)
 class ReadingPeriodRouter:
+    """CBV router for starting, finishing, and retrieving reading periods for a shelf item."""
+
     shelf: Shelf = Depends(get_shelf_or_404)
     shelf_item: ShelfItem = Depends(get_shelf_item_or_404)
     period_manager: ReadingPeriodManager = Depends(get_reading_period_manager)
@@ -31,6 +33,7 @@ class ReadingPeriodRouter:
     async def start_reading_period(
             self,
     ):
+        """Starts a new reading period for the shelf item."""
         result = await self.period_manager.start_reading_period(self.user, self.shelf_item)
         return result
 
@@ -42,6 +45,7 @@ class ReadingPeriodRouter:
             self,
             reading_period: ReadingPeriod = Depends(get_reading_period_or_404)
     ):
+        """Marks a reading period as finished."""
         await self.period_manager.set_finishing_date(self.user, reading_period)
 
     @router.delete(
@@ -52,6 +56,7 @@ class ReadingPeriodRouter:
             self,
             reading_period: ReadingPeriod = Depends(get_reading_period_or_404)
     ):
+        """Deletes a reading period."""
         await self.period_manager.delete_reading_period(self.user, reading_period)
 
     @router.get(
@@ -62,6 +67,7 @@ class ReadingPeriodRouter:
     async def get_shelf_item_periods(
             self,
     ):
+        """Fetches all reading periods for the shelf item."""
         result = await self.period_manager.get_shelf_item_periods(self.shelf_item)
         return result
 
@@ -74,6 +80,7 @@ class ReadingPeriodRouter:
             self,
             reading_period: ReadingPeriod = Depends(get_reading_period_or_404)
     ):
+        """Fetches a reading period by ID."""
         return reading_period
 
     @router.get(
@@ -85,5 +92,6 @@ class ReadingPeriodRouter:
             self,
             user: User = Depends(get_user_or_404),
     ):
+        """Fetches a user's reading periods, subject to shelf visibility rules."""
         result = await self.period_manager.get_user_reading_periods(user, self.user, self.shelf)
         return result

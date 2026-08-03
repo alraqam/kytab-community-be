@@ -18,6 +18,8 @@ router = APIRouter(
 
 @cbv(router)
 class PostReactionGeneralRouter:
+    """CBV router for reactions on posts within a club-general thread: create, delete, and list."""
+
     manager: PostReactionManager = Depends(get_post_reaction_manager)
     user: User = Depends(get_current_user)
     club: Club = Depends(get_club_or_404)
@@ -33,6 +35,7 @@ class PostReactionGeneralRouter:
             self,
             request: CreatePostReaction
     ):
+        """Creates a reaction on a post in the club-general thread."""
         result = await self.manager.create_reaction(self.user, self.club, self.post, request)
         return result
 
@@ -44,6 +47,7 @@ class PostReactionGeneralRouter:
             self,
             reaction: PostReaction = Depends(get_post_reaction_general_or_404)
     ):
+        """Deletes a reaction from a post in the club-general thread."""
         await self.manager.delete_reaction(self.user, reaction)
 
     @router.get(
@@ -54,5 +58,6 @@ class PostReactionGeneralRouter:
     async def get_post_reactions(
             self,
     ):
+        """Lists reactions on a post in the club-general thread."""
         result = await self.manager.get_post_reactions(self.post)
         return result

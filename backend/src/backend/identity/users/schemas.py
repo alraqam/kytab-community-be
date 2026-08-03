@@ -16,6 +16,8 @@ class UpdateUserActivity(BaseModel):
     is_active: bool
 
 class UpdateUserVerification(BaseModel):
+    """Request payload for changing a user's email-verification status (admin actions)."""
+
     is_verified: bool
 
 

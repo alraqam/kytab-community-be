@@ -4,6 +4,8 @@ from src.backend.core.models import Base, IntIdMixin, TimeActionMixin
 
 
 class Notification(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a single in-app notification delivered to a user."""
+
     __tablename__ = "notifications"
 
     user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
@@ -17,6 +19,8 @@ class Notification(Base, IntIdMixin, TimeActionMixin):
 
 
 class NotificationPreference(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a user's notification delivery settings for a category, optionally scoped to a club."""
+
     __tablename__ = "notification_preferences"
 
     user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)

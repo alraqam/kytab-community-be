@@ -7,6 +7,8 @@ from src.backend.clubs.reading_session.schemas import MilestoneBoundaryType
 
 
 class MilestoneFilter(Filter):
+    """Filter and sort parameters for querying the Milestone model."""
+
     boundary_type: MilestoneBoundaryType | None = None
     order_by: list[str] | None = None
 

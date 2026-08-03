@@ -99,6 +99,15 @@ class ClubInvitationRepository:
             club_id: int,
             user_id: int
     ):
+        """Fetches pending invitations for a user in a club.
+
+        Args:
+            club_id: ID of the club.
+            user_id: ID of the invited user.
+
+        Returns:
+            List of matching pending ClubInvitation instances.
+        """
         stmt = select(ClubInvitation).where(
             and_(
                 ClubInvitation.invited_user_id == user_id,

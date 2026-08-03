@@ -143,6 +143,14 @@ class ReadingSessionRepository:
             self,
             work_id: int
     ) -> ReadingSession | None:
+        """Finds an uncompleted reading session for the given work.
+
+        Args:
+            work_id: ID of the work to check.
+
+        Returns:
+            Matching ReadingSession instance, or None if no active session exists.
+        """
         stmt = select(ReadingSession).where(
             and_(
                 ReadingSession.work_id == work_id,

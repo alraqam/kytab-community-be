@@ -4,11 +4,15 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 class LibrarianSubmissionStatus(str, Enum):
+    """Lifecycle states of a librarian submission."""
+
     pending = "pending"
     approved = "approved"
     rejected = "rejected"
 
 class CreateLibrarianSubmission(BaseModel):
+    """Request payload for submitting a new book proposal for librarian review."""
+
     title: str = Field(max_length=512)
     language: str = Field(max_length=100)
     author_name: str = Field(max_length=512)
@@ -16,9 +20,13 @@ class CreateLibrarianSubmission(BaseModel):
     cover_url: str | None = None
 
 class SetLibrarianSubmissionWork(BaseModel):
+    """Request payload for linking an approved submission to its resulting catalog Work."""
+
     resulting_work_id: int
 
 class GetLibrarianSubmission(BaseModel):
+    """Librarian submission data returned in API responses."""
+
     id: int
     submitted_by_id: int
     title: str

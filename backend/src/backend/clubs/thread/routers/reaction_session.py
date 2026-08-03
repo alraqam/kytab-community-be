@@ -20,6 +20,8 @@ router = APIRouter(
 
 @cbv(router)
 class PostReactionSessionRouter:
+    """CBV router for reactions on posts within a reading-session milestone thread: create, delete, and list."""
+
     manager: PostReactionManager = Depends(get_post_reaction_manager)
     user: User = Depends(get_current_user)
     club: Club = Depends(get_club_or_404)
@@ -37,6 +39,7 @@ class PostReactionSessionRouter:
             self,
             request: CreatePostReaction
     ):
+        """Creates a reaction on a post in the session milestone thread."""
         result = await self.manager.create_reaction(self.user, self.club, self.post, request)
         return result
 
@@ -48,6 +51,7 @@ class PostReactionSessionRouter:
             self,
             reaction: PostReaction = Depends(get_post_reaction_session_or_404)
     ):
+        """Deletes a reaction from a post in the session milestone thread."""
         await self.manager.delete_reaction(self.user, reaction)
 
     @router.get(
@@ -58,5 +62,6 @@ class PostReactionSessionRouter:
     async def get_post_reactions(
             self,
     ):
+        """Lists reactions on a post in the session milestone thread."""
         result = await self.manager.get_post_reactions(self.post)
         return result

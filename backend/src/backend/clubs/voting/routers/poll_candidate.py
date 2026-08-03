@@ -33,11 +33,7 @@ class PollCandidateRouter:
             self,
             request: CreatePollCandidate,
     ):
-        """Adds a book as a candidate to the current poll.
-
-        Args:
-            request: CreatePollCandidate payload with book_id.
-        """
+        """Adds a book as a candidate to the current poll."""
         result = await self.manager.create_poll_candidate(self.user, self.club, self.poll, request)
         return result
 

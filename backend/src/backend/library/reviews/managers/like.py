@@ -12,6 +12,7 @@ from src.backend.notifications.schemas import NotificationCategory
 
 
 class ReviewLikeManager:
+    """Handles business logic for review likes: creation, deletion, retrieval, and like notifications."""
 
     def __init__(
             self,
@@ -27,6 +28,18 @@ class ReviewLikeManager:
             user: User,
             review: Review,
     ) -> ReviewLike:
+        """Creates a like on a review and notifies the review's author.
+
+        Args:
+            user: User creating the like.
+            review: Review instance being liked.
+
+        Returns:
+            Newly created ReviewLike instance.
+
+        Raises:
+            ReviewLikeAlreadyExists: When the user has already liked the review.
+        """
         try:
             response = await self.like_repo.create_like(
                 user_id=user.id,
@@ -51,6 +64,15 @@ class ReviewLikeManager:
             user: User,
             like: ReviewLike,
     ) -> None:
+        """Deletes a like owned by the given user.
+
+        Args:
+            user: User requesting the deletion; must own the like.
+            like: ReviewLike instance to delete.
+
+        Raises:
+            IsNotReviewLikeOwnerError: When the user did not create the like.
+        """
         await is_review_like_owner(user, like)
         await self.like_repo.delete_like(
             like=like,
@@ -61,6 +83,14 @@ class ReviewLikeManager:
             self,
             review: Review,
     ) -> int:
+        """Counts the likes on a review.
+
+        Args:
+            review: Review instance to count likes for.
+
+        Returns:
+            Number of likes on the review.
+        """
         likes = await self.like_repo.get_review_likes(review_id=review.id)
         return len(likes)
 
@@ -68,6 +98,14 @@ class ReviewLikeManager:
             self,
             review: Review,
     ) -> list[ReviewLike]:
+        """Lists all likes on a review.
+
+        Args:
+            review: Review instance to list likes for.
+
+        Returns:
+            List of matching ReviewLike instances.
+        """
         likes = await self.like_repo.get_review_likes(review_id=review.id)
         return likes
 
@@ -75,6 +113,17 @@ class ReviewLikeManager:
             self,
             like_id: int,
     ) -> ReviewLike:
+        """Fetches a single like by ID.
+
+        Args:
+            like_id: ID of the like to fetch.
+
+        Returns:
+            Matching ReviewLike instance.
+
+        Raises:
+            ReviewLikeNotFoundError: When no like matches the ID.
+        """
         result = await self.like_repo.get_like_by_id(like_id=like_id)
         if not result:
             raise ReviewLikeNotFoundError("Like not found")

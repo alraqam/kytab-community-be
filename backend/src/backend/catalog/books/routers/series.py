@@ -30,14 +30,7 @@ class SeriesRouter:
             self,
             filters: SeriesFilter = FilterDepends(SeriesFilter),
     ):
-        """Returns all series with optional search and sort.
-
-        Args:
-            filters: SeriesFilter with optional search query and sort order.
-
-        Returns:
-            List of Series instances.
-        """
+        """Returns all series with optional search and sort."""
         return await self.manager.get_all_series(filters)
 
     @router.get(
@@ -49,14 +42,7 @@ class SeriesRouter:
             self,
             series: Series = Depends(get_series_or_404),
     ):
-        """Returns the series with the given ID.
-
-        Args:
-            series: Series instance resolved via get_series_or_404.
-
-        Returns:
-            Series instance.
-        """
+        """Returns the series with the given ID."""
         return series
 
     @router.get(
@@ -68,12 +54,5 @@ class SeriesRouter:
             self,
             series: Series = Depends(get_series_or_404),
     ):
-        """Returns all works in the given series, in reading order.
-
-        Args:
-            series: Series instance resolved via get_series_or_404.
-
-        Returns:
-            List of Work instances.
-        """
+        """Returns all works in the given series, in reading order."""
         return await self.manager.get_works_for_series(series.id)

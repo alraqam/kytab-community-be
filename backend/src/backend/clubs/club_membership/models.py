@@ -4,6 +4,8 @@ from src.backend.core.models import Base, IntIdMixin, TimeActionMixin
 
 
 class ClubMembership(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a user's membership and role in a club."""
+
     __tablename__ = "club_membership"
 
     club_id = Column(BigInteger, ForeignKey("clubs.id", ondelete="CASCADE"), nullable=False)
@@ -15,6 +17,8 @@ class ClubMembership(Base, IntIdMixin, TimeActionMixin):
     )
 
 class ClubBlocked(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a user blocked from a club."""
+
     __tablename__ = "club_blocked"
 
     club_id = Column(BigInteger, ForeignKey("clubs.id", ondelete="CASCADE"), nullable=False)
@@ -25,6 +29,8 @@ class ClubBlocked(Base, IntIdMixin, TimeActionMixin):
     )
 
 class ClubInvitation(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing an invitation for a user to join a club."""
+
     __tablename__ = "club_invitation"
 
     club_id = Column(BigInteger, ForeignKey("clubs.id", ondelete="CASCADE"), nullable=False)
@@ -35,6 +41,8 @@ class ClubInvitation(Base, IntIdMixin, TimeActionMixin):
 
 
 class ClubJoinRequest(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a user's request to join a private club."""
+
     __tablename__ = "club_join_request"
 
     club_id = Column(BigInteger, ForeignKey("clubs.id", ondelete="CASCADE"), nullable=False)

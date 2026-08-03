@@ -5,6 +5,8 @@ from src.backend.notifications.schemas import NotificationCategory
 
 
 class NotificationFilter(Filter):
+    """Query filter for notifications: free-text search, category, club, read status, and ordering."""
+
     q: str | None = None
     category: NotificationCategory | None = None
     club_id: int | None = None

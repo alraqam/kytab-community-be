@@ -16,6 +16,8 @@ router = APIRouter(
 
 @cbv(router)
 class ShelfItemRouter:
+    """CBV router for managing the items on a shelf: adding, removing, and listing."""
+
     shelf: Shelf = Depends(get_shelf_or_404)
     shelf_item_manager: ShelfItemManager = Depends(get_shelf_item_manager)
     user: User = Depends(get_current_user)
@@ -29,6 +31,7 @@ class ShelfItemRouter:
             self,
             request: CreateShelfItem
     ):
+        """Adds a work to the shelf."""
         result = await self.shelf_item_manager.add_to_shelf(self.user, self.shelf, request)
         return result
 
@@ -40,6 +43,7 @@ class ShelfItemRouter:
             self,
             shelf_item: ShelfItem = Depends(get_shelf_item_or_404),
     ):
+        """Removes an item from the shelf."""
         await self.shelf_item_manager.remove_from_shelf(self.user, shelf_item)
 
     @router.get(
@@ -50,6 +54,7 @@ class ShelfItemRouter:
     async def get_my_shelf_items(
             self,
     ):
+        """Lists the items on the current user's shelf."""
         result = await self.shelf_item_manager.get_my_shelf_items(self.user, self.shelf)
         return result
 
@@ -62,6 +67,7 @@ class ShelfItemRouter:
             self,
             user: User = Depends(get_user_or_404),
     ):
+        """Lists the items on another user's shelf, if visible to the current user."""
         result = await self.shelf_item_manager.get_user_shelf_items(user, self.user, self.shelf)
         return result
 
@@ -74,5 +80,6 @@ class ShelfItemRouter:
             self,
             shelf_item_id: int
     ):
+        """Fetches a single shelf item by ID."""
         result = await self.shelf_item_manager.get_shelf_item_by_id(shelf_item_id)
         return result

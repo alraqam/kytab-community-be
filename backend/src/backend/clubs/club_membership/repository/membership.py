@@ -13,6 +13,8 @@ from src.backend.identity.auth.models import User
 
 @dataclass
 class ClubMembershipRepository:
+    """Data-access layer for ClubMembership model operations."""
+
     session: AsyncSession
 
     async def create_membership(
@@ -21,6 +23,16 @@ class ClubMembershipRepository:
             user_id: int,
             role: str
     ) -> ClubMembership:
+        """Inserts a new club membership record.
+
+        Args:
+            club_id: ID of the club.
+            user_id: ID of the user joining.
+            role: Role to assign to the new member.
+
+        Returns:
+            Newly created ClubMembership instance.
+        """
         result = ClubMembership(
             club_id=club_id,
             user_id=user_id,

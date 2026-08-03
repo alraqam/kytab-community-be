@@ -37,4 +37,4 @@ class PollVoteNotFoundError(NotFound):
     """Raised when a poll vote with the given ID does not exist."""
 
 class PollNotInClubError(NotFound):
-    pass
+    """Raised when the requested poll does not belong to the given club."""

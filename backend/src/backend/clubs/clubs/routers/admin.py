@@ -17,6 +17,8 @@ router = APIRouter(
 
 @cbv(router)
 class ClubAdminRouter:
+    """CBV router for admin management of clubs: archiving, unarchiving, and listing."""
+
     manager: ClubManager = Depends(get_club_manager)
     user: User = Depends(is_admin)
 
@@ -28,6 +30,7 @@ class ClubAdminRouter:
             self,
             club: Club = Depends(get_club_or_404),
     ):
+        """Archives a club."""
         result = await self.manager.archive_club(club)
         return result
 
@@ -39,6 +42,7 @@ class ClubAdminRouter:
             self,
             club: Club = Depends(get_club_or_404),
     ):
+        """Unarchives a club."""
         result = await self.manager.unarchive_club(club)
         return result
 
@@ -51,6 +55,7 @@ class ClubAdminRouter:
             self,
             filters: ClubFilter = FilterDepends(ClubFilter)
     ):
+        """Lists all clubs, optionally filtered and sorted."""
         result = await self.manager.get_all_clubs(filters)
         return result
 
@@ -63,4 +68,5 @@ class ClubAdminRouter:
             self,
             club: Club = Depends(get_club_or_404),
     ):
+        """Fetches a single club by ID."""
         return club

@@ -29,31 +29,31 @@ class JoinRequestNotFound(NotFound):
     """Raised when a join request with the given ID does not exist."""
 
 class ExpiredInvitationError(BadRequest):
-    pass
+    """Raised when an invitation has expired."""
 
 class ExpiredRequestError(BadRequest):
-    pass
+    """Raised when a join request has expired."""
 
 class MemberAlreadyBlockedError(Conflict):
-    pass
+    """Raised when a user is already blocked from the club."""
 
 class ClubBlockNotFoundError(NotFound):
-    pass
+    """Raised when a club block with the given ID does not exist."""
 
 class ClubModeratorError(Conflict):
-    pass
+    """Raised when an operation on a club moderator's role is not permitted."""
 
 class ClubOwnerError(Conflict):
-    pass
+    """Raised when an operation targeting the club owner is not permitted."""
 
 class PrivateClubError(Conflict):
-    pass
+    """Raised when a user attempts to directly join a non-public club."""
 
 class MemberBlockedError(Conflict):
-    pass
+    """Raised when a user blocked from the club attempts a club action."""
 
 class DuplicateInvitationError(Conflict):
-    pass
+    """Raised when a pending invitation already exists for the target user."""
 
 class InviteeEmailDisabledError(Conflict):
-    pass
+    """Raised when the invited user does not accept email invitations."""

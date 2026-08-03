@@ -25,5 +25,6 @@ class UserMembershipRouter:
         response_model=list[GetMembership],
     )
     async def get_user_memberships(self):
+        """Returns all club memberships for the current user."""
         result = await self.membership_manager.get_user_memberships(self.user)
         return result

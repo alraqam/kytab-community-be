@@ -1,3 +1,5 @@
+"""Celery application setup: broker/result backend, task discovery, and the periodic beat schedule."""
+
 from celery import Celery
 from celery.schedules import crontab
 

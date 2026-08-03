@@ -12,6 +12,8 @@ from src.backend.trust_safety.complaint.schemas import ComplaintObjectType
 
 @dataclass
 class ComplaintRepository:
+    """Data-access layer for complaint persistence and queries."""
+
     session: AsyncSession
 
     async def create_complaint(
@@ -22,6 +24,18 @@ class ComplaintRepository:
             category: str,
             comment: str,
     ) -> Complaint:
+        """Inserts a new pending complaint.
+
+        Args:
+            reporter_id: ID of the user filing the complaint.
+            object_type: Type of entity being reported.
+            object_id: ID of the entity being reported.
+            category: Reason for the complaint.
+            comment: Free-text details from the reporter.
+
+        Returns:
+            Newly created Complaint instance.
+        """
         result = Complaint(
             reporter_id=reporter_id,
             object_type=object_type,
@@ -40,6 +54,12 @@ class ComplaintRepository:
             complaint: Complaint,
             status: str
     ) -> None:
+        """Sets a complaint's status.
+
+        Args:
+            complaint: Complaint instance to update.
+            status: New status value.
+        """
         complaint.status = status
         self.session.add(complaint)
         await self.session.flush()
@@ -49,6 +69,12 @@ class ComplaintRepository:
             user_id: int,
             complaint: Complaint,
     ) -> None:
+        """Stamps a complaint with the resolving moderator and resolution time.
+
+        Args:
+            user_id: ID of the moderator resolving the complaint.
+            complaint: Complaint instance to update.
+        """
         complaint.resolved_by_id = user_id
         complaint.resolved_at = datetime.now()
         self.session.add(complaint)
@@ -59,6 +85,12 @@ class ComplaintRepository:
             complaint: Complaint,
             is_escalated: bool,
     ) -> None:
+        """Sets a complaint's escalation flag.
+
+        Args:
+            complaint: Complaint instance to update.
+            is_escalated: New escalation state.
+        """
         complaint.is_escalated = is_escalated
         self.session.add(complaint)
         await self.session.flush()
@@ -67,6 +99,14 @@ class ComplaintRepository:
             self,
             club_id: int,
     ) -> list[Complaint]:
+        """Lists complaints filed against a club or against posts within that club.
+
+        Args:
+            club_id: ID of the club to fetch complaints for.
+
+        Returns:
+            List of matching Complaint instances.
+        """
         club_post_ids = (
             select(Post.id)
             .join(Thread, Thread.id == Post.thread_id)
@@ -85,6 +125,14 @@ class ComplaintRepository:
             self,
             filters: ComplaintFilter
     ) -> list[Complaint]:
+        """Lists complaints, optionally filtered and sorted.
+
+        Args:
+            filters: ComplaintFilter to apply, or None for no filtering.
+
+        Returns:
+            List of matching Complaint instances.
+        """
         stmt = select(Complaint)
         if filters:
             stmt = filters.filter(stmt)
@@ -97,6 +145,14 @@ class ComplaintRepository:
             self,
             complaint_id: int
     ) -> Complaint | None:
+        """Fetches a single complaint by ID.
+
+        Args:
+            complaint_id: ID of the complaint to fetch.
+
+        Returns:
+            Matching Complaint instance, or None if not found.
+        """
         stmt = select(Complaint).where(Complaint.id == complaint_id)
         result = await self.session.execute(stmt)
         complaint = result.scalar_one_or_none()

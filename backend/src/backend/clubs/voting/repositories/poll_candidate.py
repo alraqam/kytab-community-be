@@ -67,7 +67,7 @@ class PollCandidateRepository:
         Returns:
             PollCandidate instance if found, None otherwise.
         """
-        stmt = select(PollCandidate).where(PollCandidate.candidate_id == candidate_id)
+        stmt = select(PollCandidate).where(PollCandidate.id == candidate_id)
         result = await self.session.execute(stmt)
         candidate = result.scalar_one_or_none()
         return candidate

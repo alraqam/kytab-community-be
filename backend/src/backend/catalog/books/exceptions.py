@@ -25,16 +25,16 @@ class GenreNotFoundError(NotFound):
     """Raised when a genre with the given ID does not exist."""
 
 class AuthorWorkLinkExistsError(Conflict):
-    pass
+    """Raised when an author is already linked to the given work."""
 
 class GenreWorkLinkExistsError(Conflict):
-    pass
+    """Raised when a genre is already linked to the given work."""
 
 class SeriesWorkLinkExistsError(Conflict):
-    pass
+    """Raised when a work is already linked to the given series."""
 
 class InvalidWorkEditionError(Conflict):
-    pass
+    """Raised when an edition does not belong to the expected work."""
 
 class DuplicateMergeError(Conflict):
-    pass
+    """Raised when attempting to merge a work into itself."""

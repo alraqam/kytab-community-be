@@ -30,11 +30,7 @@ class InvitationRouter:
             self,
             request: SendInvitation
     ):
-        """Sends a club invitation to a user.
-
-        Args:
-            request: SendInvitation payload with club_id and target user_id.
-        """
+        """Sends a club invitation to a user."""
         result = await self.manager.send_invitation(self.user, request)
         return result
 
@@ -47,6 +43,7 @@ class InvitationRouter:
             self,
             request: SendInvitation
     ):
+        """Sends a club invitation along with an invite email."""
         result = await self.manager.send_invitation_email(self.user, request)
         return result
 
@@ -58,11 +55,7 @@ class InvitationRouter:
             self,
             invitation: ClubInvitation = Depends(get_invitation_or_404)
     ):
-        """Accepts a pending invitation.
-
-        Args:
-            invitation: ClubInvitation instance resolved via get_invitation_or_404.
-        """
+        """Accepts a pending invitation."""
         await self.manager.accept_invitation(invitation)
 
     @router.put(
@@ -73,11 +66,7 @@ class InvitationRouter:
             self,
             invitation: ClubInvitation = Depends(get_invitation_or_404)
     ):
-        """Declines a pending invitation.
-
-        Args:
-            invitation: ClubInvitation instance resolved via get_invitation_or_404.
-        """
+        """Declines a pending invitation."""
         await self.manager.decline_invitation(invitation)
 
     @router.get(
@@ -99,5 +88,6 @@ class InvitationRouter:
             self,
             token: str = Query()
     ):
+        """Resolves a pending invitation from an invite email token."""
         result = await self.manager.get_invitation_email(token)
         return result

@@ -18,19 +18,19 @@ class NoTotalPagesError(NotFound):
     """Raised when recommended pages cannot be calculated because the book has no page count."""
 
 class ReadingPeriodNotFound(NotFound):
-    pass
+    """Raised when a reading period with the given ID does not exist."""
 
 class LogDateError(Conflict):
-    pass
+    """Raised when a progress log update is attempted for a date other than today."""
 
 class ActiveReadingPeriodError(Conflict):
-    pass
+    """Raised when a reading period operation conflicts with its current active or finished state."""
 
 class NotReadingPeriodOwner(Forbidden):
-    pass
+    """Raised when a user tries to modify a reading period they do not own."""
 
 class ReadingPeriodNotInShelfItemError(NotFound):
-    pass
+    """Raised when a reading period does not belong to the given shelf item."""
 
 class ProgressLogNotInReadingPeriodError(NotFound):
-    pass
+    """Raised when a progress log does not belong to the given reading period."""

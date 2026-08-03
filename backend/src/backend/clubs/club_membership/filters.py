@@ -5,6 +5,8 @@ from src.backend.clubs.club_membership.schemas import MemberRole
 
 
 class ClubMembersFilter(Filter):
+    """Query filter for club memberships: role and ordering."""
+
     role: MemberRole | None = None
     order_by: list[str] | None = None
 

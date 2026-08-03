@@ -10,7 +10,11 @@ from src.backend.celery_app import celery_app
 
 
 async def _check_expired_join_requests() -> None:
-    """Marks expired pending join requests as expired. Triggered every 60 seconds by celery beat."""
+    """Marks expired pending join requests as expired. Triggered every 60 seconds by celery beat.
+
+    Raises:
+        ExpiredRequestError: When the update fails for any reason.
+    """
     try:
         async with task_session() as session:
             await session.execute(
@@ -29,5 +33,6 @@ async def _check_expired_join_requests() -> None:
 
 @celery_app.task
 def check_expired_join_requests():
+    """Celery task that marks expired pending club join requests as expired."""
     import asyncio
     asyncio.run(_check_expired_join_requests())

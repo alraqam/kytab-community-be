@@ -42,6 +42,18 @@ def is_owner_or_moderator(club: Club, user_id: int) -> bool:
     return True
 
 def is_club_owner(club: Club, user: User) -> bool:
+    """Checks that the user is the club's owner.
+
+    Args:
+        club: Club instance to check ownership of.
+        user: User to verify.
+
+    Returns:
+        True if the user is the club owner.
+
+    Raises:
+        IsNotClubOwnerError: When the user is not the club owner.
+    """
     if user.id != club.owner_id:
         raise IsNotClubOwnerError("Only club owner can access")
     return True

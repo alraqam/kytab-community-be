@@ -21,6 +21,8 @@ class ClubFilter(Filter):
 
 
 class ClubPublicFilter(Filter):
+    """Filter and sort parameters for public queries on the Club model."""
+
     q: str | None = None
     name: str | None = None
     description: str | None = None

@@ -17,6 +17,8 @@ router = APIRouter(
 
 @cbv(router)
 class AnnouncementAdminRouter:
+    """CBV router for admin management of announcements: create, update, publish, and delete."""
+
     manager: AnnouncementManager = Depends(get_announcement_manager)
     user: User = Depends(is_admin)
 
@@ -29,6 +31,7 @@ class AnnouncementAdminRouter:
             self,
             request: CreateAnnouncement
     ):
+        """Creates a new announcement."""
         result = await self.manager.create_announcement(self.user, request)
         return result
 
@@ -41,6 +44,7 @@ class AnnouncementAdminRouter:
             request: UpdateAnnouncement,
             announcement: Announcement = Depends(get_announcement_or_404),
     ):
+        """Updates an announcement's title and/or body."""
         await self.manager.update_announcement(announcement, request)
 
     @router.put(
@@ -51,6 +55,7 @@ class AnnouncementAdminRouter:
             self,
             announcement: Announcement = Depends(get_announcement_or_404),
     ):
+        """Publishes an announcement."""
         await self.manager.publish_announcement(announcement)
 
     @router.put(
@@ -61,6 +66,7 @@ class AnnouncementAdminRouter:
             self,
             announcement: Announcement = Depends(get_announcement_or_404),
     ):
+        """Unpublishes an announcement."""
         await self.manager.unpublish_announcement(announcement)
 
     @router.delete(
@@ -71,6 +77,7 @@ class AnnouncementAdminRouter:
             self,
             announcement: Announcement = Depends(get_announcement_or_404),
     ):
+        """Deletes an announcement."""
         await self.manager.delete_announcement(announcement)
 
     @router.get(
@@ -82,6 +89,7 @@ class AnnouncementAdminRouter:
             self,
             filters: AnnouncementFilter = FilterDepends(AnnouncementFilter)
     ):
+        """Lists announcements, optionally filtered and sorted."""
         result = await self.manager.get_announcements(filters)
         return result
 
@@ -94,4 +102,5 @@ class AnnouncementAdminRouter:
             self,
             announcement: Announcement = Depends(get_announcement_or_404),
     ):
+        """Fetches a single announcement by ID."""
         return announcement

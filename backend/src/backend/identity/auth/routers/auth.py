@@ -36,11 +36,7 @@ class AuthRouter:
             request: Request,
             form_data: OAuth2PasswordRequestForm = Depends()
     ):
-        """Authenticates a user and returns an access/refresh token pair.
-
-        Args:
-            form_data: OAuth2 form with username and password.
-        """
+        """Authenticates a user and returns an access/refresh token pair."""
         response = await self.manager.login(form_data.username, form_data.password, request)
         return response
 
@@ -52,11 +48,7 @@ class AuthRouter:
             self,
             request: UserRegister
     ):
-        """Registers a new user account.
-
-        Args:
-            request: UserRegister payload with username, email, and password.
-        """
+        """Registers a new user account."""
         response = await self.manager.register(request)
         return response
 
@@ -68,6 +60,7 @@ class AuthRouter:
             self,
             request: RefreshToken,
     ):
+        """Logs the user out by revoking the session tied to the given refresh token."""
         await self.manager.logout(request.refresh_token)
 
 
@@ -78,6 +71,7 @@ class AuthRouter:
             self,
             token: str
     ):
+        """Verifies a user's email address using a verification token."""
         try:
             user_id = decode_verification_token(token)
         except ExpiredSignatureError:
@@ -110,11 +104,7 @@ class AuthRouter:
             self,
             request: RefreshToken
     ):
-        """Issues a new token pair using the provided refresh token.
-
-        Args:
-            request: RefreshToken payload containing the refresh token.
-        """
+        """Issues a new token pair using the provided refresh token."""
         response = await self.manager.refresh_token(request.refresh_token)
         return response
 
@@ -126,6 +116,7 @@ class AuthRouter:
             self,
             user: User = Depends(get_current_user)
     ):
+        """Deletes the currently authenticated user's account."""
         await self.user_manager.delete_user(user)
         return user
 
@@ -138,11 +129,7 @@ class AuthRouter:
             request: ChangeUserPassword,
             user: User = Depends(get_current_user)
     ) -> None:
-        """Changes the current user's password.
-
-        Args:
-            request: ChangeUserPassword payload with old_password and new_password.
-        """
+        """Changes the current user's password."""
         await self.manager.change_password(user, request)
 
     @router.put(
@@ -154,11 +141,7 @@ class AuthRouter:
             request: UpdateUser,
             user: User = Depends(get_current_user)
     ) -> None:
-        """Updates the current user's username, fullname, and email.
-
-        Args:
-            request: UpdateUser payload with new profile fields.
-        """
+        """Updates the current user's username, fullname, and email."""
         await self.manager.update(user, request)
 
     @router.post(
@@ -169,6 +152,7 @@ class AuthRouter:
             self,
             request: ForgotPassword
     ):
+        """Sends a password-reset email to the given address if it belongs to a verified user."""
         result = await self.manager.forgot_password(request)
         return result
 
@@ -180,4 +164,5 @@ class AuthRouter:
             self,
             request: ResetPassword
     ):
+        """Resets the user's password using a password-reset token."""
         await self.manager.reset_password(request)

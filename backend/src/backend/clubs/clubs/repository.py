@@ -11,6 +11,8 @@ from src.backend.clubs.clubs.schemas import ClubTypes
 
 @dataclass
 class ClubRepository:
+    """Data-access layer for club persistence and queries."""
+
     session: AsyncSession
 
     async def create_club(
@@ -19,6 +21,16 @@ class ClubRepository:
             user_id: int,
             description: str | None = None,
     ) -> Club:
+        """Inserts a new club.
+
+        Args:
+            name: Club name.
+            user_id: ID of the user who owns the club.
+            description: Club description, or None.
+
+        Returns:
+            Newly created Club instance.
+        """
         result = Club(
             name=name,
             description=description,
@@ -38,6 +50,16 @@ class ClubRepository:
             cover: str | None = None,
             language: str | None = None,
     ) -> None:
+        """Updates the given fields of a club, skipping unset ones.
+
+        Args:
+            club: Club instance to update.
+            name: New name, or None to leave unchanged.
+            description: New description, or None to leave unchanged.
+            club_type: New club type, or None to leave unchanged.
+            cover: New cover URL, or None to leave unchanged.
+            language: New language, or None to leave unchanged.
+        """
         updates = {
             "name": name,
             "description": description,
@@ -55,6 +77,12 @@ class ClubRepository:
             club: Club,
             status: bool
     ) -> None:
+        """Sets a club's archived flag.
+
+        Args:
+            club: Club instance to update.
+            status: True to archive, False to unarchive.
+        """
         club.is_archived = status
         self.session.add(club)
         await self.session.flush()
@@ -63,6 +91,14 @@ class ClubRepository:
             self,
             filters: ClubPublicFilter | None = None,
     ) -> list[Club]:
+        """Lists non-secret, non-archived clubs, optionally filtered and sorted.
+
+        Args:
+            filters: ClubPublicFilter to apply, or None for no filtering.
+
+        Returns:
+            List of matching Club instances.
+        """
         stmt = select(Club).where(
             and_(
                 Club.club_type != ClubTypes.secret,
@@ -80,6 +116,14 @@ class ClubRepository:
             self,
             filters: ClubFilter | None = None,
     ) -> list[Club]:
+        """Lists all clubs, optionally filtered and sorted.
+
+        Args:
+            filters: ClubFilter to apply, or None for no filtering.
+
+        Returns:
+            List of matching Club instances.
+        """
         stmt = select(Club)
         if filters:
             stmt = filters.filter(stmt)
@@ -92,6 +136,14 @@ class ClubRepository:
             self,
             club_id: int
     ) -> Club | None:
+        """Fetches a single club by ID.
+
+        Args:
+            club_id: ID of the club to fetch.
+
+        Returns:
+            Matching Club instance, or None if not found.
+        """
         stmt = select(Club).where(Club.id == club_id)
         result = await self.session.execute(stmt)
         club = result.scalar_one_or_none()
@@ -102,6 +154,12 @@ class ClubRepository:
             club: Club,
             new_owner_id: int
     ) -> None:
+        """Changes the owner of a club.
+
+        Args:
+            club: Club instance whose ownership is being transferred.
+            new_owner_id: ID of the user becoming the new owner.
+        """
         club.owner_id = new_owner_id
         self.session.add(club)
         await self.session.flush()

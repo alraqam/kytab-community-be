@@ -8,6 +8,8 @@ from src.backend.library.shelf.models import ShelfItem, Shelf
 
 @dataclass
 class ShelfItemRepository:
+    """Data-access layer for shelf item persistence and queries."""
+
     session: AsyncSession
 
     async def add_to_shelf(
@@ -16,6 +18,16 @@ class ShelfItemRepository:
             work_id: int,
             edition_id: int | None = None
     ) -> ShelfItem:
+        """Inserts a new shelf item.
+
+        Args:
+            shelf_id: ID of the shelf the item belongs to.
+            work_id: ID of the work being added.
+            edition_id: ID of the specific edition, or None if unspecified.
+
+        Returns:
+            Newly created ShelfItem instance.
+        """
         result = ShelfItem(
             shelf_id=shelf_id,
             work_id=work_id,
@@ -29,6 +41,11 @@ class ShelfItemRepository:
             self,
             shelf_item: ShelfItem,
     ) -> None:
+        """Deletes a shelf item.
+
+        Args:
+            shelf_item: ShelfItem instance to delete.
+        """
         await self.session.delete(shelf_item)
         await self.session.flush()
 
@@ -37,6 +54,12 @@ class ShelfItemRepository:
             shelf_item: ShelfItem,
             shelf_id: int
     ) -> None:
+        """Moves a shelf item to a different shelf.
+
+        Args:
+            shelf_item: ShelfItem instance to move.
+            shelf_id: ID of the destination shelf.
+        """
         shelf_item.shelf_id = shelf_id
         self.session.add(shelf_item)
         await self.session.flush()
@@ -45,6 +68,14 @@ class ShelfItemRepository:
             self,
             shelf_id: int
     ) -> list[ShelfItem]:
+        """Lists all items on a shelf.
+
+        Args:
+            shelf_id: ID of the shelf whose items are being listed.
+
+        Returns:
+            List of matching ShelfItem instances.
+        """
         stmt = select(ShelfItem).where(ShelfItem.shelf_id == shelf_id)
         result = await self.session.execute(stmt)
         lst = result.scalars().all()
@@ -54,6 +85,14 @@ class ShelfItemRepository:
             self,
             shelf_item_id: int
     ) -> Shelf | None:
+        """Fetches the shelf that contains the given shelf item.
+
+        Args:
+            shelf_item_id: ID of the shelf item whose shelf is being fetched.
+
+        Returns:
+            Matching Shelf instance, or None if not found.
+        """
         stmt = (
             select(Shelf)
             .join(ShelfItem, ShelfItem.shelf_id == Shelf.id)
@@ -68,6 +107,15 @@ class ShelfItemRepository:
             user_id: int,
             work_id: int,
     ) -> ShelfItem | None:
+        """Checks whether a work is already present in any of a user's shelves.
+
+        Args:
+            user_id: ID of the user whose shelves are checked.
+            work_id: ID of the work to look for.
+
+        Returns:
+            Matching ShelfItem instance, or None if the work is not shelved.
+        """
         stmt = (
             select(ShelfItem)
             .join(Shelf, ShelfItem.shelf_id == Shelf.id)
@@ -81,6 +129,14 @@ class ShelfItemRepository:
             self,
             shelf_item_id: int
     ) -> ShelfItem | None:
+        """Fetches a single shelf item by ID.
+
+        Args:
+            shelf_item_id: ID of the shelf item to fetch.
+
+        Returns:
+            Matching ShelfItem instance, or None if not found.
+        """
         stmt = select(ShelfItem).where(ShelfItem.id == shelf_item_id)
         result = await self.session.execute(stmt)
         shelf_item = result.scalar_one_or_none()

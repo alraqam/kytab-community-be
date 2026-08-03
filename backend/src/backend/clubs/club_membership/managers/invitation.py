@@ -95,6 +95,22 @@ class ClubInvitationManager:
             user: User,
             request: SendInvitation
     ) -> ClubInvitation:
+        """Sends a club invitation along with an invite email; requires owner or moderator role.
+
+        Args:
+            user: Authenticated user sending the invitation.
+            request: SendInvitation payload with club_id and target user_id.
+
+        Returns:
+            Newly created ClubInvitation instance.
+
+        Raises:
+            IsNotClubOwnerError: When the sender is not an owner or moderator.
+            AlreadyClubMemberError: When the target user is already a member.
+            MemberBlockedError: When the target user is blocked from the club.
+            DuplicateInvitationError: When a pending invitation already exists.
+            InviteeEmailDisabledError: When the invited user does not accept email invitations.
+        """
         club = await self.club_manager.get_club_by_id(request.club_id)
         is_owner_or_moderator(club, user.id)
 
@@ -138,6 +154,17 @@ class ClubInvitationManager:
             self,
             token: str
     ):
+        """Resolves a pending invitation from an invite email token.
+
+        Args:
+            token: Club invite JWT sent to the invited user by email.
+
+        Returns:
+            ClubInvitation instance referenced by the token.
+
+        Raises:
+            InvalidTokenError: When the token is invalid/expired, or the invitation is missing or no longer pending.
+        """
         invitation_id = await decode_club_invite_token(token)
         invitation = await self.invitation_repo.get_invitation_by_id(invitation_id)
         if not invitation:

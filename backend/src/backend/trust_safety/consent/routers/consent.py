@@ -14,6 +14,8 @@ router = APIRouter(
 
 @cbv(router)
 class ConsentRouter:
+    """CBV router for recording and viewing the current user's consent to legal documents."""
+
     manager: ConsentManager = Depends(get_consent_manager)
     user: User = Depends(get_current_user)
 
@@ -26,6 +28,7 @@ class ConsentRouter:
             self,
             request: CreateConsent
     ):
+        """Records the current user's consent to a legal document."""
         result = await self.manager.create_consent(self.user, request)
         return result
 
@@ -37,6 +40,7 @@ class ConsentRouter:
     async def get_user_consents(
             self,
     ):
+        """Lists the current user's consent records."""
         result = await self.manager.get_user_consents(self.user)
         return result
 
@@ -49,5 +53,6 @@ class ConsentRouter:
             self,
             consent_id: int
     ):
+        """Fetches a single consent record by ID."""
         result = await self.manager.get_consent_by_id(consent_id)
         return result

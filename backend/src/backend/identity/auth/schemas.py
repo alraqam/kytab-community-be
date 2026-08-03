@@ -37,6 +37,17 @@ class UserBase(BaseModel):
     @field_validator("username")
     @classmethod
     def validate_username(cls, value: str) -> str:
+        """Validates that the username starts with a letter and contains only letters, digits, and underscores.
+
+        Args:
+            value: Username string to validate.
+
+        Returns:
+            The username lowercased.
+
+        Raises:
+            InvalidUsernameError: When the username does not match the required format.
+        """
         if not re.fullmatch(r'^[A-Za-z][A-Za-z0-9_]*$', value):
             raise InvalidUsernameError("Username must consist of letters and numbers")
         return value.lower()
@@ -51,6 +62,14 @@ class UserRegister(UserBase):
     @field_validator("password", mode="before")
     @classmethod
     def validate_password(cls, value):
+        """Validates the password against strength requirements.
+
+        Args:
+            value: Plain-text password to validate.
+
+        Returns:
+            The original password string if valid.
+        """
         return validate_password(value)
 
 class ChangeUserPassword(BaseModel):
@@ -62,19 +81,39 @@ class ChangeUserPassword(BaseModel):
     @field_validator("new_password", mode="before")
     @classmethod
     def validate_password(cls, value):
+        """Validates the new password against strength requirements.
+
+        Args:
+            value: Plain-text password to validate.
+
+        Returns:
+            The original password string if valid.
+        """
         return validate_password(value)
 
 class ForgotPassword(BaseModel):
+    """Request payload for initiating a password reset via email."""
+
     email: str
 
 
 class ResetPassword(BaseModel):
+    """Request payload for completing a password reset; validates the new password on input."""
+
     token: str
     new_password: str
 
     @field_validator("new_password", mode="before")
     @classmethod
     def validate_password(cls, value):
+        """Validates the new password against strength requirements.
+
+        Args:
+            value: Plain-text password to validate.
+
+        Returns:
+            The original password string if valid.
+        """
         return validate_password(value)
 
 
@@ -82,6 +121,8 @@ class UpdateUser(UserBase):
     """Request payload for updating the user's profile fields (username, email, etc.)."""
 
 class GetSession(BaseModel):
+    """Response payload describing a user's active session."""
+
     id: int
     user_id: int
     device_label: str

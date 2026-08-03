@@ -4,6 +4,8 @@ from src.backend.core.models import Base, IntIdMixin, TimeActionMixin
 
 
 class Complaint(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a user-submitted moderation report against a review, comment, post, club, or user."""
+
     __tablename__ = "complaint"
 
     reporter_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)

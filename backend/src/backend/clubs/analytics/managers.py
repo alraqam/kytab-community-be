@@ -52,6 +52,18 @@ class ClubAnalyticsManager:
             user: User,
             club: Club,
     ) -> ClubModerationSummary:
+        """Builds a moderation summary of pending join requests and complaints for a club.
+
+        Args:
+            user: User requesting the summary; must be an owner or moderator.
+            club: Club to summarize.
+
+        Returns:
+            ClubModerationSummary with pending join request and complaint counts.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not an owner or moderator of the club.
+        """
         join_requests = await self.join_request_manager.get_club_requests(user, club)
         complaints = await self.complaint_manager.get_club_complaints(user, club)
         pending_complaints = [c for c in complaints if c.status == ComplaintStatus.pending]
@@ -67,6 +79,18 @@ class ClubAnalyticsManager:
             user: User,
             club: Club,
     ) -> GetClubAnalytics:
+        """Builds an analytics overview of a club's membership, activity, and engagement.
+
+        Args:
+            user: User requesting the overview; must be an owner or moderator.
+            club: Club to analyze.
+
+        Returns:
+            GetClubAnalytics with membership, thread, reading session, poll, and event statistics.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not an owner or moderator of the club.
+        """
         is_owner_or_moderator(club, user.id)
 
         memberships = await self.membership_repo.get_memberships(club)
@@ -121,6 +145,11 @@ class ClubAnalyticsManager:
         )
 
     async def get_platform_analytics(self) -> GetPlatformClubAnalytics:
+        """Aggregates platform-wide statistics across all clubs.
+
+        Returns:
+            GetPlatformClubAnalytics with club counts by type/status and membership totals.
+        """
         clubs = await self.club_repo.get_all_clubs()
 
         type_counts = Counter(club.club_type for club in clubs)

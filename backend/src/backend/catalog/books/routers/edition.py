@@ -29,14 +29,7 @@ class EditionRouter:
             self,
             filters: EditionFilter = FilterDepends(EditionFilter),
     ):
-        """Returns all editions with optional filtering and sort.
-
-        Args:
-            filters: EditionFilter with optional work_id, language, search query, and sort order.
-
-        Returns:
-            List of Edition instances.
-        """
+        """Returns all editions with optional filtering and sort."""
         return await self.manager.get_all_editions(filters)
 
     @router.get(
@@ -48,12 +41,5 @@ class EditionRouter:
             self,
             edition: Edition = Depends(get_edition_or_404),
     ):
-        """Returns the edition with the given ID.
-
-        Args:
-            edition: Edition instance resolved via get_edition_or_404.
-
-        Returns:
-            Edition instance.
-        """
+        """Returns the edition with the given ID."""
         return edition

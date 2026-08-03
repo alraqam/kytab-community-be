@@ -24,10 +24,17 @@ from src.backend.notifications.schemas import NotificationCategory, Notification
 MENTION_PATTERN = re.compile(r"@(\w+)")
 
 class PostManager:
+    """Handles business logic for posts within a thread: creation, editing, deletion, spoiler-safe retrieval, and mention notifications."""
+
     def __init__(
             self,
             session: AsyncSession
     ):
+        """Initializes the manager and its dependent repositories and managers.
+
+        Args:
+            session: Async SQLAlchemy session.
+        """
         self.session = session
         self.post_repo = PostRepository(session)
         self.club_manager = ClubManager(session)
@@ -65,6 +72,22 @@ class PostManager:
             thread: Thread,
             request: CreatePost
     ) -> Post:
+        """Creates a new post in a thread and notifies any mentioned users.
+
+        Args:
+            user: User creating the post.
+            club: Club the thread belongs to.
+            thread: Thread to post in.
+            request: CreatePost payload with title, body, spoiler flag, and optional parent post ID.
+
+        Returns:
+            Newly created Post instance.
+
+        Raises:
+            NotClubMemberError: When the user is not a member of the club.
+            LockedThreadError: When the thread is locked.
+            PostNotFoundError: When request.parent_post_id is set but no matching post exists.
+        """
         await is_club_member(club, user, self.session)
 
         if thread.is_locked:
@@ -97,6 +120,18 @@ class PostManager:
             post: Post,
             request: UpdatePost
     ) -> None:
+        """Updates a post's title, body, and/or spoiler flag.
+
+        Args:
+            user: User requesting the update; must be the post's author.
+            thread: Thread the post belongs to.
+            post: Post instance to update.
+            request: UpdatePost payload with the fields to change.
+
+        Raises:
+            IsNotPostOwnerError: When the user is not the post's author.
+            LockedThreadError: When the thread is locked.
+        """
         await is_post_owner(post, user)
 
         if thread.is_locked:
@@ -117,6 +152,19 @@ class PostManager:
             thread: Thread,
             post: Post,
     ) -> None:
+        """Deletes a post, allowing either the post's author or a club owner/moderator to do so.
+
+        Args:
+            user: User requesting the deletion.
+            club: Club the thread belongs to.
+            thread: Thread the post belongs to.
+            post: Post instance to delete.
+
+        Raises:
+            IsNotPostOwnerError: When the user authored the post but fails ownership verification.
+            IsNotClubOwnerError: When the user did not author the post and is not a club owner or moderator.
+            LockedThreadError: When the thread is locked.
+        """
         if post.author_id == user.id:
             await is_post_owner(post, user)
         else:
@@ -135,6 +183,15 @@ class PostManager:
             user: User,
             post: Post,
     ) -> None:
+        """Deletes a post on behalf of an admin, bypassing ownership and lock checks.
+
+        Args:
+            user: User requesting the deletion; must be an admin.
+            post: Post instance to delete.
+
+        Raises:
+            PermissionDeniedError: When the user is not an admin.
+        """
         await is_admin(user)
         await self.post_repo.delete_post(
             post=post,
@@ -147,6 +204,19 @@ class PostManager:
             user: User,
             thread: Thread,
     ) -> list[Post]:
+        """Lists all posts in a thread without spoiler filtering.
+
+        Args:
+            club: Club the thread belongs to.
+            user: User requesting the posts; must be a club member.
+            thread: Thread to list posts from.
+
+        Returns:
+            List of Post instances in the thread.
+
+        Raises:
+            NotClubMemberError: When the user is not a member of the club.
+        """
         await is_club_member(club, user, self.session)
 
         posts = await self.post_repo.get_posts(
@@ -162,6 +232,22 @@ class PostManager:
             milestone: Milestone,
             user: User,
     ) -> list:
+        """Lists posts in a session thread, hiding spoiler content the user has not reached yet.
+
+        Args:
+            club: Club the thread belongs to.
+            thread: Thread to list posts from.
+            reading_session: Reading session the thread's milestone belongs to.
+            milestone: Milestone the thread is scoped to.
+            user: User requesting the posts; must be a club member.
+
+        Returns:
+            List of GetPostPartial instances (bodies withheld) if the user has not reached
+            the thread's milestone, otherwise a list of GetPost instances with full bodies.
+
+        Raises:
+            NotClubMemberError: When the user is not a member of the club.
+        """
         await is_club_member(club, user, self.session)
 
         posts = await self.post_repo.get_posts(
@@ -219,6 +305,19 @@ class PostManager:
             user: User,
             post: Post,
     ) -> Post:
+        """Fetches a single post regardless of the user's milestone progress.
+
+        Args:
+            club: Club the thread belongs to.
+            user: User requesting the post; must be a club member.
+            post: Post instance to reveal.
+
+        Returns:
+            The given Post instance.
+
+        Raises:
+            NotClubMemberError: When the user is not a member of the club.
+        """
         await is_club_member(club, user, self.session)
         return post
 
@@ -226,6 +325,17 @@ class PostManager:
             self,
             post_id: int,
     ) -> Post:
+        """Fetches a post by ID.
+
+        Args:
+            post_id: ID of the post to fetch.
+
+        Returns:
+            Matching Post instance.
+
+        Raises:
+            PostNotFoundError: When no post with the given ID exists.
+        """
         post = await self.post_repo.get_post_by_id(
             post_id=post_id,
         )

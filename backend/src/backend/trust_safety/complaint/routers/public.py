@@ -14,6 +14,8 @@ router = APIRouter(
 
 @cbv(router)
 class ComplaintPublicRouter:
+    """CBV router for filing complaints against content or users."""
+
     manager: ComplaintManager = Depends(get_complaint_manager)
     user: User = Depends(get_current_user)
 
@@ -26,5 +28,6 @@ class ComplaintPublicRouter:
             self,
             request: CreateComplaint
     ):
+        """Files a new complaint."""
         result = await self.manager.create_compliant(self.user, request)
         return result

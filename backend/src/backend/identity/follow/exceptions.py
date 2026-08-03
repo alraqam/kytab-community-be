@@ -2,13 +2,13 @@ from src.backend.core.exceptions import NotFound, Forbidden, Conflict
 
 
 class FollowNotFoundError(NotFound):
-    pass
+    """Raised when the requested follow relationship does not exist."""
 
 class NotFollowOwnerError(Forbidden):
-    pass
+    """Raised when a user tries to modify a follow relationship they do not own."""
 
 class UserAlreadyFollowingError(Conflict):
-    pass
+    """Raised when a user tries to follow someone they already follow."""
 
 class NotUserFollowerError(Forbidden):
-    pass
+    """Raised when the checked user is not a follower of the target user."""

@@ -16,6 +16,8 @@ router = APIRouter(
 
 @cbv(router)
 class ShelfRouter:
+    """CBV router for managing a user's shelves: creation, updates, visibility, and retrieval."""
+
     shelf_manager: ShelfManager = Depends(get_shelf_manager)
     user: User = Depends(get_current_user)
 
@@ -28,6 +30,7 @@ class ShelfRouter:
             self,
             request: CreateShelf
     ):
+        """Creates a new custom shelf for the current user."""
         result = await self.shelf_manager.create_custom_shelf(self.user, request)
         return result
 
@@ -40,6 +43,7 @@ class ShelfRouter:
             request: UpdateShelf,
             shelf: Shelf = Depends(get_shelf_or_404),
     ):
+        """Renames a custom shelf."""
         await self.shelf_manager.update_shelf(self.user, shelf, request)
 
     @router.put(
@@ -51,6 +55,7 @@ class ShelfRouter:
             request: UpdateShelfVisibility,
             shelf: Shelf = Depends(get_shelf_or_404),
     ):
+        """Updates a shelf's visibility setting."""
         await self.shelf_manager.update_shelf_visibility(self.user, shelf, request)
 
     @router.delete(
@@ -61,6 +66,7 @@ class ShelfRouter:
             self,
             shelf: Shelf = Depends(get_shelf_or_404),
     ):
+        """Deletes a custom shelf."""
         await self.shelf_manager.delete_shelf(self.user, shelf)
 
     @router.get(
@@ -71,6 +77,7 @@ class ShelfRouter:
     async def get_my_shelves(
             self,
     ):
+        """Lists all shelves owned by the current user."""
         result = await self.shelf_manager.get_my_shelves(self.user)
         return result
 
@@ -83,6 +90,7 @@ class ShelfRouter:
             self,
             name: str = Query(),
     ):
+        """Fetches the current user's shelf by name."""
         result = await self.shelf_manager.get_shelf_by_name(self.user, name)
         return result
 
@@ -95,6 +103,7 @@ class ShelfRouter:
             self,
             user: User = Depends(get_user_or_404),
     ):
+        """Lists another user's shelves that are visible to the current user."""
         result = await self.shelf_manager.get_user_shelves(user, self.user)
         return result
 
@@ -108,4 +117,5 @@ class ShelfRouter:
             self,
             shelf: Shelf = Depends(get_shelf_or_404),
     ):
+        """Fetches a single shelf by ID."""
         return shelf

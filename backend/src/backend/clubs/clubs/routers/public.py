@@ -17,6 +17,8 @@ router = APIRouter(
 
 @cbv(router)
 class ClubRouter:
+    """CBV router for member-facing club actions: creation, updates, archiving, listing, and ownership transfer."""
+
     manager: ClubManager = Depends(get_club_manager)
     user: User = Depends(get_current_user)
 
@@ -29,6 +31,7 @@ class ClubRouter:
             self,
             request: CreateClub,
     ):
+        """Creates a new club owned by the current user."""
         result = await self.manager.create_club(self.user, request)
         return result
 
@@ -41,6 +44,7 @@ class ClubRouter:
             request: UpdateClub,
             club: Club = Depends(get_club_or_404),
     ):
+        """Updates a club's details."""
         await self.manager.update_club(self.user, club, request)
 
     @router.delete(
@@ -51,6 +55,7 @@ class ClubRouter:
             self,
             club: Club = Depends(get_club_or_404),
     ):
+        """Archives a club."""
         await self.manager.archive_club(club, self.user)
 
     @router.get(
@@ -62,6 +67,7 @@ class ClubRouter:
             self,
             filters: ClubPublicFilter = FilterDepends(ClubPublicFilter)
     ):
+        """Lists non-secret, non-archived clubs, optionally filtered and sorted."""
         result = await self.manager.get_clubs_list(filters)
         return result
 
@@ -74,6 +80,7 @@ class ClubRouter:
             request: ManageClubModerators,
             club: Club = Depends(get_club_or_404)
     ):
+        """Transfers club ownership to another member."""
         await self.manager.transfer_ownership(
             club=club,
             user=self.user,

@@ -28,6 +28,7 @@ class ClubAnalyticsRouter:
         response_model=ClubModerationSummary,
     )
     async def get_moderation_summary(self):
+        """Fetches the club's moderation summary."""
         result = await self.manager.get_moderation_summary(self.user, self.club)
         return result
 
@@ -37,5 +38,6 @@ class ClubAnalyticsRouter:
         response_model=GetClubAnalytics,
     )
     async def get_club_overview(self):
+        """Fetches the club's analytics overview."""
         result = await self.manager.get_club_overview(self.user, self.club)
         return result

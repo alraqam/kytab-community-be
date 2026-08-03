@@ -17,6 +17,8 @@ router = APIRouter(
 
 @cbv(router)
 class NotificationPreferenceRouter:
+    """CBV router for managing the current user's notification delivery preferences."""
+
     manager: NotificationPreferenceManager = Depends(get_notification_preference_manager)
     user: User = Depends(get_current_user)
 
@@ -29,6 +31,7 @@ class NotificationPreferenceRouter:
             self,
             request: CreateNotificationPreference
     ):
+        """Creates a notification preference for a category, optionally scoped to a club."""
         result = await self.manager.create_preference(self.user, request)
         return result
 
@@ -37,6 +40,7 @@ class NotificationPreferenceRouter:
         summary="muting all notifications for current user",
     )
     async def mute_all(self):
+        """Mutes all of the current user's notification preferences."""
         await self.manager.mute_all(self.user)
 
     @router.put(
@@ -44,6 +48,7 @@ class NotificationPreferenceRouter:
         summary="unmuting all notifications for current user",
     )
     async def unmute_all(self):
+        """Unmutes all of the current user's notification preferences."""
         await self.manager.unmute_all(self.user)
 
     @router.put(
@@ -55,6 +60,7 @@ class NotificationPreferenceRouter:
             request: UpdateNotificationPreference,
             preference: NotificationPreference = Depends(get_notification_preference_or_404)
     ):
+        """Updates a notification preference's channel settings."""
         await self.manager.update_preference(self.user, preference, request)
 
     @router.delete(
@@ -65,6 +71,7 @@ class NotificationPreferenceRouter:
             self,
             preference: NotificationPreference = Depends(get_notification_preference_or_404)
     ):
+        """Deletes a notification preference."""
         await self.manager.delete_preference(self.user, preference)
 
     @router.get(
@@ -73,6 +80,7 @@ class NotificationPreferenceRouter:
         response_model=list[GetNotificationPreference]
     )
     async def get_user_preferences(self):
+        """Lists the current user's notification preferences."""
         result = await self.manager.get_user_preferences(self.user)
         return result
 
@@ -85,4 +93,5 @@ class NotificationPreferenceRouter:
             self,
             preference: NotificationPreference = Depends(get_notification_preference_or_404)
     ):
+        """Fetches a single notification preference by ID."""
         return preference

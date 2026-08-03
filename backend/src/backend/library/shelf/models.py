@@ -4,6 +4,8 @@ from sqlalchemy import Column, BigInteger, ForeignKey, Date, String, UniqueConst
 from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
 
 class Shelf(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a user-owned bookshelf, either default or custom-named."""
+
     __tablename__ = "shelves"
 
     user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
@@ -17,6 +19,8 @@ class Shelf(Base, IntIdMixin, TimeActionMixin):
 
 
 class ShelfItem(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a work (and optionally a specific edition) placed on a shelf."""
+
     __tablename__ = "shelf_items"
 
     shelf_id = Column(BigInteger, ForeignKey("shelves.id", ondelete="CASCADE"), nullable=False)

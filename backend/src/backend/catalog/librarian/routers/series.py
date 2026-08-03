@@ -17,6 +17,8 @@ router = APIRouter(
 
 @cbv(router)
 class LibrarianSeriesRouter:
+    """CBV router for librarian management of series: create, update, delete, and link/unlink to works."""
+
     manager: SeriesManager = Depends(get_series_manager)
     user: User = Depends(is_librarian)
 
@@ -29,6 +31,7 @@ class LibrarianSeriesRouter:
             self,
             request: CreateSeries
     ):
+        """Creates a new series."""
         result = await self.manager.create_series(request)
         return result
 
@@ -41,6 +44,7 @@ class LibrarianSeriesRouter:
             request: UpdateSeries,
             series: Series = Depends(get_series_or_404)
     ):
+        """Updates an existing series' details."""
         await self.manager.update_series(series.id, request)
 
     @router.delete(
@@ -51,6 +55,7 @@ class LibrarianSeriesRouter:
             self,
             series: Series = Depends(get_series_or_404)
     ):
+        """Deletes a series."""
         await self.manager.delete_series(series.id)
 
     @router.put(
@@ -61,6 +66,7 @@ class LibrarianSeriesRouter:
             self,
             request: AddWorkToSeries,
     ):
+        """Links a work to a series."""
         await self.manager.add_work_to_series(request)
 
     @router.put(
@@ -72,6 +78,7 @@ class LibrarianSeriesRouter:
             series: Series = Depends(get_series_or_404),
             work: Work = Depends(get_work_or_404)
     ):
+        """Removes the link between a work and a series."""
         await self.manager.remove_work_from_series(work.id, series.id)
 
 

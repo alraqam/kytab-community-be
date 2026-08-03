@@ -22,6 +22,13 @@ def is_valid_url(url: str) -> bool:
         return False
 
 def _send_email_sync(to_email: str, subject: str, html_body: str) -> None:
+    """Sends an HTML email synchronously over SMTP using the configured server credentials.
+
+    Args:
+        to_email: Recipient email address.
+        subject: Email subject line.
+        html_body: HTML body content of the email.
+    """
     msg = MIMEMultipart("alternative")
     msg["Subject"] = subject
     msg["From"] = settings.SMTP_FROM_EMAIL

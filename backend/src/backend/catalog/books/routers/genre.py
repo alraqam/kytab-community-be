@@ -30,14 +30,7 @@ class GenreRouter:
             self,
             filters: GenreFilter = FilterDepends(GenreFilter),
     ):
-        """Returns all genres with optional search and sort.
-
-        Args:
-            filters: GenreFilter with optional search query and sort order.
-
-        Returns:
-            List of Genre instances.
-        """
+        """Returns all genres with optional search and sort."""
         return await self.manager.get_all_genres(filters)
 
     @router.get(
@@ -49,14 +42,7 @@ class GenreRouter:
             self,
             genre: Genre = Depends(get_genre_or_404),
     ):
-        """Returns the genre with the given ID.
-
-        Args:
-            genre: Genre instance resolved via get_genre_or_404.
-
-        Returns:
-            Genre instance.
-        """
+        """Returns the genre with the given ID."""
         return genre
 
     @router.get(
@@ -68,12 +54,5 @@ class GenreRouter:
             self,
             genre: Genre = Depends(get_genre_or_404),
     ):
-        """Returns all works tagged with the given genre.
-
-        Args:
-            genre: Genre instance resolved via get_genre_or_404.
-
-        Returns:
-            List of Work instances.
-        """
+        """Returns all works tagged with the given genre."""
         return await self.manager.get_works_for_genre(genre.id)

@@ -46,6 +46,23 @@ class UserAnalyticsManager:
             user: User,
             current_user: User,
     ) -> GetUserAnalytics:
+        """Builds a reading analytics overview for a user's shelves, reviews, goals, and social stats.
+
+        Args:
+            user: User whose analytics are being computed.
+            current_user: User requesting the analytics; must be able to view the profile
+                when different from user.
+
+        Returns:
+            GetUserAnalytics with shelf counts, review, streak, goal, follow, genre, and
+            monthly activity statistics.
+
+        Raises:
+            ProfileNotFoundError: When user has no profile and current_user differs from user.
+            PrivateProfileError: When user's profile is private and current_user differs from user.
+            NotUserFollowerError: When user's profile is followers-only and current_user does not
+                follow them.
+        """
         if user.id != current_user.id:
             await self.profile_manager.get_profile(current_user, user)
 
@@ -129,6 +146,12 @@ class UserAnalyticsManager:
         )
 
     async def get_platform_analytics(self) -> GetPlatformUserAnalytics:
+        """Aggregates platform-wide statistics across all users.
+
+        Returns:
+            GetPlatformUserAnalytics with user counts by role/status, active user counts,
+            and signups by month.
+        """
         users = await self.user_repo.get_all_users(None)
 
         role_counts = Counter(user.role for user in users)

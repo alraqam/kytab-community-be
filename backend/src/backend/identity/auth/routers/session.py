@@ -15,6 +15,8 @@ router = APIRouter(
 
 @cbv(router)
 class SessionRouter:
+    """CBV router for session management endpoints: listing and revoking sessions."""
+
     manager: SessionManager = Depends(get_session_manager)
     user_manager: UserManager = Depends(get_user_manager)
 
@@ -27,7 +29,7 @@ class SessionRouter:
             self,
             user: User = Depends(get_current_user)
     ):
-
+        """Lists the currently authenticated user's active sessions."""
         response = await self.manager.get_user_sessions(user)
         return response
 
@@ -40,6 +42,6 @@ class SessionRouter:
             user: User = Depends(get_current_user),
             session: Session = Depends(get_session_or_404)
     ):
-
+        """Revokes the given session if it belongs to the authenticated user."""
         response = await self.manager.revoke(user, session)
         return response

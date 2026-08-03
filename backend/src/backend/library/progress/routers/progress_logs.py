@@ -19,6 +19,8 @@ router = APIRouter(
 
 @cbv(router)
 class ProgressLogRouter:
+    """CBV router for logging and retrieving a user's reading progress within a reading period."""
+
     shelf: Shelf = Depends(get_shelf_or_404)
     shelf_item: ShelfItem = Depends(get_shelf_item_or_404)
     reading_period: ReadingPeriod = Depends(get_reading_period_or_404)
@@ -34,6 +36,7 @@ class ProgressLogRouter:
             self,
             request: LogProgressSchema,
     ):
+        """Logs the current user's reading progress for today."""
         result = await self.progress_log_manager.log_progress(self.user, self.reading_period, request)
         return result
 
@@ -46,6 +49,7 @@ class ProgressLogRouter:
             request: LogProgressSchema,
             log: ProgressLog = Depends(get_progress_log_or_404),
     ):
+        """Updates the current user's progress log for today."""
         await self.progress_log_manager.update_today_progress(self.user, log, request)
 
     @router.get(
@@ -56,6 +60,7 @@ class ProgressLogRouter:
     async def get_user_today_progress_log(
             self,
     ):
+        """Fetches the current user's progress log for today."""
         result = await self.progress_log_manager.get_user_today_progress_log(self.user, self.reading_period)
         return result
 
@@ -67,6 +72,7 @@ class ProgressLogRouter:
             self,
             log: ProgressLog = Depends(get_progress_log_or_404),
     ):
+        """Fetches a progress log by ID."""
         return log
 
     @router.get(
@@ -78,5 +84,6 @@ class ProgressLogRouter:
             self,
             user: User = Depends(get_user_or_404),
     ):
+        """Fetches a user's progress logs, subject to shelf visibility rules."""
         result = await self.progress_log_manager.get_users_progress_logs(user, self.user, self.shelf)
         return result

@@ -17,6 +17,8 @@ router = APIRouter(
 
 @cbv(router)
 class ThreadGeneralRouter:
+    """CBV router for club-general threads: create, update, lock/pin state, delete, and list."""
+
     manager: ThreadManager = Depends(get_thread_manager)
     user: User = Depends(get_current_user)
     club: Club = Depends(get_club_or_404)
@@ -30,6 +32,7 @@ class ThreadGeneralRouter:
             self,
             request: CreateThread
     ):
+        """Creates a new club-general thread."""
         result = await self.manager.creat_general_thread(self.user, self.club, request)
         return result
 
@@ -42,6 +45,7 @@ class ThreadGeneralRouter:
             request: UpdateThread,
             thread: Thread = Depends(get_thread_general_or_404),
     ):
+        """Updates a club-general thread's title."""
         await self.manager.update_thread(self.user, self.club, thread, request)
 
     @router.put(
@@ -52,6 +56,7 @@ class ThreadGeneralRouter:
             self,
             thread: Thread = Depends(get_thread_general_or_404),
     ):
+        """Locks a club-general thread."""
         await self.manager.update_thread_lock(self.user, self.club, thread)
 
     @router.put(
@@ -62,6 +67,7 @@ class ThreadGeneralRouter:
             self,
             thread: Thread = Depends(get_thread_general_or_404),
     ):
+        """Unlocks a club-general thread."""
         await self.manager.update_thread_unlock(self.user, self.club, thread)
 
     @router.put(
@@ -72,6 +78,7 @@ class ThreadGeneralRouter:
             self,
             thread: Thread = Depends(get_thread_general_or_404),
     ):
+        """Pins a club-general thread."""
         await self.manager.update_thread_pin(self.user, self.club, thread)
 
     @router.put(
@@ -82,6 +89,7 @@ class ThreadGeneralRouter:
             self,
             thread: Thread = Depends(get_thread_general_or_404),
     ):
+        """Unpins a club-general thread."""
         await self.manager.update_thread_unpin(self.user, self.club, thread)
 
     @router.delete(
@@ -92,6 +100,7 @@ class ThreadGeneralRouter:
             self,
             thread: Thread = Depends(get_thread_general_or_404)
     ):
+        """Deletes a club-general thread."""
         await self.manager.delete_thread(self.user, self.club, thread)
 
     @router.get(
@@ -102,5 +111,6 @@ class ThreadGeneralRouter:
     async def get_club_general_threads(
             self,
     ):
+        """Lists all club-general threads for the club."""
         result = await self.manager.get_club_general_threads(self.club)
         return result

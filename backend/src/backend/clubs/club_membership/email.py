@@ -11,6 +11,14 @@ from src.backend.identity.auth.exceptions import InvalidTokenError
 
 
 def create_club_invite_token(invitation: ClubInvitation) -> str:
+    """Creates a signed JWT encoding a club invitation, expiring in 14 days.
+
+    Args:
+        invitation: ClubInvitation instance to encode.
+
+    Returns:
+        Encoded JWT string.
+    """
     payload = {
         "inv": str(invitation.id),
         "club_id": str(invitation.club_id),
@@ -20,6 +28,17 @@ def create_club_invite_token(invitation: ClubInvitation) -> str:
     return jwt.encode(payload, settings.CLUB_INVITE_SECRET_KEY, algorithm="HS256")
 
 async def decode_club_invite_token(token: str) -> int:
+    """Decodes and validates a club invite token, returning the invitation ID.
+
+    Args:
+        token: JWT string previously issued by create_club_invite_token.
+
+    Returns:
+        ID of the invitation encoded in the token.
+
+    Raises:
+        InvalidTokenError: When the token is expired, malformed, of the wrong type, or missing its payload.
+    """
     try:
         payload = jwt.decode(token, settings.CLUB_INVITE_SECRET_KEY, algorithms=["HS256"])
     except JWTError:
@@ -35,9 +54,21 @@ async def decode_club_invite_token(token: str) -> int:
 
 @celery_app.task
 def send_club_invite_email(to_email: str, token: str) -> None:
+    """Celery task that sends a club invitation email.
+
+    Args:
+        to_email: Recipient email address.
+        token: Club invite JWT included in the email link.
+    """
     asyncio.run(_send_club_invite_email(to_email, token))
 
 async def _send_club_invite_email(to_email: str, token: str) -> None:
+    """Builds and sends the club invitation email in a background thread.
+
+    Args:
+        to_email: Recipient email address.
+        token: Club invite JWT included in the email link.
+    """
     link = f"{settings.FRONTEND_URL}/club_invite?token={token}"
     html = f'<p>Click <a href="{link}">here</a> for more information. Expires in 14 days.</p>'
     await asyncio.to_thread(_send_email_sync, to_email, "Club invitation", html)

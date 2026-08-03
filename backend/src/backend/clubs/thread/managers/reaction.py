@@ -16,10 +16,17 @@ from src.backend.notifications.managers.notification import NotificationManager
 from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
 
 class PostReactionManager:
+    """Handles business logic for reactions on posts: creation, deletion, retrieval, and reaction notifications."""
+
     def __init__(
             self,
             session: AsyncSession
     ):
+        """Initializes the manager and its dependent repositories and managers.
+
+        Args:
+            session: Async SQLAlchemy session.
+        """
         self.session = session
         self.reaction_repo = PostReactionRepository(session)
         self.club_manager = ClubManager(session)
@@ -34,6 +41,21 @@ class PostReactionManager:
             post: Post,
             request: CreatePostReaction
     ) -> PostReaction:
+        """Creates a reaction on a post and notifies the post's author.
+
+        Args:
+            user: User creating the reaction.
+            club: Club the post's thread belongs to.
+            post: Post instance being reacted to.
+            request: CreatePostReaction payload with the emoji.
+
+        Returns:
+            Newly created PostReaction instance.
+
+        Raises:
+            NotClubMemberError: When the user is not a member of the club.
+            PostReactionAlreadyExists: When the user has already reacted to the post with the same emoji.
+        """
         await is_club_member(club, user, self.session)
 
         try:
@@ -64,6 +86,15 @@ class PostReactionManager:
             user: User,
             reaction: PostReaction,
     ) -> None:
+        """Deletes a reaction owned by the given user.
+
+        Args:
+            user: User requesting the deletion; must own the reaction.
+            reaction: PostReaction instance to delete.
+
+        Raises:
+            IsNotPostReactionOwnerError: When the user did not create the reaction.
+        """
         await is_reaction_owner(reaction, user)
 
         await self.reaction_repo.delete_reaction(
@@ -75,6 +106,14 @@ class PostReactionManager:
             self,
             post: Post,
     ) -> list[PostReaction]:
+        """Lists all reactions on a post.
+
+        Args:
+            post: Post instance to list reactions for.
+
+        Returns:
+            List of PostReaction instances on the post.
+        """
         reactions = await self.reaction_repo.get_post_reactions(
             post_id=post.id,
         )
@@ -84,6 +123,17 @@ class PostReactionManager:
             self,
             reaction_id: int,
     ) -> PostReaction:
+        """Fetches a reaction by ID.
+
+        Args:
+            reaction_id: ID of the reaction to fetch.
+
+        Returns:
+            Matching PostReaction instance.
+
+        Raises:
+            ReactionNotFoundError: When no reaction with the given ID exists.
+        """
         reaction = await self.reaction_repo.get_reaction_by_id(
             reaction_id=reaction_id,
         )

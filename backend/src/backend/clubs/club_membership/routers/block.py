@@ -18,6 +18,8 @@ router = APIRouter(
 
 @cbv(router)
 class ClubBlockedRouter:
+    """CBV router for club member blocking endpoints."""
+
     manager: ClubBlockedManager = Depends(get_club_blocked_manager)
     user: User = Depends(get_current_user)
     club: Club = Depends(get_club_or_404)
@@ -31,6 +33,7 @@ class ClubBlockedRouter:
             self,
             request: CreateBlockedMember
     ):
+        """Blocks a user from the club and removes their membership."""
         result = await self.manager.block_user(self.user, self.club, request)
         return result
 
@@ -42,6 +45,7 @@ class ClubBlockedRouter:
             self,
             block: ClubBlocked = Depends(get_club_blocked_or_404)
     ):
+        """Removes a block, unblocking the user from the club."""
         await self.manager.delete_block(self.user, self.club, block)
 
     @router.get(
@@ -52,5 +56,6 @@ class ClubBlockedRouter:
     async def get_club_blocked(
             self,
     ):
+        """Lists all users blocked from the club."""
         result = await self.manager.get_club_blocked(self.club)
         return result

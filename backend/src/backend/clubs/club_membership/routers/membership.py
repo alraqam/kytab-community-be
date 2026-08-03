@@ -51,11 +51,7 @@ class MembershipRouter:
             self,
             request: ManageMember
     ):
-        """Removes a member from the club; for owners and moderators.
-
-        Args:
-            request: ManageMember payload with the target member's ID.
-        """
+        """Removes a member from the club; for owners and moderators."""
         await self.manager.kick_member(self.user, self.club, request)
 
     @router.get(
@@ -67,11 +63,7 @@ class MembershipRouter:
             self,
             filters: ClubMembersFilter = FilterDepends(ClubMembersFilter)
     ):
-        """Returns all club members with optional filtering.
-
-        Args:
-            filters: ClubMembersFilter for filtering and sorting.
-        """
+        """Returns all club members with optional filtering."""
         result = await self.manager.get_memberships(self.club, self.user, filters)
         return result
 
@@ -83,6 +75,7 @@ class MembershipRouter:
     async def get_club_owner_moderator(
             self,
     ):
+        """Returns the club's owner and moderators."""
         result = await self.manager.get_club_owner_moderator(self.club)
         return result
 
@@ -94,6 +87,7 @@ class MembershipRouter:
             self,
             request: ManageClubModerators
     ):
+        """Promotes a club member to the moderator role."""
         result = await self.manager.assign_moderator(self.club, self.user, request)
         return result
 
@@ -106,5 +100,6 @@ class MembershipRouter:
             self,
             request: ManageClubModerators
     ):
+        """Demotes a club moderator back to the member role."""
         result = await self.manager.remove_moderator(self.club, self.user, request)
         return result

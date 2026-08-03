@@ -4,6 +4,8 @@ from src.backend.core.models import Base, IntIdMixin, TimeActionMixin
 
 
 class ClubEvent(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a scheduled event hosted by a club."""
+
     __tablename__ = "events"
 
     club_id = Column(BigInteger, ForeignKey("clubs.id", ondelete="CASCADE"), nullable=False)
@@ -17,6 +19,8 @@ class ClubEvent(Base, IntIdMixin, TimeActionMixin):
     meeting_url = Column(String(100), nullable=True)
 
 class EventRSVP(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a user's RSVP response to a club event."""
+
     __tablename__ = "event_rsvps"
 
     event_id = Column(BigInteger, ForeignKey("events.id", ondelete="CASCADE"), nullable=False)

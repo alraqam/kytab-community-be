@@ -5,6 +5,8 @@ from src.backend.core.models import Base, IntIdMixin, TimeActionMixin
 
 
 class Follow(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a directed follow relationship between two users."""
+
     __tablename__ = "follows"
 
     follower_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)

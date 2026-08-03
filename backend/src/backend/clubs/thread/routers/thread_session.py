@@ -19,6 +19,8 @@ router = APIRouter(
 
 @cbv(router)
 class ThreadSessionRouter:
+    """CBV router for threads scoped to a reading-session milestone: create, update, lock/pin state, delete, and milestone-gated listing."""
+
     manager: ThreadManager = Depends(get_thread_manager)
     user: User = Depends(get_current_user)
     club: Club = Depends(get_club_or_404)
@@ -34,6 +36,7 @@ class ThreadSessionRouter:
             self,
             request: CreateThread
     ):
+        """Creates a new thread scoped to the session milestone."""
         result = await self.manager.create_milestone_thread(self.user, self.club, self.reading_session, self.milestone, request)
         return result
 
@@ -46,6 +49,7 @@ class ThreadSessionRouter:
             request: UpdateThread,
             thread: Thread = Depends(get_thread_session_or_404),
     ):
+        """Updates a milestone thread's title."""
         await self.manager.update_thread(self.user, self.club, thread, request)
 
     @router.put(
@@ -56,6 +60,7 @@ class ThreadSessionRouter:
             self,
             thread: Thread = Depends(get_thread_session_or_404),
     ):
+        """Locks a milestone thread."""
         await self.manager.update_thread_lock(self.user, self.club, thread)
 
     @router.put(
@@ -66,6 +71,7 @@ class ThreadSessionRouter:
             self,
             thread: Thread = Depends(get_thread_session_or_404),
     ):
+        """Unlocks a milestone thread."""
         await self.manager.update_thread_unlock(self.user, self.club, thread)
 
     @router.put(
@@ -76,6 +82,7 @@ class ThreadSessionRouter:
             self,
             thread: Thread = Depends(get_thread_session_or_404),
     ):
+        """Pins a milestone thread."""
         await self.manager.update_thread_pin(self.user, self.club, thread)
 
     @router.put(
@@ -86,6 +93,7 @@ class ThreadSessionRouter:
             self,
             thread: Thread = Depends(get_thread_session_or_404),
     ):
+        """Unpins a milestone thread."""
         await self.manager.update_thread_unpin(self.user, self.club, thread)
 
     @router.delete(
@@ -96,6 +104,7 @@ class ThreadSessionRouter:
             self,
             thread: Thread = Depends(get_thread_session_or_404)
     ):
+        """Deletes a milestone thread."""
         await self.manager.delete_thread(self.user, self.club, thread)
 
     @router.get(
@@ -106,6 +115,7 @@ class ThreadSessionRouter:
     async def get_session_milestone_threads(
             self,
     ):
+        """Lists milestone threads visible based on the user's reading progress."""
         result = await self.manager.get_session_milestone_threads(self.user, self.reading_session, self.milestone)
         return result
 
@@ -118,4 +128,5 @@ class ThreadSessionRouter:
             self,
             thread: Thread = Depends(get_thread_session_or_404),
     ):
+        """Fetches and reveals a single milestone thread by ID."""
         return thread

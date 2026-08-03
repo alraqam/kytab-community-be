@@ -4,6 +4,8 @@ from src.backend.core.models import Base, IntIdMixin, TimeActionMixin
 
 
 class LegalDocument(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a versioned legal document (e.g. terms of service, privacy policy)."""
+
     __tablename__ = "legal_documents"
 
     document_type = Column(String(100), nullable=False)
@@ -13,6 +15,8 @@ class LegalDocument(Base, IntIdMixin, TimeActionMixin):
 
 
 class ConsentRecords(Base, IntIdMixin, TimeActionMixin):
+    """ORM model recording that a user has consented to a specific legal document."""
+
     __tablename__ = "consent_records"
 
     user_id = Column(BigInteger, ForeignKey("users.id", ondelete="SET NULL"), nullable=False)

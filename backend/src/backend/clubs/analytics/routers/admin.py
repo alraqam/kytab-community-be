@@ -25,5 +25,6 @@ class ClubAnalyticsAdminRouter:
         response_model=GetPlatformClubAnalytics,
     )
     async def get_platform_analytics(self):
+        """Fetches platform-wide club analytics."""
         result = await self.manager.get_platform_analytics()
         return result

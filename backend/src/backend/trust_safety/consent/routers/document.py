@@ -17,6 +17,8 @@ router = APIRouter(
 
 @cbv(router)
 class DocumentRouter:
+    """CBV router for managing legal documents: publishing versions and toggling the current one."""
+
     manager: LegalDocumentManager = Depends(get_legal_document_manager)
     user: User = Depends(get_current_user)
 
@@ -29,6 +31,7 @@ class DocumentRouter:
             self,
             request: CreateLegalDocument
     ):
+        """Publishes a new legal document version."""
         result = await self.manager.create_legal_document(self.user, request)
         return result
 
@@ -40,6 +43,7 @@ class DocumentRouter:
             self,
             document: LegalDocument = Depends(get_legal_document_or_404)
     ):
+        """Marks a document as the current version."""
         await self.manager.make_current(self.user, document)
 
     @router.put(
@@ -50,6 +54,7 @@ class DocumentRouter:
             self,
             document: LegalDocument = Depends(get_legal_document_or_404)
     ):
+        """Unmarks a document as the current version."""
         await self.manager.remove_current(self.user, document)
 
 
@@ -62,6 +67,7 @@ class DocumentRouter:
             self,
             document: LegalDocument = Depends(get_legal_document_or_404)
     ):
+        """Fetches a single legal document by ID."""
         return document
 
     @router.get(
@@ -73,5 +79,6 @@ class DocumentRouter:
             self,
             filters: LegalDocumentFilter = FilterDepends(LegalDocumentFilter)
     ):
+        """Lists legal documents, optionally filtered."""
         result = await self.manager.get_documents(filters)
         return result

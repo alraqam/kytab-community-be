@@ -32,11 +32,7 @@ class VotingPollRouter:
             self,
             request: CreateVotingPoll,
     ):
-        """Creates a new voting poll for the club.
-
-        Args:
-            request: CreateVotingPoll payload with closes_at datetime.
-        """
+        """Creates a new voting poll for the club."""
         result = await self.manager.create_poll(self.user, self.club, request)
         return result
 
@@ -49,12 +45,7 @@ class VotingPollRouter:
             request: UpdateVotingPoll,
             poll: VotingPoll = Depends(get_voting_poll_or_404)
     ):
-        """Updates the closing datetime of a voting poll.
-
-        Args:
-            request: UpdateVotingPoll payload with new closes_at datetime.
-            poll: VotingPoll instance resolved via get_voting_poll_or_404.
-        """
+        """Updates the closing datetime of a voting poll."""
         await self.manager.update_voting_poll(self.user, self.club, poll, request)
 
     @router.put(
@@ -65,11 +56,7 @@ class VotingPollRouter:
             self,
             poll: VotingPoll = Depends(get_voting_poll_or_404)
     ):
-        """Closes the specified voting poll.
-
-        Args:
-            poll: VotingPoll instance resolved via get_voting_poll_or_404.
-        """
+        """Closes the specified voting poll."""
         await self.manager.close_voting_poll(self.user, self.club, poll)
 
     @router.delete(
@@ -80,11 +67,7 @@ class VotingPollRouter:
             self,
             poll: VotingPoll = Depends(get_voting_poll_or_404)
     ):
-        """Deletes a non-active voting poll.
-
-        Args:
-            poll: VotingPoll instance resolved via get_voting_poll_or_404.
-        """
+        """Deletes a non-active voting poll."""
         await self.manager.delete_voting_poll(self.user, self.club, poll)
 
     @router.get(
@@ -115,11 +98,7 @@ class VotingPollRouter:
             self,
             poll: VotingPoll = Depends(get_voting_poll_or_404)
     ):
-        """Returns the vote count per candidate for the specified poll.
-
-        Args:
-            poll: VotingPoll instance resolved via get_voting_poll_or_404.
-        """
+        """Returns the vote count per candidate for the specified poll."""
         result = await self.manager.get_poll_results(self.user, self.club, poll)
         return result
 
@@ -131,11 +110,7 @@ class VotingPollRouter:
             self,
             poll: VotingPoll = Depends(get_voting_poll_or_404)
     ):
-        """Returns the candidate ID(s) with the most votes.
-
-        Args:
-            poll: VotingPoll instance resolved via get_voting_poll_or_404.
-        """
+        """Returns the candidate ID(s) with the most votes."""
         result = await self.manager.confirm_winner(self.user, self.club, poll)
         return result
 

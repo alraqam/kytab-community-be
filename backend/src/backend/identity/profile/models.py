@@ -5,6 +5,8 @@ from src.backend.core.models import Base, IntIdMixin, TimeActionMixin
 
 
 class Profile(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a user's public profile information."""
+
     __tablename__ = "profiles"
 
     user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)

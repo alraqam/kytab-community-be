@@ -5,6 +5,7 @@ from src.backend.trust_safety.complaint.schemas import ComplaintObjectType, Comp
 
 
 class ComplaintFilter(Filter):
+    """Query filter for complaints: free-text search, object type, category, status, escalation, and ordering."""
 
     q: str | None = None
     object_type: ComplaintObjectType | None = None
