@@ -12,6 +12,8 @@ from src.backend.identity.users.routers import router as user_router
 from src.backend.identity.profile.routers import router as profile_router
 from src.backend.identity.blocked_users.routers import router as blocked_users_router
 from src.backend.identity.follow.routers import router as follow_router
+from src.backend.identity.analytics.routers.public import router as user_analytics_router
+from src.backend.identity.analytics.routers.admin import router as user_analytics_admin_router
 
 from src.backend.catalog.books.routers.books import router as books_router
 from src.backend.catalog.books.routers.work import router as work_router
@@ -44,7 +46,6 @@ from src.backend.clubs.club_membership.routers.requests import router as request
 from src.backend.clubs.club_membership.routers.invitation import router as invitation_router
 from src.backend.clubs.club_membership.routers.user_membership import router as user_membership_router
 from src.backend.clubs.club_membership.routers.block import router as club_block_router
-from src.backend.clubs.club_membership.routers.moderation import router as club_moderation_router
 from src.backend.clubs.reading_session.routers.session import router as reading_sessions_router
 from src.backend.clubs.reading_session.routers.milestone import router as milestone_router
 from src.backend.clubs.reading_session.routers.progress import router as milestone_progress_router
@@ -60,6 +61,8 @@ from src.backend.clubs.voting.routers.poll_candidate import router as poll_candi
 from src.backend.clubs.voting.routers.vote_poll import router as vote_poll_router
 from src.backend.clubs.events.routers.event import router as event_router
 from src.backend.clubs.events.routers.rsvp import router as event_rsvp_router
+from src.backend.clubs.analytics.routers.public import router as club_analytics_router
+from src.backend.clubs.analytics.routers.admin import router as club_analytics_admin_router
 
 from src.backend.trust_safety.complaint.routers.public import router as public_complaint_router
 from src.backend.trust_safety.complaint.routers.admin import router as admin_complaint_router
@@ -97,13 +100,13 @@ review_router.include_router(review_like_router)
 work_router.include_router(review_router)
 clubs_public_router.include_router(membership_router)
 clubs_public_router.include_router(club_block_router)
-clubs_public_router.include_router(club_moderation_router)
 clubs_public_router.include_router(club_complaint_router)
 voting_poll_router.include_router(poll_candidate_router)
 voting_poll_router.include_router(vote_poll_router)
 clubs_public_router.include_router(voting_poll_router)
 event_router.include_router(event_rsvp_router)
 clubs_public_router.include_router(event_router)
+clubs_public_router.include_router(club_analytics_router)
 
 app.include_router(auth_router)
 app.include_router(session_router)
@@ -111,6 +114,8 @@ app.include_router(user_router)
 app.include_router(profile_router)
 app.include_router(blocked_users_router)
 app.include_router(follow_router)
+app.include_router(user_analytics_router)
+app.include_router(user_analytics_admin_router)
 app.include_router(books_router)
 app.include_router(work_router)
 app.include_router(librarian_work_router)
@@ -129,6 +134,7 @@ app.include_router(shelf_router)
 app.include_router(user_progress_router)
 app.include_router(clubs_public_router)
 app.include_router(clubs_admin_router)
+app.include_router(club_analytics_admin_router)
 app.include_router(user_membership_router)
 app.include_router(invitation_router)
 app.include_router(request_router)

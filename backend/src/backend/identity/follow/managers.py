@@ -45,7 +45,7 @@ class FollowManager:
             user: User,
             follow: Follow
     ) -> None:
-        if not (user.id != follow.follower_id or user.id != follow.followed_id):
+        if user.id != follow.follower_id or user.id != follow.followed_id:
             raise NotFollowOwnerError("Only follow owners can unfollow")
 
         await self.follow_repo.unfollow(

@@ -1,7 +1,6 @@
 from dataclasses import dataclass
-from datetime import datetime
 
-from sqlalchemy import select
+from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.library.shelf.models import ShelfItem, Shelf
@@ -63,6 +62,20 @@ class ShelfItemRepository:
         result = await self.session.execute(stmt)
         lst = result.scalar_one_or_none()
         return lst
+
+    async def exists_in_shelf(
+            self,
+            user_id: int,
+            work_id: int,
+    ) -> ShelfItem | None:
+        stmt = (
+            select(ShelfItem)
+            .join(Shelf, ShelfItem.shelf_id == Shelf.id)
+            .where(and_(Shelf.user_id == user_id, ShelfItem.work_id == work_id))
+        )
+        result = await self.session.execute(stmt)
+        item = result.scalar_one_or_none()
+        return item
 
     async def get_shelf_item_by_id(
             self,

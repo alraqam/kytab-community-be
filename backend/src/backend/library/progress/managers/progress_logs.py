@@ -50,12 +50,12 @@ class ProgressLogManager:
             )
 
         edition = await self.reading_period_manager.get_edition_by_reading_period(reading_period.id)
-        total_pages = 0
-        if edition:
-            total_pages = edition.pages_count
+        total_pages = edition.pages_count if edition else None
 
-        if result.period_id >=total_pages:
-            await self.reading_period_manager.set_finishing_date(user, reading_period)
+        if total_pages:
+            total_read = await self.log_repo.get_total_pages_read(user.id, reading_period.id)
+            if total_read >= total_pages:
+                await self.reading_period_manager.set_finishing_date(user, reading_period)
 
         await self.session.commit()
         return result

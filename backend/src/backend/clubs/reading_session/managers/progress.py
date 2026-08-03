@@ -61,11 +61,6 @@ class MilestoneProgressManager:
             progress=progress,
             milestone_id=milestone.id,
         )
-        if progress.is_finished:
-            await self.progress_repo.update_milestone_progress_finished(
-                progress=progress,
-                status=False
-            )
         await self.session.commit()
 
     async def finish_milestone_progress(

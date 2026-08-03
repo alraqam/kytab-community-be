@@ -67,7 +67,7 @@ class PostSessionRouter:
     async def get_posts(
             self,
     ):
-        result = await self.manager.get_posts(self.thread, self.reading_session, self.milestone, self.user)
+        result = await self.manager.get_posts(self.club, self.thread, self.reading_session, self.milestone, self.user)
         return result
 
     @router.get(
@@ -79,4 +79,4 @@ class PostSessionRouter:
             self,
             post: Post = Depends(get_post_session_or_404),
     ):
-        return post
+        return await self.manager.reveal_post(self.club, self.user, post)

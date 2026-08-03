@@ -63,5 +63,5 @@ class PostGeneralRouter:
     async def get_all_posts(
             self,
     ):
-        result = await self.manager.get_all_posts(self.thread)
+        result = await self.manager.get_all_posts(self.club, self.user, self.thread)
         return result

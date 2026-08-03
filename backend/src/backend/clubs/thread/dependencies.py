@@ -36,7 +36,7 @@ async def get_thread_session_or_404(
         manager: ThreadManager = Depends(get_thread_manager)
 ) -> Thread:
     thread = await manager.get_thread_by_id(thread_id)
-    if thread.club_id != milestone.id:
+    if thread.milestone_id != milestone.id:
         raise ThreadNotInMilestoneError("Thread not found in this club")
     return thread
 

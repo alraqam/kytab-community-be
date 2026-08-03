@@ -43,6 +43,10 @@ class ShelfItemManager:
         if edition and edition.work_id != work.id:
             raise InvalidWorkEditionError("Invalid work edition")
 
+        exists = await self.shelf_item_repo.exists_in_shelf(user.id, request.work_id)
+        if exists:
+            raise WorkAlreadyInShelfError("Work is already added to shelf")
+
         try:
             result = await self.shelf_item_repo.add_to_shelf(
                 shelf_id=shelf.id,

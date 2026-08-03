@@ -36,9 +36,7 @@ class ConsentManager:
             await self.session.commit()
             return result
         except IntegrityError as e:
-            if "uq_user_document_consent" in str(e.orig):
-                raise DocumentAlreadyConsentedError("Document already consented")
-            raise
+            raise DocumentAlreadyConsentedError("Document already consented")
 
     async def get_user_consents(
             self,

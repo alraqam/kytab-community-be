@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from datetime import date
 
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.library.progress.models import ProgressLog
@@ -87,3 +87,17 @@ class ProgressLogRepository:
         result = await self.session.execute(stmt)
         logs = result.scalars().all()
         return logs
+
+    async def get_total_pages_read(
+            self,
+            user_id: int,
+            period_id: int,
+    ) -> int:
+        stmt = select(func.sum(ProgressLog.pages_read)).where(
+            and_(
+                ProgressLog.user_id == user_id,
+                ProgressLog.period_id == period_id,
+            )
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar() or 0

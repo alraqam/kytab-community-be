@@ -1,5 +1,6 @@
 from datetime import timedelta, datetime, timezone
 
+from backend.clubs.clubs.models import Club
 from src.backend.core.task import task_session
 from src.backend.clubs.club_membership.managers.membership import ClubMembershipManager
 from src.backend.clubs.events.managers.event import ClubEventManager
@@ -28,7 +29,7 @@ async def _send_event_reminders():
             await notification_manager.notify_many(
                 recipients,
                 category=NotificationCategory.event_reminder,
-                title=f"{event.club.name} has an event in 3 days. {event.name} starts at {event.start_at}",
+                title=f"{event.club.name} has an event in 3 days. {event.title} starts at {event.start_at}",
                 object_type=NotificationObjectType.event,
                 object_id=event.id,
                 club_id=event.club.id,

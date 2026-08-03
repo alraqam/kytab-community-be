@@ -10,7 +10,7 @@ from src.backend.identity.users.managers import UserManager
 from src.backend.identity.users.schemas import UpdateUserRole, UpdateUserActivity, GetAdminUser
 
 router = APIRouter(
-    prefix="/users",
+    prefix="/admin/users",
     tags=["admin"]
 )
 

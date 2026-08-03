@@ -143,8 +143,12 @@ class PostManager:
 
     async def get_all_posts(
             self,
+            club: Club,
+            user: User,
             thread: Thread,
     ) -> list[Post]:
+        await is_club_member(club, user, self.session)
+
         posts = await self.post_repo.get_posts(
             thread_id=thread.id,
         )
@@ -152,11 +156,14 @@ class PostManager:
 
     async def get_posts(
             self,
+            club: Club,
             thread: Thread,
             reading_session: ReadingSession,
             milestone: Milestone,
             user: User,
     ) -> list:
+        await is_club_member(club, user, self.session)
+
         posts = await self.post_repo.get_posts(
             thread_id=thread.id,
         )
@@ -205,6 +212,15 @@ class PostManager:
             for post in posts
         ]
 
+
+    async def reveal_post(
+            self,
+            club: Club,
+            user: User,
+            post: Post,
+    ) -> Post:
+        await is_club_member(club, user, self.session)
+        return post
 
     async def get_post_by_id(
             self,
