@@ -37,6 +37,7 @@ class GetEdition(BaseModel):
 
     id: int
     work_id: int
+    work_title: str | None = None
     title: str
     language: str
     publisher: str | None

@@ -125,6 +125,7 @@ class GetSession(BaseModel):
 
     id: int
     user_id: int
+    username: str | None = None
     device_label: str
     ip_address: str
     last_active_at: datetime

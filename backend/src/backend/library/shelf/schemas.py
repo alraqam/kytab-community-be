@@ -39,6 +39,7 @@ class GetShelf(BaseModel):
 
     id: int
     user_id: int
+    username: str | None = None
     name: str
     is_default: bool
     visibility: str
@@ -56,5 +57,7 @@ class GetShelfItem(BaseModel):
     id: int
     shelf_id: int
     work_id: int
+    work_title: str | None = None
     edition_id: int | None
+    edition_title: str | None = None
     created_at: datetime

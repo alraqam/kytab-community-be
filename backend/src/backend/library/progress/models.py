@@ -1,6 +1,8 @@
-from sqlalchemy import Column, BigInteger, ForeignKey, Date, UniqueConstraint, Integer, String, DateTime
+from sqlalchemy import Column, BigInteger, ForeignKey, Date, UniqueConstraint, Integer, String, DateTime, select
+from sqlalchemy.orm import column_property
 
 from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
+from src.backend.identity.auth.models import User
 
 class ReadingPeriod  (Base, IntIdMixin, TimeActionMixin):
     """ORM model representing a user's active or completed reading period for a shelf item."""
@@ -25,4 +27,8 @@ class ProgressLog(Base, IntIdMixin, TimeActionMixin):
     __table_args__ = (
         UniqueConstraint("user_id", "period_id", "log_date", name="uq_user_period_log"),
     )
+
+ProgressLog.username = column_property(
+    select(User.username).where(User.id == ProgressLog.user_id).correlate_except(User).scalar_subquery()
+)
 

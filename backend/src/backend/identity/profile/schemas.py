@@ -39,6 +39,7 @@ class GetProfile(BaseModel):
     """Response payload representing a user's profile."""
 
     user_id: int
+    username: str | None = None
     fullname: str | None = None
     bio: str | None = None
     avatar: str | None = None

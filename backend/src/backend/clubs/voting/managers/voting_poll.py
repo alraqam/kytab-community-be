@@ -303,6 +303,7 @@ class VotingPollManager:
             {
                 "candidate_id": c.id,
                 "work_id": c.work_id,
+                "work_title": c.work_title,
                 "vote_count": vote_counts.get(c.id, 0),
             }
             for c in candidates

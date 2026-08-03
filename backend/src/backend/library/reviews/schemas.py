@@ -42,7 +42,10 @@ class GetReview(BaseModel):
     """Response payload representing a review."""
 
     id: int
+    user_id: int
+    username: str | None = None
     work_id: int
+    work_title: str | None = None
     rating: float | None = None
     text: str | None = None
     contains_spoiler: bool
@@ -64,6 +67,7 @@ class GetReviewComment(BaseModel):
 
     id: int
     user_id: int
+    username: str | None = None
     review_id: int
     text: str
     created_at: datetime
@@ -75,5 +79,6 @@ class GetReviewLike(BaseModel):
 
     id: int
     user_id: int
+    username: str | None = None
     review_id: int
 

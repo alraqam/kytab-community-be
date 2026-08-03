@@ -40,6 +40,9 @@ class GetConsent(BaseModel):
 
     id: int
     user_id: int
+    username: str | None = None
     document_id: int
+    document_type: DocumentType | None = None
+    document_version: str | None = None
     created_at: datetime
     updated_at: datetime

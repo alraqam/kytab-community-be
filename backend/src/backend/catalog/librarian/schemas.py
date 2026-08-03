@@ -29,6 +29,7 @@ class GetLibrarianSubmission(BaseModel):
 
     id: int
     submitted_by_id: int
+    submitted_by_username: str | None = None
     title: str
     language: str
     author_name: str
@@ -36,6 +37,8 @@ class GetLibrarianSubmission(BaseModel):
     cover_url: str | None
     status: str
     reviewed_by_id: int | None
+    reviewed_by_username: str | None = None
     reviewed_at: datetime | None
     resulting_work_id: int | None
+    resulting_work_title: str | None = None
     created_at: datetime

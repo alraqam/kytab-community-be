@@ -1,6 +1,7 @@
 from datetime import datetime
 
-from sqlalchemy import Column, String, Text, Boolean, Integer, ForeignKey, DateTime
+from sqlalchemy import Column, String, Text, Boolean, Integer, ForeignKey, DateTime, select
+from sqlalchemy.orm import column_property
 
 from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
 
@@ -31,3 +32,10 @@ class Session(Base, IntIdMixin, TimeActionMixin):
     last_active_at = Column(DateTime(timezone=True), default=datetime.now())
     expires_at = Column(DateTime(timezone=True), nullable=False)
     revoked_at = Column(DateTime(timezone=True), nullable=True)
+
+Session.username = column_property(
+    select(User.username)
+    .where(User.id == Session.user_id)
+    .correlate_except(User)
+    .scalar_subquery()
+)

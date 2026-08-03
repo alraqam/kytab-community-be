@@ -2,7 +2,9 @@ from sqlalchemy import Column, BigInteger, ForeignKey, Integer, Text, Boolean, S
     func, select
 from sqlalchemy.orm import column_property
 
+from src.backend.catalog.books.models import Work
 from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
+from src.backend.identity.auth.models import User
 
 
 class ReviewComment(Base, IntIdMixin, TimeActionMixin):
@@ -46,4 +48,19 @@ Review.likes_count = column_property(
     .where(ReviewLike.review_id == Review.id)
     .correlate_except(ReviewLike)
     .scalar_subquery()
+)
+
+Review.username = column_property(
+    select(User.username).where(User.id == Review.user_id).correlate_except(User).scalar_subquery()
+)
+Review.work_title = column_property(
+    select(Work.canonical_title).where(Work.id == Review.work_id).correlate_except(Work).scalar_subquery()
+)
+
+ReviewComment.username = column_property(
+    select(User.username).where(User.id == ReviewComment.user_id).correlate_except(User).scalar_subquery()
+)
+
+ReviewLike.username = column_property(
+    select(User.username).where(User.id == ReviewLike.user_id).correlate_except(User).scalar_subquery()
 )

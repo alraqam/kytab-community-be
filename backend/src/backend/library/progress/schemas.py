@@ -14,6 +14,7 @@ class GetProgressLog(BaseModel):
 
     id: int
     user_id: int
+    username: str | None = None
     period_id: int
     pages_read: int
     log_date: date

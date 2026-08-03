@@ -1,7 +1,8 @@
-from sqlalchemy import Column, BigInteger, ForeignKey, String, Text, Boolean, UniqueConstraint
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, BigInteger, ForeignKey, String, Text, Boolean, UniqueConstraint, select
+from sqlalchemy.orm import relationship, column_property
 
 from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
+from src.backend.identity.auth.models import User
 
 
 class Club(Base, IntIdMixin, TimeActionMixin):
@@ -19,6 +20,11 @@ class Club(Base, IntIdMixin, TimeActionMixin):
 
     members = relationship("ClubMembership", backref="club", lazy="selectin")
     events = relationship("ClubEvent", backref="club", lazy="selectin")
+    genres = relationship("Genre", secondary="club_genre", lazy="selectin", viewonly=True)
+
+Club.owner_username = column_property(
+    select(User.username).where(User.id == Club.owner_id).correlate_except(User).scalar_subquery()
+)
 
 class ClubGenre (Base, IntIdMixin):
     """ORM model representing the association between a club and one of its genres."""

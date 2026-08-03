@@ -2,6 +2,10 @@ from datetime import datetime
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from src.backend.catalog.books.schemas.author import GetAuthor
+from src.backend.catalog.books.schemas.genre import GetGenre
+from src.backend.catalog.books.schemas.series import GetSeries
+
 
 class CreateWork(BaseModel):
     """Request payload for creating a new work."""
@@ -31,5 +35,9 @@ class GetWork(BaseModel):
     canonical_title: str
     description: str | None
     primary_language: str | None
+    cover_url: str | None = None
+    authors: list[GetAuthor] = []
+    genres: list[GetGenre] = []
+    series: list[GetSeries] = []
     created_at: datetime
     updated_at: datetime

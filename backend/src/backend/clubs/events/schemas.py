@@ -37,6 +37,7 @@ class GetClubEvent(BaseModel):
     """Response payload representing a club event."""
 
     id: int
+    club_id: int
     title: str
     description: str | None = None
     start_at: datetime
@@ -44,6 +45,8 @@ class GetClubEvent(BaseModel):
     timezone: str
     location_text: str | None = None
     meeting_url: str | None = None
+    created_by_id: int
+    created_by_username: str | None = None
     created_at: datetime
     updated_at: datetime
 
@@ -59,5 +62,6 @@ class GetEventRSVP(BaseModel):
     id: int
     event_id: int
     user_id: int
+    username: str | None = None
     response: RSVPStatus
     created_at: datetime

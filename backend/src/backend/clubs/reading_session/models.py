@@ -1,6 +1,10 @@
-from sqlalchemy import Column, BigInteger, ForeignKey, String, Date, DateTime, Integer, Boolean, UniqueConstraint
+from sqlalchemy import Column, BigInteger, ForeignKey, String, Date, DateTime, Integer, Boolean, UniqueConstraint, select
+from sqlalchemy.orm import column_property
 
+from src.backend.catalog.books.models import Work
+from src.backend.clubs.clubs.models import Club
 from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
+from src.backend.identity.auth.models import User
 
 
 class ReadingSession(Base, IntIdMixin, TimeActionMixin):
@@ -49,5 +53,29 @@ class DiscussionPrompt(Base, IntIdMixin, TimeActionMixin):
     milestone_id = Column(BigInteger, ForeignKey("milestones.id", ondelete="CASCADE"), nullable=False)
     created_by_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     text = Column(String(512), nullable=False)
+
+ReadingSession.club_name = column_property(
+    select(Club.name).where(Club.id == ReadingSession.club_id).correlate_except(Club).scalar_subquery()
+)
+ReadingSession.work_title = column_property(
+    select(Work.canonical_title).where(Work.id == ReadingSession.work_id).correlate_except(Work).scalar_subquery()
+)
+ReadingSession.created_by_username = column_property(
+    select(User.username).where(User.id == ReadingSession.created_by_id).correlate_except(User).scalar_subquery()
+)
+
+MilestoneProgress.username = column_property(
+    select(User.username).where(User.id == MilestoneProgress.user_id).correlate_except(User).scalar_subquery()
+)
+MilestoneProgress.milestone_label = column_property(
+    select(Milestone.label).where(Milestone.id == MilestoneProgress.milestone_id).correlate_except(Milestone).scalar_subquery()
+)
+
+DiscussionPrompt.milestone_label = column_property(
+    select(Milestone.label).where(Milestone.id == DiscussionPrompt.milestone_id).correlate_except(Milestone).scalar_subquery()
+)
+DiscussionPrompt.created_by_username = column_property(
+    select(User.username).where(User.id == DiscussionPrompt.created_by_id).correlate_except(User).scalar_subquery()
+)
 
 

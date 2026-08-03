@@ -1,6 +1,5 @@
 from datetime import timedelta, datetime, timezone
 
-from backend.clubs.clubs.models import Club
 from src.backend.core.task import task_session
 from src.backend.clubs.club_membership.managers.membership import ClubMembershipManager
 from src.backend.clubs.events.managers.event import ClubEventManager

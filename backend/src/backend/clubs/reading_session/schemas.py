@@ -21,10 +21,13 @@ class GetReadingSession(BaseModel):
 
     id: int
     club_id: int
+    club_name: str | None = None
     work_id: int
+    work_title: str | None = None
     deadline: datetime
     status: ReadingSessionStatus
     created_by_id: int
+    created_by_username: str | None = None
     completed_at: datetime | None
     created_at: datetime
 
@@ -58,6 +61,7 @@ class GetMilestone(BaseModel):
     """Milestone data returned in API responses."""
 
     id: int
+    session_id: int
     label: str
     boundary_type: MilestoneBoundaryType
     boundary_value: int
@@ -72,7 +76,9 @@ class GetMilestoneProgress(BaseModel):
     id: int
     session_id: int
     milestone_id: int
+    milestone_label: str | None = None
     user_id: int
+    username: str | None = None
     is_finished: bool
     created_at: datetime
     updated_at: datetime
@@ -92,7 +98,9 @@ class GetDiscussionPrompt(BaseModel):
 
     id: int
     milestone_id: int
+    milestone_label: str | None = None
     created_by_id: int
+    created_by_username: str | None = None
     text: str
     created_at: datetime
     updated_at: datetime

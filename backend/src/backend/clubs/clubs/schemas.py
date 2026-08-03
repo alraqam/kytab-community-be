@@ -3,6 +3,8 @@ from enum import Enum
 
 from pydantic import BaseModel, Field
 
+from src.backend.catalog.books.schemas.genre import GetGenre
+
 
 class ClubTypes(str, Enum):
     """Visibility levels a club can have: public, private, or secret."""
@@ -53,6 +55,8 @@ class GetClub(BaseModel):
     cover: str | None = None
     language: str | None = None
     owner_id: int
+    owner_username: str | None = None
+    genres: list[GetGenre] = []
     is_archived: bool
     created_at: datetime
 

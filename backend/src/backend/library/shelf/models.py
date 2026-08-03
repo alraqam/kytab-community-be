@@ -1,7 +1,10 @@
 
-from sqlalchemy import Column, BigInteger, ForeignKey, Date, String, UniqueConstraint, Boolean, DateTime
+from sqlalchemy import Column, BigInteger, ForeignKey, Date, String, UniqueConstraint, Boolean, DateTime, select
+from sqlalchemy.orm import column_property
 
+from src.backend.catalog.books.models import Edition, Work
 from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
+from src.backend.identity.auth.models import User
 
 class Shelf(Base, IntIdMixin, TimeActionMixin):
     """ORM model representing a user-owned bookshelf, either default or custom-named."""
@@ -31,5 +34,16 @@ class ShelfItem(Base, IntIdMixin, TimeActionMixin):
     __table_args__ = (
         UniqueConstraint("shelf_id", "work_id", name="uq_shelf_work"),
     )
+
+Shelf.username = column_property(
+    select(User.username).where(User.id == Shelf.user_id).correlate_except(User).scalar_subquery()
+)
+
+ShelfItem.work_title = column_property(
+    select(Work.canonical_title).where(Work.id == ShelfItem.work_id).correlate_except(Work).scalar_subquery()
+)
+ShelfItem.edition_title = column_property(
+    select(Edition.title).where(Edition.id == ShelfItem.edition_id).correlate_except(Edition).scalar_subquery()
+)
 
 

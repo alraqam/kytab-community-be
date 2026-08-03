@@ -22,6 +22,7 @@ class GetThread(BaseModel):
     is_general: bool
     title: str
     created_by_id: int
+    created_by_username: str | None = None
     is_locked: bool
     is_pinned: bool
     created_at: datetime
@@ -49,6 +50,7 @@ class GetPost(BaseModel):
     thread_id: int
     parent_post_id: int | None = None
     author_id: int
+    author_username: str | None = None
     title: str
     body: str
     is_spoiler: bool
@@ -63,6 +65,7 @@ class GetPostPartial(BaseModel):
     thread_id: int
     parent_post_id: int | None = None
     author_id: int
+    author_username: str | None = None
     title: str
     is_spoiler: bool
     edited_at: datetime | None = None
@@ -80,4 +83,5 @@ class GetPostReaction(BaseModel):
     id: int
     post_id: int
     user_id: int
+    username: str | None = None
     emoji: str

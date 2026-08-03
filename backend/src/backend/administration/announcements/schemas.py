@@ -20,6 +20,7 @@ class GetAnnouncement(BaseModel):
 
     id: int
     created_by_id: int
+    created_by_username: str | None = None
     title: str
     body: str
     is_published: bool

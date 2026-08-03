@@ -25,7 +25,9 @@ class GetVotingPoll(BaseModel):
 
     id: int
     club_id: int
+    club_name: str | None = None
     created_by_id: int
+    created_by_username: str | None = None
     closes_at: datetime
     status: str
     created_at: datetime
@@ -42,6 +44,7 @@ class GetPollCandidate(BaseModel):
     id: int
     poll_id: int
     work_id: int
+    work_title: str | None = None
 
 class CreatePollVote(BaseModel):
     """Request payload for casting a vote for a poll candidate."""
@@ -54,6 +57,7 @@ class GetPollVote(BaseModel):
     id: int
     poll_id: int
     user_id: int
+    username: str | None = None
     candidate_id: int
     created_at: datetime
     updated_at: datetime
@@ -63,4 +67,5 @@ class GetPollResult(BaseModel):
 
     candidate_id: int
     work_id: int
+    work_title: str | None = None
     vote_count: int

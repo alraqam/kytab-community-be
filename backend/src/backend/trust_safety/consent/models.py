@@ -1,6 +1,8 @@
-from sqlalchemy import Column, BigInteger, ForeignKey, String, Boolean, DateTime, Text, UniqueConstraint
+from sqlalchemy import Column, BigInteger, ForeignKey, String, Boolean, DateTime, Text, UniqueConstraint, select
+from sqlalchemy.orm import column_property
 
 from src.backend.core.models import Base, IntIdMixin, TimeActionMixin
+from src.backend.identity.auth.models import User
 
 
 class LegalDocument(Base, IntIdMixin, TimeActionMixin):
@@ -25,3 +27,22 @@ class ConsentRecords(Base, IntIdMixin, TimeActionMixin):
     __table_args__ = (
         UniqueConstraint("user_id", "document_id", name="uq_user_document"),
     )
+
+ConsentRecords.username = column_property(
+    select(User.username)
+    .where(User.id == ConsentRecords.user_id)
+    .correlate_except(User)
+    .scalar_subquery()
+)
+ConsentRecords.document_type = column_property(
+    select(LegalDocument.document_type)
+    .where(LegalDocument.id == ConsentRecords.document_id)
+    .correlate_except(LegalDocument)
+    .scalar_subquery()
+)
+ConsentRecords.document_version = column_property(
+    select(LegalDocument.document_version)
+    .where(LegalDocument.id == ConsentRecords.document_id)
+    .correlate_except(LegalDocument)
+    .scalar_subquery()
+)

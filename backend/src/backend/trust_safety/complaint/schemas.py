@@ -46,6 +46,7 @@ class GetComplaint(BaseModel):
 
     id: int
     reporter_id: int
+    reporter_username: str | None = None
     object_type: str
     object_id: int
     category: str
@@ -53,5 +54,6 @@ class GetComplaint(BaseModel):
     status: str
     is_escalated: bool
     resolved_by_id: int | None = None
+    resolved_by_username: str | None = None
     created_at: datetime
     resolved_at: datetime | None = None

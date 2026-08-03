@@ -1,4 +1,3 @@
-import asyncio
 from datetime import datetime
 from sqlalchemy import update, and_
 

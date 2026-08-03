@@ -1,6 +1,8 @@
-from sqlalchemy import Column, BigInteger, ForeignKey, UniqueConstraint, String, DateTime
+from sqlalchemy import Column, BigInteger, ForeignKey, UniqueConstraint, String, DateTime, select
+from sqlalchemy.orm import column_property
 
 from src.backend.core.models import Base, IntIdMixin, TimeActionMixin
+from src.backend.identity.auth.models import User
 
 
 class ClubEvent(Base, IntIdMixin, TimeActionMixin):
@@ -30,3 +32,11 @@ class EventRSVP(Base, IntIdMixin, TimeActionMixin):
     __table_args__ = (
         UniqueConstraint("event_id", "user_id", name="uq_event_user"),
     )
+
+ClubEvent.created_by_username = column_property(
+    select(User.username).where(User.id == ClubEvent.created_by_id).correlate_except(User).scalar_subquery()
+)
+
+EventRSVP.username = column_property(
+    select(User.username).where(User.id == EventRSVP.user_id).correlate_except(User).scalar_subquery()
+)

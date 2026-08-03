@@ -1,6 +1,10 @@
-from sqlalchemy import Column, BigInteger, ForeignKey, UniqueConstraint, Integer, Text, DateTime, String
+from sqlalchemy import Column, BigInteger, ForeignKey, UniqueConstraint, Integer, Text, DateTime, String, select
+from sqlalchemy.orm import column_property
 
+from src.backend.catalog.books.models import Work
+from src.backend.clubs.clubs.models import Club
 from src.backend.core.models import Base, IntIdMixin, TimeActionMixin
+from src.backend.identity.auth.models import User
 
 
 class VotingPoll(Base, IntIdMixin, TimeActionMixin):
@@ -37,3 +41,18 @@ class PollVote(Base, IntIdMixin, TimeActionMixin):
     __table_args__ = (
         UniqueConstraint("poll_id", "user_id", name="poll_user_id"),
     )
+
+VotingPoll.club_name = column_property(
+    select(Club.name).where(Club.id == VotingPoll.club_id).correlate_except(Club).scalar_subquery()
+)
+VotingPoll.created_by_username = column_property(
+    select(User.username).where(User.id == VotingPoll.created_by_id).correlate_except(User).scalar_subquery()
+)
+
+PollCandidate.work_title = column_property(
+    select(Work.canonical_title).where(Work.id == PollCandidate.work_id).correlate_except(Work).scalar_subquery()
+)
+
+PollVote.username = column_property(
+    select(User.username).where(User.id == PollVote.user_id).correlate_except(User).scalar_subquery()
+)

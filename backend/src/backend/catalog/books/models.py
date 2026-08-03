@@ -1,4 +1,5 @@
-from sqlalchemy import Column, String, Text, Integer, Boolean, BigInteger, ForeignKey, UniqueConstraint
+from sqlalchemy import Column, String, Text, Integer, Boolean, BigInteger, ForeignKey, UniqueConstraint, and_, select
+from sqlalchemy.orm import column_property, relationship
 
 from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
 
@@ -11,6 +12,10 @@ class Work(Base, IntIdMixin, TimeActionMixin):
     canonical_title = Column(String(512), nullable=False)
     description = Column(Text, nullable=True)
     primary_language = Column(String(100), nullable=True)
+
+    authors = relationship("Author", secondary="work_author", order_by="WorkAuthor.order", lazy="selectin", viewonly=True)
+    genres = relationship("Genre", secondary="work_genre", lazy="selectin", viewonly=True)
+    series = relationship("Series", secondary="work_series", lazy="selectin", viewonly=True)
 
 
 class Edition(Base, IntIdMixin, TimeActionMixin):
@@ -29,6 +34,20 @@ class Edition(Base, IntIdMixin, TimeActionMixin):
     google_books_id = Column(String(512), nullable=False, unique=True)
     open_library_id = Column(String(512), nullable=False, unique=True)
     is_primary = Column(Boolean, nullable=False, default=False)
+
+Work.cover_url = column_property(
+    select(Edition.cover_url)
+    .where(and_(Edition.work_id == Work.id, Edition.is_primary == True))
+    .correlate_except(Edition)
+    .scalar_subquery()
+)
+
+Edition.work_title = column_property(
+    select(Work.canonical_title)
+    .where(Work.id == Edition.work_id)
+    .correlate_except(Work)
+    .scalar_subquery()
+)
 
 
 class Author(Base, IntIdMixin):

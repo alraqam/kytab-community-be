@@ -1,6 +1,9 @@
-from sqlalchemy import Column, BigInteger, ForeignKey, String, Boolean, Text, UniqueConstraint
+from sqlalchemy import Column, BigInteger, ForeignKey, String, Boolean, Text, UniqueConstraint, select
+from sqlalchemy.orm import column_property
 
+from src.backend.clubs.clubs.models import Club
 from src.backend.core.models import Base, IntIdMixin, TimeActionMixin
+from src.backend.identity.auth.models import User
 
 
 class Notification(Base, IntIdMixin, TimeActionMixin):
@@ -35,3 +38,17 @@ class NotificationPreference(Base, IntIdMixin, TimeActionMixin):
     __table_args__ = (
         UniqueConstraint("user_id", "club_id", "category", name="uq_user_club_category_preference"),
     )
+
+Notification.username = column_property(
+    select(User.username).where(User.id == Notification.user_id).correlate_except(User).scalar_subquery()
+)
+Notification.club_name = column_property(
+    select(Club.name).where(Club.id == Notification.club_id).correlate_except(Club).scalar_subquery()
+)
+
+NotificationPreference.username = column_property(
+    select(User.username).where(User.id == NotificationPreference.user_id).correlate_except(User).scalar_subquery()
+)
+NotificationPreference.club_name = column_property(
+    select(Club.name).where(Club.id == NotificationPreference.club_id).correlate_except(Club).scalar_subquery()
+)

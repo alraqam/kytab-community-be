@@ -1,6 +1,8 @@
-from sqlalchemy import Column, BigInteger, ForeignKey, String, DateTime, Boolean, UniqueConstraint
+from sqlalchemy import Column, BigInteger, ForeignKey, String, DateTime, Boolean, UniqueConstraint, select
+from sqlalchemy.orm import column_property
 
 from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
+from src.backend.identity.auth.models import User
 
 
 class Thread(Base, IntIdMixin, TimeActionMixin):
@@ -44,4 +46,16 @@ class PostReaction(Base, IntIdMixin, TimeActionMixin):
     __table_args__ = (
         UniqueConstraint("user_id",  "post_id", "emoji", name="uq_user_post_emoji"),
     )
+
+Thread.created_by_username = column_property(
+    select(User.username).where(User.id == Thread.created_by_id).correlate_except(User).scalar_subquery()
+)
+
+Post.author_username = column_property(
+    select(User.username).where(User.id == Post.author_id).correlate_except(User).scalar_subquery()
+)
+
+PostReaction.username = column_property(
+    select(User.username).where(User.id == PostReaction.user_id).correlate_except(User).scalar_subquery()
+)
 

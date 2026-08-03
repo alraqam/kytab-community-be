@@ -41,7 +41,9 @@ class GetNotification(BaseModel):
 
     id: int
     user_id: int
+    username: str | None = None
     club_id: int | None = None
+    club_name: str | None = None
     category: NotificationCategory
     title: str
     body: str | None = None
@@ -73,7 +75,9 @@ class GetNotificationPreference(BaseModel):
 
     id: int
     user_id: int
+    username: str | None = None
     club_id: int | None = None
+    club_name: str | None = None
     category: NotificationCategory
     in_app_enabled: bool
     email_enabled: bool

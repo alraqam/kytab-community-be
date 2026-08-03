@@ -32,7 +32,9 @@ class GetMembership(BaseModel):
 
     id: int
     club_id: int
+    club_name: str | None = None
     user_id: int
+    username: str | None = None
     role: MemberRole
     created_at: datetime
 
@@ -57,8 +59,11 @@ class GetInvitation(BaseModel):
 
     id: int
     club_id: int
+    club_name: str | None = None
     invited_by_id: int
+    invited_by_username: str | None = None
     invited_user_id: int
+    invited_user_username: str | None = None
     status: InvitationStatus
     expires_at: datetime
     created_at: datetime
@@ -74,7 +79,9 @@ class GetJoinRequest(BaseModel):
 
     id: int
     club_id: int
+    club_name: str | None = None
     user_id: int
+    username: str | None = None
     status: JoinRequestStatus
     expires_at: datetime
     created_at: datetime
@@ -90,7 +97,9 @@ class GetBlockedMember(BaseModel):
 
     id: int
     user_id: int
+    username: str | None = None
     club_id: int
+    club_name: str | None = None
 
 class InvitationEmail(BaseModel):
     """Request payload carrying a club invite email token."""

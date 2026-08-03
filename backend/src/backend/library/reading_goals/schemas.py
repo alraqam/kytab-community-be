@@ -19,6 +19,7 @@ class GetReadingGoal(BaseModel):
 
     id: int
     user_id: int
+    username: str | None = None
     year: int
     target_count: int
     created_at: datetime

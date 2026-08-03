@@ -1,7 +1,9 @@
-from sqlalchemy import String, Column, Text, BigInteger, ForeignKey
+from sqlalchemy import String, Column, Text, BigInteger, ForeignKey, select
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.orm import column_property
 
 from src.backend.core.models import Base, IntIdMixin, TimeActionMixin
+from src.backend.identity.auth.models import User
 
 
 class Profile(Base, IntIdMixin, TimeActionMixin):
@@ -16,3 +18,10 @@ class Profile(Base, IntIdMixin, TimeActionMixin):
     favorite_genres = Column(JSONB, nullable=True)
     links = Column(JSONB, nullable=True)
     visibility = Column(String(20), nullable=False, default="public")
+
+Profile.username = column_property(
+    select(User.username)
+    .where(User.id == Profile.user_id)
+    .correlate_except(User)
+    .scalar_subquery()
+)

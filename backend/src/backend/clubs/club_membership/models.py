@@ -1,6 +1,9 @@
-from sqlalchemy import Column, BigInteger, ForeignKey, UniqueConstraint, String, DateTime
+from sqlalchemy import Column, BigInteger, ForeignKey, UniqueConstraint, String, DateTime, select
+from sqlalchemy.orm import column_property
 
+from src.backend.clubs.clubs.models import Club
 from src.backend.core.models import Base, IntIdMixin, TimeActionMixin
+from src.backend.identity.auth.models import User
 
 
 class ClubMembership(Base, IntIdMixin, TimeActionMixin):
@@ -49,3 +52,35 @@ class ClubJoinRequest(Base, IntIdMixin, TimeActionMixin):
     user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     status = Column(String(20), nullable=False, default="pending")
     expires_at = Column(DateTime, nullable=False)
+
+
+ClubMembership.username = column_property(
+    select(User.username).where(User.id == ClubMembership.user_id).correlate_except(User).scalar_subquery()
+)
+ClubMembership.club_name = column_property(
+    select(Club.name).where(Club.id == ClubMembership.club_id).correlate_except(Club).scalar_subquery()
+)
+
+ClubBlocked.username = column_property(
+    select(User.username).where(User.id == ClubBlocked.user_id).correlate_except(User).scalar_subquery()
+)
+ClubBlocked.club_name = column_property(
+    select(Club.name).where(Club.id == ClubBlocked.club_id).correlate_except(Club).scalar_subquery()
+)
+
+ClubInvitation.club_name = column_property(
+    select(Club.name).where(Club.id == ClubInvitation.club_id).correlate_except(Club).scalar_subquery()
+)
+ClubInvitation.invited_by_username = column_property(
+    select(User.username).where(User.id == ClubInvitation.invited_by_id).correlate_except(User).scalar_subquery()
+)
+ClubInvitation.invited_user_username = column_property(
+    select(User.username).where(User.id == ClubInvitation.invited_user_id).correlate_except(User).scalar_subquery()
+)
+
+ClubJoinRequest.club_name = column_property(
+    select(Club.name).where(Club.id == ClubJoinRequest.club_id).correlate_except(Club).scalar_subquery()
+)
+ClubJoinRequest.username = column_property(
+    select(User.username).where(User.id == ClubJoinRequest.user_id).correlate_except(User).scalar_subquery()
+)
