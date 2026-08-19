@@ -3,8 +3,10 @@ from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_utils.cbv import cbv
 from jose.exceptions import ExpiredSignatureError, JWTError
 
+from src.backend.core.rate_limit import RateLimiter
 from src.backend.identity.auth.dependencies import get_auth_manager, get_current_user
-from src.backend.identity.auth.exceptions import InvalidTokenError, LinkExpiredError
+from src.backend.identity.auth.exceptions import InvalidTokenError, LinkExpiredError, InvalidUsernameOrPasswordError, \
+    UnverifiedUserError, UsernameAlreadyExists, EmailAlreadyExists
 from src.backend.identity.auth.managers.auth import AuthManager
 from src.backend.identity.auth.models import User
 from src.backend.identity.auth.schemas import UserRegister, ChangeUserPassword, ResetPassword, UpdateUser, RefreshToken, \
@@ -19,6 +21,11 @@ router = APIRouter(
     prefix="/auth",
     tags=["auth"]
 )
+
+login_limiter = RateLimiter("login")
+register_limiter = RateLimiter("register")
+forgot_password_limiter = RateLimiter("forgot-password")
+reset_password_limiter = RateLimiter("reset-password")
 
 @cbv(router)
 class AuthRouter:
@@ -37,7 +44,14 @@ class AuthRouter:
             form_data: OAuth2PasswordRequestForm = Depends()
     ):
         """Authenticates a user and returns an access/refresh token pair."""
-        response = await self.manager.login(form_data.username, form_data.password, request)
+        rate_limit_key = f"{request.client.host}:{form_data.username}"
+        await login_limiter.check(rate_limit_key)
+        try:
+            response = await self.manager.login(form_data.username, form_data.password, request)
+        except (InvalidUsernameOrPasswordError, UnverifiedUserError):
+            await login_limiter.record_failure(rate_limit_key)
+            raise
+        await login_limiter.reset(rate_limit_key)
         return response
 
     @router.post(
@@ -46,10 +60,17 @@ class AuthRouter:
     )
     async def register(
             self,
-            request: UserRegister
+            request: Request,
+            payload: UserRegister
     ):
         """Registers a new user account."""
-        response = await self.manager.register(request)
+        await register_limiter.check(request.client.host)
+        try:
+            response = await self.manager.register(payload)
+        except (UsernameAlreadyExists, EmailAlreadyExists):
+            await register_limiter.record_failure(request.client.host)
+            raise
+        await register_limiter.reset(request.client.host)
         return response
 
     @router.post(
@@ -150,10 +171,13 @@ class AuthRouter:
     )
     async def forgot_password(
             self,
-            request: ForgotPassword
+            request: Request,
+            payload: ForgotPassword
     ):
         """Sends a password-reset email to the given address if it belongs to a verified user."""
-        result = await self.manager.forgot_password(request)
+        await forgot_password_limiter.check(request.client.host)
+        result = await self.manager.forgot_password(payload)
+        await forgot_password_limiter.record_failure(request.client.host)
         return result
 
     @router.post(
@@ -162,7 +186,14 @@ class AuthRouter:
     )
     async def reset_password(
             self,
-            request: ResetPassword
+            request: Request,
+            payload: ResetPassword
     ):
         """Resets the user's password using a password-reset token."""
-        await self.manager.reset_password(request)
+        await reset_password_limiter.check(request.client.host)
+        try:
+            await self.manager.reset_password(payload)
+        except InvalidTokenError:
+            await reset_password_limiter.record_failure(request.client.host)
+            raise
+        await reset_password_limiter.reset(request.client.host)

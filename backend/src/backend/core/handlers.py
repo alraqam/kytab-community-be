@@ -2,7 +2,8 @@ from starlette import status
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 
-from src.backend.core.exceptions import Conflict, NotFound, Forbidden, Unauthorized, BadRequest, ServiceUnavailable
+from src.backend.core.exceptions import Conflict, NotFound, Forbidden, Unauthorized, BadRequest, ServiceUnavailable, \
+    TooManyRequests
 
 
 async def unauthorized_exception_handler(request: Request, exc: Unauthorized):
@@ -110,6 +111,25 @@ async def service_unavailable_exception_handler(request: Request, exc: ServiceUn
     """
     return JSONResponse(
         status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        content=
+        {
+            "detail": str(exc),
+        },
+    )
+
+
+async def too_many_requests_exception_handler(request: Request, exc: TooManyRequests):
+    """Converts TooManyRequests exceptions to HTTP 429 JSON responses.
+
+    Args:
+        request: Incoming Starlette request.
+        exc: Raised TooManyRequests exception.
+
+    Returns:
+        JSONResponse with status 429 and exception message as detail.
+    """
+    return JSONResponse(
+        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
         content=
         {
             "detail": str(exc),

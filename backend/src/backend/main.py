@@ -1,11 +1,12 @@
 """FastAPI application entrypoint: wires up all feature routers and global exception handlers."""
 
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 
-from src.backend.core.exceptions import Unauthorized, Forbidden, NotFound, Conflict, BadRequest, ServiceUnavailable
+from src.backend.core.exceptions import Unauthorized, Forbidden, NotFound, Conflict, BadRequest, ServiceUnavailable, \
+    TooManyRequests
 from src.backend.core.handlers import unauthorized_exception_handler, forbidden_exception_handler, \
     not_found_exception_handler, conflict_exception_handler, bad_request_exception_handler, \
-    service_unavailable_exception_handler
+    service_unavailable_exception_handler, too_many_requests_exception_handler
 
 
 from src.backend.identity.auth.routers.auth import router as auth_router
@@ -84,6 +85,8 @@ app = FastAPI(
     redirect_slashes=False,
 )
 
+api_v1_router = APIRouter(prefix="/api/v1")
+
 post_general_router.include_router(reaction_general_router)
 thread_general_router.include_router(post_general_router)
 clubs_public_router.include_router(thread_general_router)
@@ -110,45 +113,47 @@ event_router.include_router(event_rsvp_router)
 clubs_public_router.include_router(event_router)
 clubs_public_router.include_router(club_analytics_router)
 
-app.include_router(auth_router)
-app.include_router(session_router)
-app.include_router(user_router)
-app.include_router(profile_router)
-app.include_router(blocked_users_router)
-app.include_router(follow_router)
-app.include_router(user_analytics_router)
-app.include_router(user_analytics_admin_router)
-app.include_router(books_router)
-app.include_router(work_router)
-app.include_router(librarian_work_router)
-app.include_router(author_router)
-app.include_router(librarian_author_router)
-app.include_router(edition_router)
-app.include_router(librarian_edition_router)
-app.include_router(series_router)
-app.include_router(librarian_series_router)
-app.include_router(genre_router)
-app.include_router(librarian_genre_router)
-app.include_router(librarian_submission_public_router)
-app.include_router(librarian_submission_router)
-app.include_router(reading_goals_router)
-app.include_router(shelf_router)
-app.include_router(user_progress_router)
-app.include_router(clubs_public_router)
-app.include_router(clubs_admin_router)
-app.include_router(club_analytics_admin_router)
-app.include_router(user_membership_router)
-app.include_router(invitation_router)
-app.include_router(request_router)
-app.include_router(public_complaint_router)
-app.include_router(admin_complaint_router)
-app.include_router(document_router)
-app.include_router(consent_router)
-app.include_router(preference_router)
-app.include_router(notification_router)
+api_v1_router.include_router(auth_router)
+api_v1_router.include_router(session_router)
+api_v1_router.include_router(user_router)
+api_v1_router.include_router(profile_router)
+api_v1_router.include_router(blocked_users_router)
+api_v1_router.include_router(follow_router)
+api_v1_router.include_router(user_analytics_router)
+api_v1_router.include_router(user_analytics_admin_router)
+api_v1_router.include_router(books_router)
+api_v1_router.include_router(work_router)
+api_v1_router.include_router(librarian_work_router)
+api_v1_router.include_router(author_router)
+api_v1_router.include_router(librarian_author_router)
+api_v1_router.include_router(edition_router)
+api_v1_router.include_router(librarian_edition_router)
+api_v1_router.include_router(series_router)
+api_v1_router.include_router(librarian_series_router)
+api_v1_router.include_router(genre_router)
+api_v1_router.include_router(librarian_genre_router)
+api_v1_router.include_router(librarian_submission_public_router)
+api_v1_router.include_router(librarian_submission_router)
+api_v1_router.include_router(reading_goals_router)
+api_v1_router.include_router(shelf_router)
+api_v1_router.include_router(user_progress_router)
+api_v1_router.include_router(clubs_public_router)
+api_v1_router.include_router(clubs_admin_router)
+api_v1_router.include_router(club_analytics_admin_router)
+api_v1_router.include_router(user_membership_router)
+api_v1_router.include_router(invitation_router)
+api_v1_router.include_router(request_router)
+api_v1_router.include_router(public_complaint_router)
+api_v1_router.include_router(admin_complaint_router)
+api_v1_router.include_router(document_router)
+api_v1_router.include_router(consent_router)
+api_v1_router.include_router(preference_router)
+api_v1_router.include_router(notification_router)
 
-app.include_router(announcement_admin_router)
-app.include_router(announcement_public_router)
+api_v1_router.include_router(announcement_admin_router)
+api_v1_router.include_router(announcement_public_router)
+
+app.include_router(api_v1_router)
 
 app.add_exception_handler(Unauthorized, unauthorized_exception_handler)
 app.add_exception_handler(Forbidden, forbidden_exception_handler)
@@ -156,6 +161,7 @@ app.add_exception_handler(NotFound, not_found_exception_handler)
 app.add_exception_handler(Conflict, conflict_exception_handler)
 app.add_exception_handler(BadRequest, bad_request_exception_handler)
 app.add_exception_handler(ServiceUnavailable, service_unavailable_exception_handler)
+app.add_exception_handler(TooManyRequests, too_many_requests_exception_handler)
 
 
 if __name__ == "__main__":
