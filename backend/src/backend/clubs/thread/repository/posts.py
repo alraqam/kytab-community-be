@@ -107,6 +107,28 @@ class PostRepository:
         posts = result.scalars().all()
         return posts
 
+    async def get_user_posts(
+            self,
+            user_id: int,
+    ) -> list[Post]:
+        """Lists all non-deleted posts authored by a user, across all threads.
+
+        Args:
+            user_id: ID of the user whose posts are being listed.
+
+        Returns:
+            List of matching Post instances.
+        """
+        stmt = select(Post).where(
+            and_(
+                Post.author_id == user_id,
+                Post.deleted_at == None
+            )
+        )
+        result = await self.session.execute(stmt)
+        posts = result.scalars().all()
+        return posts
+
     async def get_post_by_id(
             self,
             post_id: int

@@ -55,6 +55,10 @@ Post.author_username = column_property(
     select(User.username).where(User.id == Post.author_id).correlate_except(User).scalar_subquery()
 )
 
+Post.thread_title = column_property(
+    select(Thread.title).where(Thread.id == Post.thread_id).correlate_except(Thread).scalar_subquery()
+)
+
 PostReaction.username = column_property(
     select(User.username).where(User.id == PostReaction.user_id).correlate_except(User).scalar_subquery()
 )

@@ -1,8 +1,10 @@
 from sqlalchemy import Column, BigInteger, ForeignKey, Date, UniqueConstraint, Integer, String, DateTime, select
 from sqlalchemy.orm import column_property
 
+from src.backend.catalog.books.models import Work
 from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
 from src.backend.identity.auth.models import User
+from src.backend.library.shelf.models import ShelfItem
 
 class ReadingPeriod  (Base, IntIdMixin, TimeActionMixin):
     """ORM model representing a user's active or completed reading period for a shelf item."""
@@ -30,5 +32,12 @@ class ProgressLog(Base, IntIdMixin, TimeActionMixin):
 
 ProgressLog.username = column_property(
     select(User.username).where(User.id == ProgressLog.user_id).correlate_except(User).scalar_subquery()
+)
+
+ReadingPeriod.work_title = column_property(
+    select(Work.canonical_title)
+    .where(Work.id == select(ShelfItem.work_id).where(ShelfItem.id == ReadingPeriod.shelf_item_id).scalar_subquery())
+    .correlate_except(Work)
+    .scalar_subquery()
 )
 

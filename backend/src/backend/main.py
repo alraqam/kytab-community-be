@@ -72,6 +72,7 @@ from src.backend.trust_safety.complaint.routers.admin import router as admin_com
 from src.backend.trust_safety.complaint.routers.club import router as club_complaint_router
 from src.backend.trust_safety.consent.routers.document import router as document_router
 from src.backend.trust_safety.consent.routers.consent import router as consent_router
+from src.backend.trust_safety.export.routers import router as export_router
 
 from src.backend.notifications.routers.preference import router as preference_router
 from src.backend.notifications.routers.notification import router as notification_router
@@ -147,6 +148,7 @@ api_v1_router.include_router(public_complaint_router)
 api_v1_router.include_router(admin_complaint_router)
 api_v1_router.include_router(document_router)
 api_v1_router.include_router(consent_router)
+api_v1_router.include_router(export_router)
 api_v1_router.include_router(preference_router)
 api_v1_router.include_router(notification_router)
 
