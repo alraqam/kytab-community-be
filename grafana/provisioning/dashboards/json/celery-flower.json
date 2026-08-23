@@ -1,0 +1,120 @@
+{
+  "id": null,
+  "uid": "bookclub-celery",
+  "title": "Celery / Flower",
+  "tags": ["bookclub", "celery"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-6h", "to": "now" },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Workers online",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "bookclub-prometheus" },
+      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 1 }] }
+        },
+        "overrides": []
+      },
+      "targets": [{ "expr": "sum(flower_worker_online{job=\"celery\"})", "refId": "A" }]
+    },
+    {
+      "id": 2,
+      "title": "Tasks currently executing",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "bookclub-prometheus" },
+      "gridPos": { "h": 6, "w": 6, "x": 6, "y": 0 },
+      "targets": [{ "expr": "sum(flower_worker_number_of_currently_executing_tasks{job=\"celery\"})", "refId": "A" }]
+    },
+    {
+      "id": 3,
+      "title": "Succeeded / min",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "bookclub-prometheus" },
+      "gridPos": { "h": 6, "w": 6, "x": 12, "y": 0 },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "green" } }, "overrides": [] },
+      "targets": [
+        { "expr": "sum(rate(flower_events_total{job=\"celery\", type=\"task-succeeded\"}[5m])) * 60", "refId": "A" }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Failed / min",
+      "type": "stat",
+      "datasource": { "type": "prometheus", "uid": "bookclub-prometheus" },
+      "gridPos": { "h": 6, "w": 6, "x": 18, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 0.1 }] }
+        },
+        "overrides": []
+      },
+      "targets": [
+        { "expr": "sum(rate(flower_events_total{job=\"celery\", type=\"task-failed\"}[5m])) * 60", "refId": "A" }
+      ]
+    },
+    {
+      "id": 5,
+      "title": "Task events by type",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "bookclub-prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 6 },
+      "targets": [
+        {
+          "expr": "sum(rate(flower_events_total{job=\"celery\"}[5m])) by (type)",
+          "legendFormat": "{{type}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "title": "Task events by task name",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "bookclub-prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 6 },
+      "targets": [
+        {
+          "expr": "sum(rate(flower_events_total{job=\"celery\", type=~\"task-succeeded|task-failed\"}[5m])) by (task)",
+          "legendFormat": "{{task}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "title": "Task runtime p95 by task",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "bookclub-prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 14 },
+      "fieldConfig": { "defaults": { "unit": "s" }, "overrides": [] },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum(rate(flower_task_runtime_seconds_bucket{job=\"celery\"}[5m])) by (le, task))",
+          "legendFormat": "{{task}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 8,
+      "title": "Prefetched tasks per worker",
+      "type": "timeseries",
+      "datasource": { "type": "prometheus", "uid": "bookclub-prometheus" },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 14 },
+      "targets": [
+        {
+          "expr": "sum(flower_worker_prefetched_tasks{job=\"celery\"}) by (worker)",
+          "legendFormat": "{{worker}}",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}

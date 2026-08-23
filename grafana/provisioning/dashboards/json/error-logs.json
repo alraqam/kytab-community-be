@@ -1,0 +1,105 @@
+{
+  "id": null,
+  "uid": "bookclub-error-logs",
+  "title": "Error Logs",
+  "tags": ["bookclub", "logs", "errors"],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "version": 1,
+  "refresh": "30s",
+  "time": { "from": "now-1h", "to": "now" },
+  "templating": {
+    "list": [
+      {
+        "name": "service",
+        "type": "query",
+        "datasource": { "type": "loki", "uid": "bookclub-loki" },
+        "query": "label_values(service)",
+        "refresh": 2,
+        "includeAll": true,
+        "multi": true,
+        "current": { "text": "All", "value": "$__all" }
+      }
+    ]
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Errors in range",
+      "type": "stat",
+      "datasource": { "type": "loki", "uid": "bookclub-loki" },
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }, { "color": "red", "value": 1 }] }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum(count_over_time({project=\"bookclub\", service=~\"$service\"} |~ \"(?i)(error|exception|traceback|critical|fatal)\" [$__range]))",
+          "refId": "A",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "title": "Errors by service",
+      "type": "bargauge",
+      "datasource": { "type": "loki", "uid": "bookclub-loki" },
+      "gridPos": { "h": 5, "w": 18, "x": 6, "y": 0 },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "thresholds": { "mode": "absolute", "steps": [{ "color": "orange", "value": null }, { "color": "red", "value": 10 }] }
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "expr": "sum(count_over_time({project=\"bookclub\", service=~\"$service\"} |~ \"(?i)(error|exception|traceback|critical|fatal)\" [$__range])) by (service)",
+          "legendFormat": "{{service}}",
+          "refId": "A",
+          "instant": true
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Error rate over time",
+      "type": "timeseries",
+      "datasource": { "type": "loki", "uid": "bookclub-loki" },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 5 },
+      "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" } }, "overrides": [] },
+      "targets": [
+        {
+          "expr": "sum(count_over_time({project=\"bookclub\", service=~\"$service\"} |~ \"(?i)(error|exception|traceback|critical|fatal)\" [1m])) by (service)",
+          "legendFormat": "{{service}}",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Error log lines",
+      "type": "logs",
+      "datasource": { "type": "loki", "uid": "bookclub-loki" },
+      "gridPos": { "h": 14, "w": 24, "x": 0, "y": 13 },
+      "options": {
+        "showTime": true,
+        "showLabels": true,
+        "wrapLogMessage": true,
+        "sortOrder": "Descending",
+        "enableLogDetails": true
+      },
+      "targets": [
+        {
+          "expr": "{project=\"bookclub\", service=~\"$service\"} |~ \"(?i)(error|exception|traceback|critical|fatal)\"",
+          "refId": "A"
+        }
+      ]
+    }
+  ]
+}
