@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,7 +7,7 @@ from src.backend.identity.profile.managers import ProfileManager
 from src.backend.identity.profile.schemas import CreateProfile
 from src.backend.library.shelf.managers.shelf import ShelfManager
 from src.backend.identity.auth.exceptions import InvalidUsernameOrPasswordError, UnverifiedUserError, \
-    UsernameAlreadyExists, EmailAlreadyExists, InvalidTokenError
+    UsernameAlreadyExists, EmailAlreadyExists, InvalidTokenError, UsernameChangeTooSoonError
 from src.backend.identity.auth.models import User
 from src.backend.identity.auth.repository import SessionRepository
 from src.backend.identity.auth.schemas import Token, UserRegister, ChangeUserPassword, ResetPassword, UpdateUser, \
@@ -17,6 +17,9 @@ from src.backend.identity.auth.services.email import create_verification_token, 
 from src.backend.identity.auth.services.security import PasswordService, TokenService, hash_token
 from src.backend.identity.users.managers import UserManager
 from src.backend.identity.users.repository import UserRepository
+
+
+USERNAME_CHANGE_COOLDOWN_DAYS = 30
 
 
 class AuthManager:
@@ -279,10 +282,21 @@ class AuthManager:
         Raises:
             UsernameAlreadyExists: When the requested username is taken by another user.
             EmailAlreadyExists: When the requested email is taken by another user.
+            UsernameChangeTooSoonError: When the username was already changed within the last
+                USERNAME_CHANGE_COOLDOWN_DAYS days.
         """
-        user_username = await self.user_repo.exists_username(request.username, user.id)
-        if user_username:
-            raise UsernameAlreadyExists("Username already exists")
+        username_changed_at = user.username_changed_at
+        if request.username != user.username:
+            if user.username_changed_at is not None:
+                cooldown_ends = user.username_changed_at + timedelta(days=USERNAME_CHANGE_COOLDOWN_DAYS)
+                if datetime.now(timezone.utc) < cooldown_ends:
+                    raise UsernameChangeTooSoonError("Username can only be changed once every 30 days")
+
+            user_username = await self.user_repo.exists_username(request.username, user.id)
+            if user_username:
+                raise UsernameAlreadyExists("Username already exists")
+
+            username_changed_at = datetime.now(timezone.utc)
 
         user_email = await self.user_repo.exists_email(str(request.email), user.id)
         if user_email:
@@ -292,6 +306,7 @@ class AuthManager:
             user=user,
             username=request.username,
             email=str(request.email),
+            username_changed_at=username_changed_at,
         )
         await self.session.commit()
 

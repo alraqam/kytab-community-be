@@ -152,6 +152,7 @@ class UserRepository:
             user: User,
             username: str,
             email: str,
+            username_changed_at: datetime | None,
     ) -> None:
         """Updates the user's username and email fields.
 
@@ -159,9 +160,12 @@ class UserRepository:
             user: User instance to update.
             username: New username string.
             email: New email string.
+            username_changed_at: Timestamp to record for the username change, or the
+                existing value if the username is not being changed.
         """
         user.username = username
         user.email = email
+        user.username_changed_at = username_changed_at
         self.session.add(user)
         await self.session.flush()
 

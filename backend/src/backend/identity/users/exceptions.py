@@ -11,3 +11,6 @@ class UserNotFoundError(NotFound):
 
 class InvalidUserRoleError(BadRequest):
     """Raised when an invalid role value is provided for a user."""
+
+class UserDeletionError(BadRequest):
+    """Raised when a error occurs while attempting to delete a user."""

@@ -24,7 +24,7 @@ from src.backend.identity.auth.models import User, Session
 from src.backend.identity.profile.models import Profile
 from src.backend.identity.blocked_users.models import BlockedUser
 from src.backend.identity.follow.models import Follow
-from src.backend.catalog.books.models import Work, Edition
+from src.backend.catalog.books.models import Work, Edition, Genre
 from src.backend.catalog.librarian.models import LibrarianSubmission
 from src.backend.library.reading_goals.models import ReadingGoal
 from src.backend.library.shelf.models import Shelf, ShelfItem

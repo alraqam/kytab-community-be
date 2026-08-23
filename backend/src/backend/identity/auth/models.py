@@ -14,6 +14,7 @@ class User(Base, IntIdMixin, TimeActionMixin):
     email = Column(String(255), nullable=False, unique=True)
     role = Column(String(20), nullable=False, default="user")
     username = Column(String(100), nullable=False, unique=True)
+    username_changed_at = Column(DateTime(timezone=True), nullable=True)
     hashed_password = Column(Text, nullable=False)
     is_active = Column(Boolean, nullable=False, default=True)
     is_verified = Column(Boolean, nullable=False, default=False)

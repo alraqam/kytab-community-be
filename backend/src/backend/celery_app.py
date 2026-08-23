@@ -9,6 +9,7 @@ celery_app = Celery(
     broker=settings.RABBITMQ_URL,
     backend="redis://redis:6379/1",
     include=[
+        "src.backend.core.all_models",
         "src.backend.tasks",
         "src.backend.identity.auth.services.email",
         "src.backend.clubs.club_membership.email",
@@ -32,6 +33,10 @@ celery_app.conf.beat_schedule = {
     },
     "check-join-requests": {
         "task": "src.backend.tasks.requests.check_expired_join_requests",
+        "schedule": 60.0,
+    },
+    "check-user-deletions": {
+        "task": "src.backend.tasks.delete_account.delete_user_account",
         "schedule": 60.0,
     },
     "send-deadline-reminders": {

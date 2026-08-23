@@ -19,6 +19,9 @@ class InvalidUsernameOrPasswordError(Conflict):
 class UsernameAlreadyExists(Conflict):
     """Raised when a registration or update attempts to use an already taken username."""
 
+class UsernameChangeTooSoonError(Conflict):
+    """Raised when a user attempts to change their username before the 30-day cooldown has elapsed."""
+
 class EmailAlreadyExists(Conflict):
     """Raised when a registration or update attempts to use an already registered email."""
 
