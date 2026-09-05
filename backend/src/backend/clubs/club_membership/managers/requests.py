@@ -12,6 +12,7 @@ from src.backend.clubs.clubs.schemas import ClubTypes
 from src.backend.clubs.club_membership.managers.membership import ClubMembershipManager
 from src.backend.clubs.club_membership.services import is_owner_or_moderator
 from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.core.storage import StorageService
 from src.backend.identity.auth.models import User
 from src.backend.identity.users.managers import UserManager
 from src.backend.notifications.managers.notification import NotificationManager
@@ -30,7 +31,7 @@ class ClubJoinRequestManager:
             session: Async SQLAlchemy session.
         """
         self.session = session
-        self.club_manager = ClubManager(session)
+        self.club_manager = ClubManager(session, StorageService())
         self.user_manager = UserManager(session)
         self.membership_manager = ClubMembershipManager(session)
         self.club_blocked_manager = ClubBlockedManager(session)

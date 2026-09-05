@@ -3,6 +3,8 @@ from enum import Enum
 
 from pydantic import BaseModel, Field
 
+from src.backend.identity.profile.models import Profile
+
 
 class ProfileVisibilityEnum(str, Enum):
     """Visibility levels controlling who can view a user's profile."""
@@ -16,11 +18,6 @@ class CreateProfile(BaseModel):
 
     user_id: int
     fullname: str
-
-class UpdateProfileAvatar(BaseModel):
-    """Request payload for updating the user's avatar with a URL."""
-
-    avatar_url: str  = Field(max_length=500)
 
 class UpdateProfile(BaseModel):
     """Request payload for updating a user's profile fields."""
@@ -47,4 +44,18 @@ class GetProfile(BaseModel):
     links: list[str] | None = None
     visibility: str
     created_at: datetime
+
+def to_get_profile(profile: Profile, avatar_url: str | None) -> GetProfile:
+    """Builds a GetProfile response with the stored avatar key replaced by a presigned URL.
+
+    Args:
+        profile: Profile instance to serialize.
+        avatar_url: Presigned URL to expose in place of the stored avatar key.
+
+    Returns:
+        GetProfile response payload.
+    """
+    result = GetProfile.model_validate(profile, from_attributes=True)
+    result.avatar = avatar_url
+    return result
 

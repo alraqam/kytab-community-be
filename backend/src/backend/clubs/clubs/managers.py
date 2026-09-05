@@ -1,3 +1,6 @@
+from uuid import uuid4
+
+from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.clubs.club_membership.exceptions import NotClubMemberError
@@ -8,7 +11,8 @@ from src.backend.clubs.clubs.exceptions import InvalidCoverUrlError, ClubNotFoun
 from src.backend.clubs.clubs.models import Club
 from src.backend.clubs.clubs.repository import ClubRepository
 from src.backend.clubs.clubs.schemas import CreateClub, UpdateClub, ManageClubModerators
-from src.backend.core.services import is_valid_url
+from src.backend.core.services import validate_image_upload
+from src.backend.core.storage import StorageService
 from src.backend.identity.auth.models import User
 from src.backend.identity.users.exceptions import UserNotFoundError
 from src.backend.identity.users.repository import UserRepository
@@ -19,9 +23,11 @@ class ClubManager:
 
     def __init__(
             self,
-            session: AsyncSession
+            session: AsyncSession,
+            storage: StorageService,
     ):
         self.session = session
+        self.storage = storage
         self.club_repo = ClubRepository(session)
         self.user_repo = UserRepository(session)
         self.membership_repo = ClubMembershipRepository(session)
@@ -64,20 +70,50 @@ class ClubManager:
 
         Raises:
             IsNotClubOwnerError: When the user is not an owner or moderator of the club.
-            InvalidCoverUrlError: When the provided cover URL is not a valid URL format.
         """
         is_owner_or_moderator(club, user.id)
-        if request.cover is not None and not is_valid_url(request.cover):
-                raise InvalidCoverUrlError("Invalid cover url format")
 
         await self.club_repo.update_club(
             club=club,
             name=request.name,
             description=request.description,
             club_type=request.club_type,
-            cover=request.cover
         )
         await self.session.commit()
+
+    async def update_cover(
+            self,
+            user: User,
+            club: Club,
+            file: UploadFile,
+    ) -> None:
+        """Uploads a new cover image and replaces the club's stored cover.
+
+        Args:
+            user: User requesting the update.
+            club: Club instance to update.
+            file: Uploaded cover image.
+
+        Raises:
+            IsNotClubOwnerError: When the user is not an owner or moderator of the club.
+            InvalidCoverUrlError: When the image has an unsupported type or exceeds the size limit.
+        """
+        is_owner_or_moderator(club, user.id)
+
+        content, extension = await validate_image_upload(file, InvalidCoverUrlError)
+
+        old_cover = club.cover
+        key = f"club-covers/{club.id}/{uuid4().hex}{extension}"
+        await self.storage.upload(key, content, file.content_type)
+
+        await self.club_repo.update_club(
+            club=club,
+            cover=key
+        )
+        await self.session.commit()
+
+        if old_cover:
+            await self.storage.delete(old_cover)
 
     async def archive_club(
             self,

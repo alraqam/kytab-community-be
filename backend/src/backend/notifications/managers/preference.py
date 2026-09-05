@@ -2,6 +2,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.core.storage import StorageService
 from src.backend.identity.auth.models import User
 from src.backend.notifications.dependencies import is_notification_preference_owner
 from src.backend.notifications.exceptions import NotificationPreferenceNotFoundError, \
@@ -20,7 +21,7 @@ class NotificationPreferenceManager:
     ):
         self.session = session
         self.preference_repo = NotificationPreferenceRepository(session)
-        self.club_manager = ClubManager(self.session)
+        self.club_manager = ClubManager(self.session, StorageService())
 
     async def create_preference(
             self,

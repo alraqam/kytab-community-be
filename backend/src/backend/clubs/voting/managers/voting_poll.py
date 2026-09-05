@@ -8,6 +8,7 @@ from src.backend.clubs.voting.managers.vote_poll import VotePollManager
 from src.backend.clubs.voting.repositories.voting_poll import VotingPollRepository
 from src.backend.clubs.club_membership.services import is_owner_or_moderator, is_club_member
 from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.core.storage import StorageService
 from src.backend.clubs.clubs.models import Club
 from src.backend.clubs.voting.exceptions import VotingClosedError, ActivePollAlreadyExistsError, ActivePollError, \
     ActivePollsNotFoundError, PollNotFoundError
@@ -32,7 +33,7 @@ class VotingPollManager:
         """
         self.session = session
         self.poll_repo = VotingPollRepository(session)
-        self.club_manager = ClubManager(session)
+        self.club_manager = ClubManager(session, StorageService())
         self.user_manager = UserManager(session)
         self.votes_manager = VotePollManager(session)
         self.candidate_manager = PollCandidateManager(session)

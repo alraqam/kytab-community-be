@@ -2,22 +2,25 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.clubs.clubs.models import Club
-from src.backend.core.dependencies import get_db
+from src.backend.core.dependencies import get_db, get_storage_service
+from src.backend.core.storage import StorageService
 
 from src.backend.clubs.clubs.managers import ClubManager
 
 async def get_club_manager(
-        session: AsyncSession = Depends(get_db)
+        session: AsyncSession = Depends(get_db),
+        storage: StorageService = Depends(get_storage_service),
 ) -> ClubManager:
     """Builds a ClubManager bound to the request-scoped database session.
 
     Args:
         session: Database session injected by get_db.
+        storage: StorageService injected by get_storage_service.
 
     Returns:
         ClubManager instance.
     """
-    return ClubManager(session)
+    return ClubManager(session, storage)
 
 async def get_club_or_404(
         club_id: int,

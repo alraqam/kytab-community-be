@@ -4,6 +4,7 @@ from src.backend.clubs.reading_session.managers.milestone import MilestoneManage
 from src.backend.clubs.reading_session.managers.progress import MilestoneProgressManager
 from src.backend.clubs.club_membership.services import is_owner_or_moderator
 from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.core.storage import StorageService
 from src.backend.clubs.clubs.models import Club
 from src.backend.clubs.reading_session.models import ReadingSession, Milestone
 from src.backend.clubs.thread.exceptions import LockedThreadError, PinnedThreadError, ThreadNotFoundError, \
@@ -28,7 +29,7 @@ class ThreadManager:
         """
         self.session = session
         self.thread_repo = ThreadRepository(session)
-        self.club_manager = ClubManager(session)
+        self.club_manager = ClubManager(session, StorageService())
         self.milestone_progress_manager = MilestoneProgressManager(session)
         self.milestone_manager = MilestoneManager(session)
 

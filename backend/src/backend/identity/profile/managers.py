@@ -1,14 +1,18 @@
+from uuid import uuid4
+
+from fastapi import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.identity.follow.managers import FollowManager
-from src.backend.core.services import is_valid_url
+from src.backend.core.services import is_valid_url, validate_image_upload
+from src.backend.core.storage import StorageService
 from src.backend.identity.auth.models import User
 from src.backend.identity.auth.services.security import PasswordService
 from src.backend.identity.profile.exceptions import ProfileNotFoundError, PrivateProfileError, InvalidAvatarUrlError, \
     InvalidLinkUrlError
 from src.backend.identity.profile.models import Profile
 from src.backend.identity.profile.repository import ProfileRepository
-from src.backend.identity.profile.schemas import CreateProfile, ProfileVisibilityEnum, UpdateProfileAvatar, \
+from src.backend.identity.profile.schemas import CreateProfile, ProfileVisibilityEnum, \
     UpdateProfile, UpdateProfileVisibility
 from src.backend.identity.users.repository import UserRepository
 
@@ -19,8 +23,10 @@ class ProfileManager:
     def __init__(
             self,
             session: AsyncSession,
+            storage: StorageService,
     ):
         self.session = session
+        self.storage = storage
         self.profile_repo = ProfileRepository(session)
         self.user_repo = UserRepository(session)
         self.password_service = PasswordService()
@@ -89,27 +95,33 @@ class ProfileManager:
     async def update_avatar(
             self,
             user: User,
-            request: UpdateProfileAvatar
+            file: UploadFile
     ) -> None:
-        """Updates the current user's avatar URL after validating its format.
+        """Uploads a new avatar image and replaces the user's stored avatar.
 
         Args:
             user: User whose avatar to update.
-            request: UpdateProfileAvatar payload with the new avatar_url.
+            file: Uploaded avatar image.
 
         Raises:
-            InvalidAvatarUrlError: When avatar_url is not a valid HTTP/HTTPS URL.
+            InvalidAvatarUrlError: When the image has an unsupported type or exceeds the size limit.
         """
         profile = await self.get_profile_by_user(user)
 
-        if not is_valid_url(request.avatar_url):
-            raise InvalidAvatarUrlError("Invalid url format")
+        content, extension = await validate_image_upload(file, InvalidAvatarUrlError)
+
+        old_avatar = profile.avatar
+        key = f"avatars/{user.id}/{uuid4().hex}{extension}"
+        await self.storage.upload(key, content, file.content_type)
 
         await self.profile_repo.update_avatar(
             profile=profile,
-            avatar=request.avatar_url
+            avatar=key
         )
         await self.session.commit()
+
+        if old_avatar:
+            await self.storage.delete(old_avatar)
 
     async def update_profile(
             self,

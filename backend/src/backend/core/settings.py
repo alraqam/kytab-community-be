@@ -36,6 +36,13 @@ class Settings(BaseSettings):
     CELERY_BROKER_URL: str
     CELERY_RESULT_BACKEND: str
 
+    S3_ENDPOINT_URL: str
+    S3_PUBLIC_ENDPOINT_URL: str
+    S3_ACCESS_KEY: str
+    S3_SECRET_KEY: str
+    S3_BUCKET_NAME: str
+    S3_REGION: str
+
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env"
     )

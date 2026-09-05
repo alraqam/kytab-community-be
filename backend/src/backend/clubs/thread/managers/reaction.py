@@ -9,6 +9,7 @@ from src.backend.clubs.thread.models import PostReaction, Post
 from src.backend.clubs.thread.repository.reaction import PostReactionRepository
 from src.backend.clubs.thread.schemas import CreatePostReaction
 from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.core.storage import StorageService
 from src.backend.clubs.clubs.models import Club
 from src.backend.identity.auth.models import User
 from src.backend.identity.users.managers import UserManager
@@ -29,7 +30,7 @@ class PostReactionManager:
         """
         self.session = session
         self.reaction_repo = PostReactionRepository(session)
-        self.club_manager = ClubManager(session)
+        self.club_manager = ClubManager(session, StorageService())
         self.thread_manager = ThreadManager(session)
         self.user_manager = UserManager(session)
         self.notification_manager = NotificationManager(session)

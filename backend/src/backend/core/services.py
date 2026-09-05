@@ -3,7 +3,39 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from urllib.parse import urlparse
 
+from fastapi import UploadFile
+
 from src.backend.core.settings import settings
+
+ALLOWED_IMAGE_CONTENT_TYPES = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+}
+MAX_IMAGE_SIZE_BYTES = 5 * 1024 * 1024
+
+
+async def validate_image_upload(file: UploadFile, error_cls: type[Exception]) -> tuple[bytes, str]:
+    """Validates an uploaded image's content type and size.
+
+    Args:
+        file: Uploaded file to validate.
+        error_cls: Exception class to raise when validation fails.
+
+    Returns:
+        Tuple of the file's raw bytes and the extension to store it under.
+
+    Raises:
+        error_cls: When the content type is unsupported or the file exceeds the size limit.
+    """
+    if file.content_type not in ALLOWED_IMAGE_CONTENT_TYPES:
+        raise error_cls("Unsupported image type")
+
+    content = await file.read()
+    if len(content) > MAX_IMAGE_SIZE_BYTES:
+        raise error_cls("Image exceeds maximum allowed size")
+
+    return content, ALLOWED_IMAGE_CONTENT_TYPES[file.content_type]
 
 
 def is_valid_url(url: str) -> bool:

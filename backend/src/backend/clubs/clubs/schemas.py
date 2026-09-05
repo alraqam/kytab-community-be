@@ -4,6 +4,7 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 from src.backend.catalog.books.schemas.genre import GetGenre
+from src.backend.clubs.clubs.models import Club
 
 
 class ClubTypes(str, Enum):
@@ -31,7 +32,6 @@ class UpdateClub(BaseModel):
     name: str | None = Field(default=None, max_length=256)
     description: str | None = Field(default=None, max_length=1024)
     club_type: ClubTypes | None = None
-    cover: str | None = None
     language: str | None = None
 
 class AddClubGenre(BaseModel):
@@ -60,5 +60,17 @@ class GetClub(BaseModel):
     is_archived: bool
     created_at: datetime
 
+def to_get_club(club: Club, cover_url: str | None) -> GetClub:
+    """Builds a GetClub response with the stored cover key replaced by a presigned URL.
 
+    Args:
+        club: Club instance to serialize.
+        cover_url: Presigned URL to expose in place of the stored cover key.
+
+    Returns:
+        GetClub response payload.
+    """
+    result = GetClub.model_validate(club, from_attributes=True)
+    result.cover = cover_url
+    return result
 

@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.backend.clubs.voting.repositories.vote_poll import VotePollRepository
 from src.backend.clubs.club_membership.services import is_club_member
 from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.core.storage import StorageService
 from src.backend.clubs.clubs.models import Club
 from src.backend.clubs.voting.exceptions import VotingClosedError, UserVoteExistsError, PollVoteNotFoundError
 from src.backend.clubs.voting.models import VotingPoll, PollVote
@@ -26,7 +27,7 @@ class VotePollManager:
         """
         self.session = session
         self.vote_repo = VotePollRepository(session)
-        self.club_manager = ClubManager(session)
+        self.club_manager = ClubManager(session, StorageService())
         self.user_manager = UserManager(session)
 
     async def vote(

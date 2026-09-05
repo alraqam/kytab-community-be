@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.clubs.club_membership.services import is_owner_or_moderator
 from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.core.storage import StorageService
 from src.backend.clubs.clubs.models import Club
 from src.backend.clubs.thread.managers.posts import PostManager
 from src.backend.identity.auth.models import User
@@ -30,7 +31,7 @@ class ComplaintManager:
         self.session = session
         self.complaint_repo = ComplaintRepository(session)
         self.review_manager = ReviewManager(session)
-        self.club_manager = ClubManager(session)
+        self.club_manager = ClubManager(session, StorageService())
         self.comment_manager = ReviewCommentManager(session)
         self.post_manager = PostManager(session)
         self.user_manager = UserManager(session)

@@ -9,6 +9,7 @@ from src.backend.identity.analytics.schemas import GenreBreakdown, GetPlatformUs
 from src.backend.identity.auth.models import User
 from src.backend.identity.auth.repository import SessionRepository
 from src.backend.identity.auth.schemas import UserRoleEnum
+from src.backend.core.storage import StorageService
 from src.backend.identity.follow.managers import FollowManager
 from src.backend.identity.profile.managers import ProfileManager
 from src.backend.identity.users.repository import UserRepository
@@ -39,7 +40,7 @@ class UserAnalyticsManager:
         self.goal_repo = ReadingGoalRepository(session)
         self.follow_manager = FollowManager(session)
         self.genre_repo = GenreRepository(session)
-        self.profile_manager = ProfileManager(session)
+        self.profile_manager = ProfileManager(session, StorageService())
 
     async def get_user_analytics(
             self,

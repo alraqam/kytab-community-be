@@ -2,7 +2,7 @@ from src.backend.core.exceptions import BadRequest, NotFound, Forbidden
 
 
 class InvalidAvatarUrlError(BadRequest):
-    """Raised when a provided avatar URL is not a valid HTTP/HTTPS URL."""
+    """Raised when an uploaded avatar image has an unsupported type or exceeds the size limit."""
 
 class ProfileNotFoundError(NotFound):
     """Raised when the requested profile does not exist."""

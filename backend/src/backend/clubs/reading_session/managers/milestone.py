@@ -6,6 +6,7 @@ from src.backend.clubs.reading_session.schemas import MilestoneBoundaryType
 from src.backend.clubs.reading_session.filters import MilestoneFilter
 from src.backend.clubs.club_membership.services import is_owner_or_moderator, is_club_member
 from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.core.storage import StorageService
 from src.backend.clubs.reading_session.exceptions import DateInPastError, MilestoneAlreadyExistsError, \
     MilestoneNotFoundError
 from src.backend.clubs.reading_session.models import ReadingSession, Milestone
@@ -27,7 +28,7 @@ class MilestoneManager:
     ):
         self.session = session
         self.milestone_repo = MilestoneRepository(session)
-        self.club_manager = ClubManager(session)
+        self.club_manager = ClubManager(session, StorageService())
         self.membership_manager = ClubMembershipManager(session)
         self.user_manager = UserManager(session)
         self.notification_manager = NotificationManager(session)

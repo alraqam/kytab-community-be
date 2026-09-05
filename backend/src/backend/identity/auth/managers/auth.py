@@ -3,6 +3,7 @@ from datetime import datetime, timedelta, timezone
 from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.backend.core.storage import StorageService
 from src.backend.identity.profile.managers import ProfileManager
 from src.backend.identity.profile.schemas import CreateProfile
 from src.backend.library.shelf.managers.shelf import ShelfManager
@@ -34,7 +35,7 @@ class AuthManager:
         self.session_repo = SessionRepository(session)
         self.password_service = PasswordService()
         self.token_service = TokenService()
-        self.profile_manager = ProfileManager(session)
+        self.profile_manager = ProfileManager(session, StorageService())
         self.user_manager = UserManager(session)
         self.shelf_manager = ShelfManager(session)
 

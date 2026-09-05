@@ -14,6 +14,7 @@ from src.backend.clubs.thread.models import Post, Thread
 from src.backend.clubs.thread.repository.posts import PostRepository
 from src.backend.clubs.thread.schemas import CreatePost, UpdatePost
 from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.core.storage import StorageService
 from src.backend.clubs.clubs.models import Club
 from src.backend.identity.auth.models import User
 from src.backend.identity.users.dependencies import is_admin
@@ -37,7 +38,7 @@ class PostManager:
         """
         self.session = session
         self.post_repo = PostRepository(session)
-        self.club_manager = ClubManager(session)
+        self.club_manager = ClubManager(session, StorageService())
         self.thread_manager = ThreadManager(session)
         self.milestone_progress_manager = MilestoneProgressManager(session)
         self.milestone_manager = MilestoneManager(session)

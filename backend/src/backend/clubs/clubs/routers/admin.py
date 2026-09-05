@@ -6,7 +6,9 @@ from src.backend.clubs.clubs.dependencies import get_club_manager, get_club_or_4
 from src.backend.clubs.clubs.filters import ClubFilter
 from src.backend.clubs.clubs.managers import ClubManager
 from src.backend.clubs.clubs.models import Club
-from src.backend.clubs.clubs.schemas import GetClub
+from src.backend.clubs.clubs.schemas import GetClub, to_get_club
+from src.backend.core.dependencies import get_storage_service
+from src.backend.core.storage import StorageService
 from src.backend.identity.auth.models import User
 from src.backend.identity.users.dependencies import is_admin
 
@@ -20,6 +22,7 @@ class ClubAdminRouter:
     """CBV router for admin management of clubs: archiving, unarchiving, and listing."""
 
     manager: ClubManager = Depends(get_club_manager)
+    storage: StorageService = Depends(get_storage_service)
     user: User = Depends(is_admin)
 
     @router.put(
@@ -57,7 +60,7 @@ class ClubAdminRouter:
     ):
         """Lists all clubs, optionally filtered and sorted."""
         result = await self.manager.get_all_clubs(filters)
-        return result
+        return [to_get_club(club, self.storage.presigned_url(club.cover)) for club in result]
 
     @router.get(
         "/{club_id}",
@@ -69,4 +72,4 @@ class ClubAdminRouter:
             club: Club = Depends(get_club_or_404),
     ):
         """Fetches a single club by ID."""
-        return club
+        return to_get_club(club, self.storage.presigned_url(club.cover))

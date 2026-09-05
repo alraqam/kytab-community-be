@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.backend.catalog.books.managers.work import WorkManager
 from src.backend.clubs.club_membership.services import is_owner_or_moderator, is_club_member
 from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.core.storage import StorageService
 from src.backend.clubs.clubs.models import Club
 from src.backend.clubs.voting.exceptions import VotingClosedError, CandidateInPollError, PollCandidateNotFound
 from src.backend.clubs.voting.models import VotingPoll, PollCandidate
@@ -26,7 +27,7 @@ class PollCandidateManager:
         """
         self.session = session
         self.candidate_repo = PollCandidateRepository(session)
-        self.club_manager = ClubManager(session)
+        self.club_manager = ClubManager(session, StorageService())
         self.user_manager = UserManager(session)
         self.work_manager = WorkManager(session)
 

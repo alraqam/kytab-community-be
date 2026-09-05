@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.clubs.club_membership.services import is_owner_or_moderator, is_club_member
 from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.core.storage import StorageService
 from src.backend.clubs.clubs.models import Club
 from src.backend.clubs.reading_session.exceptions import DiscussionPromptNotFoundError
 from src.backend.clubs.reading_session.models import Milestone, DiscussionPrompt
@@ -19,7 +20,7 @@ class DiscussionPromptManager:
     ):
         self.session = session
         self.prompt_repo = DiscussionPromptRepository(session)
-        self.club_manager = ClubManager(session)
+        self.club_manager = ClubManager(session, StorageService())
 
     async def create_prompt(
             self,
