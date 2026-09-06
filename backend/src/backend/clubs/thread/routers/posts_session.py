@@ -14,7 +14,6 @@ from src.backend.identity.auth.models import User
 
 router = APIRouter(
     prefix="/{thread_id}/post",
-    tags=["posts"]
 )
 
 @cbv(router)
@@ -31,7 +30,8 @@ class PostSessionRouter:
     @router.post(
         "/",
         summary="creating session thread post",
-        response_model=GetPost
+        response_model=GetPost,
+        tags=["posts"],
     )
     async def create_post(
             self,
@@ -44,6 +44,7 @@ class PostSessionRouter:
     @router.put(
         "/{post_id}",
         summary="update session post",
+        tags=["posts"],
     )
     async def update_post(
             self,
@@ -56,6 +57,7 @@ class PostSessionRouter:
     @router.delete(
         "/{post_id}",
         summary="deleting session post",
+        tags=["posts"],
     )
     async def delete_post(
             self,
@@ -67,7 +69,8 @@ class PostSessionRouter:
     @router.get(
         "/",
         summary="getting session posts by user milestone reached",
-        response_model=list[GetPost] | list[GetPostPartial]
+        response_model=list[GetPost] | list[GetPostPartial],
+        tags=["posts"],
     )
     async def get_posts(
             self,
@@ -79,7 +82,8 @@ class PostSessionRouter:
     @router.get(
         "/{post_id}/reveal",
         summary="getting and revealing post by id",
-        response_model=GetPost
+        response_model=GetPost,
+        tags=["posts"],
     )
     async def get_session_milestone_threads(
             self,

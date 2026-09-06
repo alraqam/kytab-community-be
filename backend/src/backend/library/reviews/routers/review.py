@@ -14,7 +14,6 @@ from src.backend.library.reviews.schemas import GetReview, CreateReview, UpdateR
 
 router = APIRouter(
     prefix="/{work_id}/reviews",
-    tags=["reviews"]
 )
 
 @cbv(router)
@@ -29,6 +28,7 @@ class ReviewRouter:
         "/",
         summary="creating review",
         response_model=GetReview,
+        tags=["reviews"],
     )
     async def create_review(
             self,
@@ -41,6 +41,7 @@ class ReviewRouter:
     @router.put(
         "/{review_id}",
         summary="updating review",
+        tags=["reviews"],
     )
     async def update_review(
             self,
@@ -53,6 +54,7 @@ class ReviewRouter:
     @router.delete(
         "/{review_id}",
         summary="deleting review",
+        tags=["reviews"],
     )
     async def delete_review(
             self,
@@ -65,6 +67,7 @@ class ReviewRouter:
         "/",
         summary="getting book reviews",
         response_model=list[GetReview],
+        tags=["reviews"],
     )
     async def get_work_reviews(
             self,
@@ -77,6 +80,7 @@ class ReviewRouter:
     @router.get(
         "/average",
         summary="getting average book rating",
+        tags=["reviews"],
     )
     async def get_average_rating(self) -> float:
         """Returns the book's average rating across its reviews."""
@@ -87,6 +91,7 @@ class ReviewRouter:
         "/{review_id}",
         summary="getting review by id",
         response_model=GetReview,
+        tags=["reviews"],
     )
     async def get_review_by_id(
             self,

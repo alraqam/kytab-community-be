@@ -15,7 +15,6 @@ from src.backend.identity.auth.models import User
 
 router = APIRouter(
     prefix="/{session_id}/milestone",
-    tags=["milestones"]
 )
 
 @cbv(router)
@@ -30,7 +29,8 @@ class MilestoneRouter:
     @router.post(
         "/",
         summary="creating milestone",
-        response_model=GetMilestone
+        response_model=GetMilestone,
+        tags=["milestones"],
     )
     async def create_milestone(
             self,
@@ -43,6 +43,7 @@ class MilestoneRouter:
     @router.put(
         "/{milestone_id}",
         summary="update milestone",
+        tags=["milestones"],
     )
     async def update_milestone(
             self,
@@ -55,6 +56,7 @@ class MilestoneRouter:
     @router.delete(
         "/{milestone_id}",
         summary="deleting milestone",
+        tags=["milestones"],
     )
     async def delete_milestone(
             self,
@@ -66,7 +68,8 @@ class MilestoneRouter:
     @router.get(
         "/",
         summary="getting session milestones",
-        response_model=list[GetMilestone]
+        response_model=list[GetMilestone],
+        tags=["milestones"],
     )
     async def get_session_milestones(
             self,
@@ -79,7 +82,8 @@ class MilestoneRouter:
     @router.get(
         "/{milestone_id}",
         summary="getting milestone by id",
-        response_model=GetMilestone
+        response_model=GetMilestone,
+        tags=["milestones"],
     )
     async def get_milestone_by_id(
             self,

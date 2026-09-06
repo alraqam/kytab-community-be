@@ -12,7 +12,6 @@ from src.backend.identity.auth.models import User
 
 router = APIRouter(
     prefix="/{thread_id}/post",
-    tags=["posts"]
 )
 
 @cbv(router)
@@ -27,7 +26,8 @@ class PostGeneralRouter:
     @router.post(
         "/",
         summary="creating general thread post",
-        response_model=GetPost
+        response_model=GetPost,
+        tags=["posts"],
     )
     async def create_post(
             self,
@@ -40,6 +40,7 @@ class PostGeneralRouter:
     @router.put(
         "/{post_id}",
         summary="update general post",
+        tags=["posts"],
     )
     async def update_post(
             self,
@@ -52,6 +53,7 @@ class PostGeneralRouter:
     @router.delete(
         "/{post_id}",
         summary="deleting general post",
+        tags=["posts"],
     )
     async def delete_post(
             self,
@@ -63,7 +65,8 @@ class PostGeneralRouter:
     @router.get(
         "/",
         summary="getting general posts",
-        response_model=list[GetPost]
+        response_model=list[GetPost],
+        tags=["posts"],
     )
     async def get_all_posts(
             self,

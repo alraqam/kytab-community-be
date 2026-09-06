@@ -22,7 +22,6 @@ from src.backend.catalog.books.schemas.work import GetWork
 
 router = APIRouter(
     prefix="/works",
-    tags=["works"]
 )
 
 
@@ -40,6 +39,7 @@ class WorkRouter:
         "/",
         summary="getting all works",
         response_model=list[GetWork],
+        tags=["works"],
     )
     async def get_works(
             self,
@@ -52,6 +52,7 @@ class WorkRouter:
         "/{work_id}",
         summary="getting work by id",
         response_model=GetWork,
+        tags=["works"],
     )
     async def get_work_by_id(
             self,
@@ -64,6 +65,7 @@ class WorkRouter:
         "/{work_id}/edition",
         summary="getting work's editions",
         response_model=list[GetEdition],
+        tags=["works"],
     )
     async def get_editions_by_work(
             self,
@@ -76,6 +78,7 @@ class WorkRouter:
         "/{work_id}/authors",
         summary="getting work's authors",
         response_model=list[GetAuthor],
+        tags=["works"],
     )
     async def get_authors_for_work(
             self,
@@ -88,6 +91,7 @@ class WorkRouter:
         "/{work_id}/genres",
         summary="getting work's genres",
         response_model=list[GetGenre],
+        tags=["works"],
     )
     async def get_genres_for_work(
             self,
@@ -100,6 +104,7 @@ class WorkRouter:
         "/{work_id}/series",
         summary="getting work's series",
         response_model=list[GetSeries],
+        tags=["works"],
     )
     async def get_genres_for_work(
             self,

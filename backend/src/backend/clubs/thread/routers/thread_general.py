@@ -12,7 +12,6 @@ from src.backend.identity.auth.models import User
 
 router = APIRouter(
     prefix="/{club_id}/thread",
-    tags=["threads"]
 )
 
 @cbv(router)
@@ -26,7 +25,8 @@ class ThreadGeneralRouter:
     @router.post(
         "/",
         summary="creating general thread",
-        response_model=GetThread
+        response_model=GetThread,
+        tags=["threads"],
     )
     async def create_thread(
             self,
@@ -39,6 +39,7 @@ class ThreadGeneralRouter:
     @router.put(
         "/{thread_id}",
         summary="update general thread",
+        tags=["threads"],
     )
     async def update_thread(
             self,
@@ -51,6 +52,7 @@ class ThreadGeneralRouter:
     @router.put(
         "/{thread_id}/lock",
         summary="locking general thread",
+        tags=["threads"],
     )
     async def lock_thread(
             self,
@@ -62,6 +64,7 @@ class ThreadGeneralRouter:
     @router.put(
         "/{thread_id}/unlock",
         summary="unlocking general thread",
+        tags=["threads"],
     )
     async def unlock_thread(
             self,
@@ -73,6 +76,7 @@ class ThreadGeneralRouter:
     @router.put(
         "/{thread_id}/pin",
         summary="pining general thread",
+        tags=["threads"],
     )
     async def pin_thread(
             self,
@@ -84,6 +88,7 @@ class ThreadGeneralRouter:
     @router.put(
         "/{thread_id}/unpin",
         summary="unpining general thread",
+        tags=["threads"],
     )
     async def unpin_thread(
             self,
@@ -95,6 +100,7 @@ class ThreadGeneralRouter:
     @router.delete(
         "/{thread_id}",
         summary="deleting general thread",
+        tags=["threads"],
     )
     async def delete_thread(
             self,
@@ -106,7 +112,8 @@ class ThreadGeneralRouter:
     @router.get(
         "/",
         summary="getting club general threads",
-        response_model=list[GetThread]
+        response_model=list[GetThread],
+        tags=["threads"],
     )
     async def get_club_general_threads(
             self,

@@ -12,7 +12,6 @@ from src.backend.identity.auth.models import User
 
 router = APIRouter(
     prefix="/{club_id}/poll",
-    tags=["polls"]
 )
 
 @cbv(router)
@@ -27,6 +26,7 @@ class VotingPollRouter:
         "/",
         summary="creating poll",
         response_model=GetVotingPoll,
+        tags=["polls"],
     )
     async def create_poll(
             self,
@@ -39,6 +39,7 @@ class VotingPollRouter:
     @router.put(
         "/{poll_id}",
         summary="updating voting poll",
+        tags=["polls"],
     )
     async def update_voting_poll(
             self,
@@ -51,6 +52,7 @@ class VotingPollRouter:
     @router.put(
         "/{poll_id}/close",
         summary="closing voting poll",
+        tags=["polls"],
     )
     async def close_voting_poll(
             self,
@@ -62,6 +64,7 @@ class VotingPollRouter:
     @router.delete(
         "/{poll_id}",
         summary="deleting voting poll",
+        tags=["polls"],
     )
     async def delete_voting_poll(
             self,
@@ -74,6 +77,7 @@ class VotingPollRouter:
         "/active",
         summary="getting club's active voting poll",
         response_model=GetVotingPoll,
+        tags=["polls"],
     )
     async def get_active_poll(self) -> GetVotingPoll:
         """Returns the club's currently active voting poll."""
@@ -83,6 +87,7 @@ class VotingPollRouter:
     @router.get(
         "/",
         summary="getting club's polls",
+        tags=["polls"],
     )
     async def get_club_polls(self):
         """Returns all voting polls for the club."""
@@ -93,6 +98,7 @@ class VotingPollRouter:
         "/{poll_id}/results",
         summary="getting poll results",
         response_model=list[GetPollResult],
+        tags=["polls"],
     )
     async def get_poll_results(
             self,
@@ -105,6 +111,7 @@ class VotingPollRouter:
     @router.get(
         "/{poll_id}/winner",
         summary="getting poll winner/winners",
+        tags=["polls"],
     )
     async def confirm_winner(
             self,

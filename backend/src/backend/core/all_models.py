@@ -19,5 +19,6 @@ from src.backend.library.reading_goals.models import ReadingGoal
 from src.backend.library.reviews.models import Review, ReviewLike, ReviewComment
 from src.backend.library.shelf.models import Shelf, ShelfItem
 from src.backend.notifications.models import Notification, NotificationPreference
+from src.backend.trust_safety.audit_log.models import AuditLog
 from src.backend.trust_safety.complaint.models import Complaint
 from src.backend.trust_safety.consent.models import ConsentRecords, LegalDocument

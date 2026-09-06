@@ -10,6 +10,8 @@ from src.backend.identity.users.managers import UserManager
 from src.backend.identity.users.schemas import UpdateUserActivity
 from src.backend.library.reviews.managers.comments import ReviewCommentManager
 from src.backend.library.reviews.managers.review import ReviewManager
+from src.backend.trust_safety.audit_log.managers import AuditLogManager
+from src.backend.trust_safety.audit_log.schemas import AuditLogAction
 from src.backend.trust_safety.complaint.exceptions import ComplaintStatusError, ComplaintNotFoundError, \
     InvalidComplaintActionError
 from src.backend.trust_safety.complaint.filters import ComplaintFilter
@@ -36,6 +38,7 @@ class ComplaintManager:
         self.post_manager = PostManager(session)
         self.user_manager = UserManager(session)
         self.notification_manager = NotificationManager(session)
+        self.audit_log_manager = AuditLogManager(session)
 
 
     async def create_compliant(
@@ -74,6 +77,37 @@ class ComplaintManager:
         await self.session.commit()
         return result
 
+    async def _mark_resolved(
+            self,
+            user: User,
+            complaint: Complaint,
+            status: str,
+            notification_title: str,
+    ) -> None:
+        """Stamps a complaint resolved with the given status and notifies the reporter. Does not write an audit log entry: callers log their own specific action.
+
+        Args:
+            user: Moderator resolving the complaint.
+            complaint: Complaint instance to resolve.
+            status: Terminal status to apply (reviewed or dismissed).
+            notification_title: Title of the notification sent to the reporter.
+        """
+        await self.complaint_repo.resolve_complaint(
+            user_id=user.id,
+            complaint=complaint
+        )
+        await self.complaint_repo.update_complaint_status(complaint, status)
+        await self.session.commit()
+
+        reporter = await self.user_manager.get_user_by_id(complaint.reporter_id)
+        await self.notification_manager.notify(
+            reporter,
+            category=NotificationCategory.general,
+            title=notification_title,
+            object_type=NotificationObjectType.complaint,
+            object_id=complaint.id,
+        )
+
     async def resolve_complaint(
             self,
             user: User,
@@ -90,21 +124,8 @@ class ComplaintManager:
         """
         if complaint.status != ComplaintStatus.pending:
             raise ComplaintStatusError("Complaint status error")
-        await self.complaint_repo.resolve_complaint(
-            user_id=user.id,
-            complaint=complaint
-        )
-        await self.complaint_repo.update_complaint_status(complaint, ComplaintStatus.reviewed)
-        await self.session.commit()
-
-        reporter = await self.user_manager.get_user_by_id(complaint.reporter_id)
-        await self.notification_manager.notify(
-            reporter,
-            category=NotificationCategory.general,
-            title="Your report has been reviewed",
-            object_type=NotificationObjectType.complaint,
-            object_id=complaint.id,
-        )
+        await self._mark_resolved(user, complaint, ComplaintStatus.reviewed, "Your report has been reviewed")
+        await self.audit_log_manager.log(user, AuditLogAction.complaint_resolved, "complaint", complaint.id)
 
     async def dismiss_complaint(
             self,
@@ -122,21 +143,8 @@ class ComplaintManager:
         """
         if complaint.status != ComplaintStatus.pending:
             raise ComplaintStatusError("Complaint status error")
-        await self.complaint_repo.resolve_complaint(
-            user_id=user.id,
-            complaint=complaint
-        )
-        await self.complaint_repo.update_complaint_status(complaint, ComplaintStatus.dismissed)
-        await self.session.commit()
-
-        reporter = await self.user_manager.get_user_by_id(complaint.reporter_id)
-        await self.notification_manager.notify(
-            reporter,
-            category=NotificationCategory.general,
-            title="Your report has been dismissed",
-            object_type=NotificationObjectType.complaint,
-            object_id=complaint.id,
-        )
+        await self._mark_resolved(user, complaint, ComplaintStatus.dismissed, "Your report has been dismissed")
+        await self.audit_log_manager.log(user, AuditLogAction.complaint_dismissed, "complaint", complaint.id)
 
     async def _get_target_user(
             self,
@@ -197,7 +205,8 @@ class ComplaintManager:
             case _:
                 raise InvalidComplaintActionError("Only reviews, comments, and posts support content removal")
 
-        await self.resolve_complaint(user, complaint)
+        await self._mark_resolved(user, complaint, ComplaintStatus.reviewed, "Your report has been reviewed")
+        await self.audit_log_manager.log(user, AuditLogAction.complaint_content_removed, "complaint", complaint.id)
 
     async def warn_complaint_target(
             self,
@@ -227,7 +236,10 @@ class ComplaintManager:
             object_type=NotificationObjectType.complaint,
             object_id=complaint.id,
         )
-        await self.resolve_complaint(user, complaint)
+        await self._mark_resolved(user, complaint, ComplaintStatus.reviewed, "Your report has been reviewed")
+        await self.audit_log_manager.log(
+            user, AuditLogAction.complaint_target_warned, "complaint", complaint.id, details=request.message
+        )
 
     async def suspend_complaint_target(
             self,
@@ -248,7 +260,8 @@ class ComplaintManager:
 
         target = await self._get_target_user(complaint)
         await self.user_manager.update_user_activity(target, UpdateUserActivity(is_active=False))
-        await self.resolve_complaint(user, complaint)
+        await self._mark_resolved(user, complaint, ComplaintStatus.reviewed, "Your report has been reviewed")
+        await self.audit_log_manager.log(user, AuditLogAction.complaint_target_suspended, "complaint", complaint.id)
 
     async def ban_complaint_target(
             self,
@@ -269,7 +282,8 @@ class ComplaintManager:
 
         target = await self._get_target_user(complaint)
         await self.user_manager.delete_user(target)
-        await self.resolve_complaint(user, complaint)
+        await self._mark_resolved(user, complaint, ComplaintStatus.reviewed, "Your report has been reviewed")
+        await self.audit_log_manager.log(user, AuditLogAction.complaint_target_banned, "complaint", complaint.id)
 
     async def get_club_complaints(
             self,
@@ -320,6 +334,7 @@ class ComplaintManager:
 
         await self.complaint_repo.update_escalated(complaint, True)
         await self.session.commit()
+        await self.audit_log_manager.log(user, AuditLogAction.complaint_escalated, "complaint", complaint.id)
 
     async def get_complaints(
             self,

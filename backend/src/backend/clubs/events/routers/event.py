@@ -12,7 +12,6 @@ from src.backend.identity.auth.models import User
 
 router = APIRouter(
     prefix="/{club_id}/events",
-    tags=["events"]
 )
 
 @cbv(router)
@@ -26,7 +25,8 @@ class ClubEventRouter:
     @router.post(
         "/",
         summary="creating event",
-        response_model=GetClubEvent
+        response_model=GetClubEvent,
+        tags=["events"],
     )
     async def create_event(
             self,
@@ -39,6 +39,7 @@ class ClubEventRouter:
     @router.put(
         "/{event_id}",
         summary="updating event",
+        tags=["events"],
     )
     async def update_event(
             self,
@@ -51,6 +52,7 @@ class ClubEventRouter:
     @router.delete(
         "/{event_id}",
         summary="deleting event",
+        tags=["events"],
     )
     async def delete_event(
             self,
@@ -62,7 +64,8 @@ class ClubEventRouter:
     @router.get(
         "/all",
         summary="getting club events",
-        response_model=list[GetClubEvent]
+        response_model=list[GetClubEvent],
+        tags=["events"],
     )
     async def get_club_events(self):
         """Lists all events for the club."""
@@ -72,7 +75,8 @@ class ClubEventRouter:
     @router.get(
         "/future",
         summary="getting club future events",
-        response_model=list[GetClubEvent]
+        response_model=list[GetClubEvent],
+        tags=["events"],
     )
     async def get_club_future_events(self):
         """Lists the club's events that have not yet started."""
@@ -82,7 +86,8 @@ class ClubEventRouter:
     @router.get(
         "/{event_id}",
         summary="getting event by id",
-        response_model=GetClubEvent
+        response_model=GetClubEvent,
+        tags=["events"],
     )
     async def get_event_by_id(
             self,

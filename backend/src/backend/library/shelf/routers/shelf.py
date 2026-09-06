@@ -11,7 +11,6 @@ from src.backend.library.shelf.schemas import GetShelf, CreateShelf, UpdateShelf
 
 router = APIRouter(
     prefix="/shelf",
-    tags=["shelf"]
 )
 
 @cbv(router)
@@ -24,7 +23,8 @@ class ShelfRouter:
     @router.post(
         "/",
         summary="creating custom shelf",
-        response_model=GetShelf
+        response_model=GetShelf,
+        tags=["shelf"],
     )
     async def create_custom_shelf(
             self,
@@ -37,6 +37,7 @@ class ShelfRouter:
     @router.put(
         "/{shelf_id}",
         summary="updating custom shelf",
+        tags=["shelf"],
     )
     async def update_shelf(
             self,
@@ -49,6 +50,7 @@ class ShelfRouter:
     @router.put(
         "/{shelf_id}/visibility",
         summary="updating shelf visibility",
+        tags=["shelf"],
     )
     async def update_shelf_visibility(
             self,
@@ -61,6 +63,7 @@ class ShelfRouter:
     @router.delete(
         "/{shelf_id}",
         summary="deleting shelf",
+        tags=["shelf"],
     )
     async def delete_shelf(
             self,
@@ -72,7 +75,8 @@ class ShelfRouter:
     @router.get(
         "/my",
         summary="getting current user's shelves",
-        response_model=list[GetShelf]
+        response_model=list[GetShelf],
+        tags=["shelf"],
     )
     async def get_my_shelves(
             self,
@@ -84,7 +88,8 @@ class ShelfRouter:
     @router.get(
         "/name",
         summary="getting user's shelf by name",
-        response_model=GetShelf
+        response_model=GetShelf,
+        tags=["shelf"],
     )
     async def get_shelf_by_name(
             self,
@@ -97,7 +102,8 @@ class ShelfRouter:
     @router.get(
         "/user/{user_id}",
         summary="getting user's shelves",
-        response_model=list[GetShelf]
+        response_model=list[GetShelf],
+        tags=["shelf"],
     )
     async def get_user_shelves(
             self,
@@ -111,7 +117,8 @@ class ShelfRouter:
     @router.get(
         "/{shelf_id}",
         summary="getting shelf by id",
-        response_model=GetShelf
+        response_model=GetShelf,
+        tags=["shelf"],
     )
     async def get_shelf_by_id(
             self,

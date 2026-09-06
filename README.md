@@ -48,7 +48,7 @@ docker compose exec api alembic upgrade head
 | Flower (Celery monitoring) | http://localhost:5555 |
 | MinIO console | http://localhost:9001 |
 | RabbitMQ management | http://localhost:15672 |
-| Grafana | http://localhost:3000 |
+| Grafana | http://localhost:3001 |
 | Prometheus | http://localhost:9090 |
 
 ### Running the backend locally (without Docker)

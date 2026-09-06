@@ -11,7 +11,6 @@ from src.backend.library.shelf.schemas import GetShelfItem, CreateShelfItem
 
 router = APIRouter(
     prefix="/{shelf_id}/item",
-    tags=["shelf_item"]
 )
 
 @cbv(router)
@@ -25,7 +24,8 @@ class ShelfItemRouter:
     @router.post(
         "/",
         summary="adding item to shelf",
-        response_model=GetShelfItem
+        response_model=GetShelfItem,
+        tags=["shelf_item"],
     )
     async def add_to_shelf(
             self,
@@ -38,6 +38,7 @@ class ShelfItemRouter:
     @router.delete(
         "/{shelf_item_id}",
         summary="removing item from shelf",
+        tags=["shelf_item"],
     )
     async def remove_from_shelf(
             self,
@@ -49,7 +50,8 @@ class ShelfItemRouter:
     @router.get(
         "/my",
         summary="getting current user's reading shelf items",
-        response_model=list[GetShelfItem]
+        response_model=list[GetShelfItem],
+        tags=["shelf_item"],
     )
     async def get_my_shelf_items(
             self,
@@ -61,7 +63,8 @@ class ShelfItemRouter:
     @router.get(
         "/user/{user_id}",
         summary="getting user's shelf items",
-        response_model=list[GetShelfItem]
+        response_model=list[GetShelfItem],
+        tags=["shelf_item"],
     )
     async def get_user_shelf_items(
             self,
@@ -74,7 +77,8 @@ class ShelfItemRouter:
     @router.get(
         "/{shelf_item_id}",
         summary="getting shelf item by id",
-        response_model=GetShelfItem
+        response_model=GetShelfItem,
+        tags=["shelf_item"],
     )
     async def get_shelf_item_by_id(
             self,

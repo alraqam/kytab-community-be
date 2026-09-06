@@ -46,6 +46,7 @@ from src.backend.clubs.reading_session.models import ReadingSession
 from src.backend.clubs.thread.models import Thread
 from src.backend.clubs.voting.models import VotingPoll, PollVote, PollCandidate
 from src.backend.clubs.events.models import ClubEvent, EventRSVP
+from src.backend.trust_safety.audit_log.models import AuditLog
 from src.backend.trust_safety.complaint.models import Complaint
 from src.backend.trust_safety.consent.models import ConsentRecords, LegalDocument
 from src.backend.notifications.models import Notification, NotificationPreference

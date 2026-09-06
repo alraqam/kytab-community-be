@@ -14,7 +14,6 @@ from src.backend.identity.auth.models import User
 
 router = APIRouter(
     prefix="/{club_id}/sessions",
-    tags=["reading_sessions"]
 )
 
 @cbv(router)
@@ -29,7 +28,8 @@ class ReadingSessionRouter:
     @router.post(
         "/",
         summary="creating reading session",
-        response_model=GetReadingSession
+        response_model=GetReadingSession,
+        tags=["reading_sessions"],
     )
     async def create_session(
             self,
@@ -42,6 +42,7 @@ class ReadingSessionRouter:
     @router.put(
         "/{session_id}",
         summary="completing active reading session",
+        tags=["reading_sessions"],
     )
     async def complete_session(
             self,
@@ -53,6 +54,7 @@ class ReadingSessionRouter:
     @router.delete(
         "/{session_id}",
         summary="deleting reading session",
+        tags=["reading_sessions"],
     )
     async def delete_session(
             self,
@@ -64,7 +66,8 @@ class ReadingSessionRouter:
     @router.get(
         "/active",
         summary="getting club's active reading sessions",
-        response_model=list[GetReadingSession]
+        response_model=list[GetReadingSession],
+        tags=["reading_sessions"],
     )
     async def get_club_active_sessions(self):
         """Returns the club's current active reading session."""
@@ -74,7 +77,8 @@ class ReadingSessionRouter:
     @router.get(
         "/",
         summary="getting club's sessions",
-        response_model=list[GetReadingSession]
+        response_model=list[GetReadingSession],
+        tags=["reading_sessions"],
     )
     async def get_club_sessions(self):
         """Returns all reading sessions for the club."""
@@ -84,7 +88,8 @@ class ReadingSessionRouter:
     @router.get(
         "/{session_id}/progress",
         summary="getting session milestone progresses",
-        response_model=list[GetMilestoneProgress]
+        response_model=list[GetMilestoneProgress],
+        tags=["reading_sessions"],
     )
     async def get_session_milestone_progress(
             self,
@@ -97,7 +102,8 @@ class ReadingSessionRouter:
     @router.get(
         "/{session_id}",
         summary="getting current users milestone progress",
-        response_model=GetMilestoneProgress
+        response_model=GetMilestoneProgress,
+        tags=["reading_sessions"],
     )
     async def get_user_milestone_progress(
             self,

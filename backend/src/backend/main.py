@@ -70,6 +70,7 @@ from src.backend.clubs.analytics.routers.public import router as club_analytics_
 from src.backend.clubs.analytics.routers.admin import router as club_analytics_admin_router
 from src.backend.clubs.club_summary.routers import router as club_summary_router
 
+from src.backend.trust_safety.audit_log.routers.admin import router as audit_log_admin_router
 from src.backend.trust_safety.complaint.routers.public import router as public_complaint_router
 from src.backend.trust_safety.complaint.routers.admin import router as admin_complaint_router
 from src.backend.trust_safety.complaint.routers.club import router as club_complaint_router
@@ -155,6 +156,7 @@ api_v1_router.include_router(invitation_router)
 api_v1_router.include_router(request_router)
 api_v1_router.include_router(public_complaint_router)
 api_v1_router.include_router(admin_complaint_router)
+api_v1_router.include_router(audit_log_admin_router)
 api_v1_router.include_router(document_router)
 api_v1_router.include_router(consent_router)
 api_v1_router.include_router(export_router)

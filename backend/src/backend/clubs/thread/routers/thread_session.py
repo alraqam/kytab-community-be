@@ -14,7 +14,6 @@ from src.backend.identity.auth.models import User
 
 router = APIRouter(
     prefix="/{milestone}/thread",
-    tags=["threads"]
 )
 
 @cbv(router)
@@ -30,7 +29,8 @@ class ThreadSessionRouter:
     @router.post(
         "/",
         summary="creating milestone thread",
-        response_model=GetThread
+        response_model=GetThread,
+        tags=["threads"],
     )
     async def create_thread(
             self,
@@ -43,6 +43,7 @@ class ThreadSessionRouter:
     @router.put(
         "/{thread_id}",
         summary="update milestone thread",
+        tags=["threads"],
     )
     async def update_thread(
             self,
@@ -55,6 +56,7 @@ class ThreadSessionRouter:
     @router.put(
         "/{thread_id}/lock",
         summary="locking milestone thread",
+        tags=["threads"],
     )
     async def lock_thread(
             self,
@@ -66,6 +68,7 @@ class ThreadSessionRouter:
     @router.put(
         "/{thread_id}/unlock",
         summary="unlocking milestone thread",
+        tags=["threads"],
     )
     async def unlock_thread(
             self,
@@ -77,6 +80,7 @@ class ThreadSessionRouter:
     @router.put(
         "/{thread_id}/pin",
         summary="pining milestone thread",
+        tags=["threads"],
     )
     async def pin_thread(
             self,
@@ -88,6 +92,7 @@ class ThreadSessionRouter:
     @router.put(
         "/{thread_id}/unpin",
         summary="unpining milestone thread",
+        tags=["threads"],
     )
     async def unpin_thread(
             self,
@@ -99,6 +104,7 @@ class ThreadSessionRouter:
     @router.delete(
         "/{thread_id}",
         summary="deleting milestone thread",
+        tags=["threads"],
     )
     async def delete_thread(
             self,
@@ -110,7 +116,8 @@ class ThreadSessionRouter:
     @router.get(
         "/",
         summary="getting club milestone threads by user milestone reached",
-        response_model=list[GetThread]
+        response_model=list[GetThread],
+        tags=["threads"],
     )
     async def get_session_milestone_threads(
             self,
@@ -122,7 +129,8 @@ class ThreadSessionRouter:
     @router.get(
         "/{thead_id}/reveal",
         summary="getting and revealing thread by id",
-        response_model=GetThread
+        response_model=GetThread,
+        tags=["threads"],
     )
     async def get_session_milestone_threads(
             self,

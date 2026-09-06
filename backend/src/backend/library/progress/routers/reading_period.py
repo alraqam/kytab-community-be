@@ -13,7 +13,6 @@ from src.backend.library.shelf.models import ShelfItem, Shelf
 
 router = APIRouter(
     prefix="/{shelf_item_id}/period",
-    tags=["reading_period"],
 )
 
 @cbv(router)
@@ -28,7 +27,8 @@ class ReadingPeriodRouter:
     @router.post(
         "/",
         summary="start reading period",
-        response_model=GetReadingPeriod
+        response_model=GetReadingPeriod,
+        tags=["reading_period"],
     )
     async def start_reading_period(
             self,
@@ -40,6 +40,7 @@ class ReadingPeriodRouter:
     @router.put(
         "/{reading_period_id}",
         summary="set finished reading period",
+        tags=["reading_period"],
     )
     async def set_finishing_date(
             self,
@@ -51,6 +52,7 @@ class ReadingPeriodRouter:
     @router.delete(
         "/{reading_period_id}",
         summary="deleting reading period",
+        tags=["reading_period"],
     )
     async def delete_reading_period(
             self,
@@ -62,7 +64,8 @@ class ReadingPeriodRouter:
     @router.get(
         "/",
         summary="getting shelf item's reading periods",
-        response_model=list[GetReadingPeriod]
+        response_model=list[GetReadingPeriod],
+        tags=["reading_period"],
     )
     async def get_shelf_item_periods(
             self,
@@ -74,7 +77,8 @@ class ReadingPeriodRouter:
     @router.get(
         "/{reading_period_id}",
         summary="getting reading period by id",
-        response_model=GetReadingPeriod
+        response_model=GetReadingPeriod,
+        tags=["reading_period"],
     )
     async def get_reading_period_by_id(
             self,
@@ -86,7 +90,8 @@ class ReadingPeriodRouter:
     @router.get(
         "/user/{user_id}",
         summary="getting user's reading periods",
-        response_model=list[GetReadingPeriod]
+        response_model=list[GetReadingPeriod],
+        tags=["reading_period"],
     )
     async def get_user_reading_periods(
             self,

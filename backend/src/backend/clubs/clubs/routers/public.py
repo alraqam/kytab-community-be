@@ -14,7 +14,6 @@ from src.backend.identity.auth.models import User
 
 router = APIRouter(
     prefix="/clubs",
-    tags=["club"]
 )
 
 @cbv(router)
@@ -29,6 +28,7 @@ class ClubRouter:
         "/",
         summary="creating club",
         response_model=GetClub,
+        tags=["club"],
     )
     async def create_club(
             self,
@@ -41,6 +41,7 @@ class ClubRouter:
     @router.put(
         "/{club_id}",
         summary="updating club",
+        tags=["club"],
     )
     async def update_club(
             self,
@@ -53,6 +54,7 @@ class ClubRouter:
     @router.put(
         "/{club_id}/cover",
         summary="updating club cover",
+        tags=["club"],
     )
     async def update_cover(
             self,
@@ -65,6 +67,7 @@ class ClubRouter:
     @router.delete(
         "/{club_id}",
         summary="archiving club",
+        tags=["club"],
     )
     async def archive_club(
             self,
@@ -77,6 +80,7 @@ class ClubRouter:
         "/public",
         summary="getting all clubs",
         response_model=list[GetClub],
+        tags=["club"],
     )
     async def get_clubs_list(
             self,
@@ -89,6 +93,7 @@ class ClubRouter:
     @router.put(
         "/{club_id}/transfer",
         summary="transferring club ownership",
+        tags=["club"],
     )
     async def transfer_ownership(
             self,
