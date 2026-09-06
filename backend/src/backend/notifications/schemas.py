@@ -86,3 +86,23 @@ class GetNotificationPreference(BaseModel):
     is_muted: bool
     created_at: datetime
     updated_at: datetime | None = None
+
+class CreatePushSubscription(BaseModel):
+    """Request payload for registering a browser's Web Push subscription."""
+
+    endpoint: str
+    p256dh: str
+    auth: str
+
+class DeletePushSubscription(BaseModel):
+    """Request payload for removing a browser's Web Push subscription."""
+
+    endpoint: str
+
+class GetPushSubscription(BaseModel):
+    """Response payload representing a registered push subscription."""
+
+    id: int
+    user_id: int
+    endpoint: str
+    created_at: datetime

@@ -160,6 +160,23 @@ class ReviewRepository:
         reviews = result.scalars().all()
         return reviews
 
+    async def get_reviews_for_users(
+            self,
+            user_ids: list[int],
+    ) -> list[Review]:
+        """Lists all reviews written by any of the given users.
+
+        Args:
+            user_ids: IDs of the users whose reviews to list.
+
+        Returns:
+            List of matching Review instances.
+        """
+        stmt = select(Review).where(Review.user_id.in_(user_ids))
+        result = await self.session.execute(stmt)
+        reviews = result.scalars().all()
+        return reviews
+
     async def get_review_by_id(
             self,
             review_id: int,

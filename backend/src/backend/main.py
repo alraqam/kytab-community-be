@@ -18,6 +18,7 @@ from src.backend.identity.blocked_users.routers import router as blocked_users_r
 from src.backend.identity.follow.routers import router as follow_router
 from src.backend.identity.analytics.routers.public import router as user_analytics_router
 from src.backend.identity.analytics.routers.admin import router as user_analytics_admin_router
+from src.backend.identity.feed.routers import router as feed_router
 
 from src.backend.catalog.books.routers.books import router as books_router
 from src.backend.catalog.books.routers.work import router as work_router
@@ -67,6 +68,7 @@ from src.backend.clubs.events.routers.event import router as event_router
 from src.backend.clubs.events.routers.rsvp import router as event_rsvp_router
 from src.backend.clubs.analytics.routers.public import router as club_analytics_router
 from src.backend.clubs.analytics.routers.admin import router as club_analytics_admin_router
+from src.backend.clubs.club_summary.routers import router as club_summary_router
 
 from src.backend.trust_safety.complaint.routers.public import router as public_complaint_router
 from src.backend.trust_safety.complaint.routers.admin import router as admin_complaint_router
@@ -77,6 +79,7 @@ from src.backend.trust_safety.export.routers import router as export_router
 
 from src.backend.notifications.routers.preference import router as preference_router
 from src.backend.notifications.routers.notification import router as notification_router
+from src.backend.notifications.routers.push import router as push_subscription_router
 
 from src.backend.administration.announcements.routers.admin import router as announcement_admin_router
 from src.backend.administration.announcements.routers.public import router as announcement_public_router
@@ -117,6 +120,7 @@ clubs_public_router.include_router(voting_poll_router)
 event_router.include_router(event_rsvp_router)
 clubs_public_router.include_router(event_router)
 clubs_public_router.include_router(club_analytics_router)
+clubs_public_router.include_router(club_summary_router)
 
 api_v1_router.include_router(auth_router)
 api_v1_router.include_router(session_router)
@@ -124,6 +128,7 @@ api_v1_router.include_router(user_router)
 api_v1_router.include_router(profile_router)
 api_v1_router.include_router(blocked_users_router)
 api_v1_router.include_router(follow_router)
+api_v1_router.include_router(feed_router)
 api_v1_router.include_router(user_analytics_router)
 api_v1_router.include_router(user_analytics_admin_router)
 api_v1_router.include_router(books_router)
@@ -155,6 +160,7 @@ api_v1_router.include_router(consent_router)
 api_v1_router.include_router(export_router)
 api_v1_router.include_router(preference_router)
 api_v1_router.include_router(notification_router)
+api_v1_router.include_router(push_subscription_router)
 
 api_v1_router.include_router(announcement_admin_router)
 api_v1_router.include_router(announcement_public_router)

@@ -134,6 +134,23 @@ class ClubMembershipRepository:
         return memberships
 
 
+    async def get_memberships_for_users(
+            self,
+            user_ids: list[int],
+    ) -> list[ClubMembership]:
+        """Returns all club memberships for any of the given users.
+
+        Args:
+            user_ids: IDs of the users whose memberships are retrieved.
+
+        Returns:
+            List of ClubMembership instances across all clubs.
+        """
+        stmt = select(ClubMembership).where(ClubMembership.user_id.in_(user_ids))
+        result = await self.session.execute(stmt)
+        memberships = result.scalars().all()
+        return memberships
+
     async def get_club_owner_moderator(
             self,
             club: Club

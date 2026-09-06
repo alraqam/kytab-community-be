@@ -11,6 +11,7 @@ from src.backend.notifications.models import Notification, NotificationPreferenc
 if TYPE_CHECKING:
     from src.backend.notifications.managers.notification import NotificationManager
     from src.backend.notifications.managers.preference import NotificationPreferenceManager
+    from src.backend.notifications.managers.push_subscription import PushSubscriptionManager
 
 
 async def is_notification_owner(
@@ -110,3 +111,17 @@ async def get_notification_or_404(
         NotificationNotFoundError: When no notification matches the ID.
     """
     return await manager.get_notification_by_id(notification_id)
+
+async def get_push_subscription_manager(
+        session: AsyncSession = Depends(get_db)
+) -> "PushSubscriptionManager":
+    """Builds a PushSubscriptionManager bound to the request-scoped database session.
+
+    Args:
+        session: Database session injected by get_db.
+
+    Returns:
+        PushSubscriptionManager instance.
+    """
+    from src.backend.notifications.managers.push_subscription import PushSubscriptionManager
+    return PushSubscriptionManager(session)

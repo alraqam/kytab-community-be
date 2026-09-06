@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from datetime import datetime
+
 from sqlalchemy import select, and_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -166,6 +168,42 @@ class NotificationPreferenceRepository:
         result = await self.session.execute(stmt)
         preference = result.scalar_one_or_none()
         return preference
+
+    async def get_by_digest_frequency(
+            self,
+            digest_frequency: str,
+    ) -> list[NotificationPreference]:
+        """Lists all non-muted preferences with a given digest frequency.
+
+        Args:
+            digest_frequency: Digest frequency to match ("daily" or "weekly").
+
+        Returns:
+            List of matching NotificationPreference instances.
+        """
+        stmt = select(NotificationPreference).where(
+            and_(
+                NotificationPreference.digest_frequency == digest_frequency,
+                NotificationPreference.is_muted == False,
+            )
+        )
+        result = await self.session.execute(stmt)
+        lst = result.scalars().all()
+        return lst
+
+    async def update_last_digest_sent_at(
+            self,
+            preference: NotificationPreference,
+            when: datetime,
+    ) -> None:
+        """Records when a digest was last sent for a preference.
+
+        Args:
+            preference: NotificationPreference instance to update.
+            when: Timestamp of the digest send.
+        """
+        preference.last_digest_sent_at = when
+        await self.session.flush()
 
     async def get_preference_by_id(
             self,

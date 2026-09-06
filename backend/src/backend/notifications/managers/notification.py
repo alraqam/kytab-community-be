@@ -7,7 +7,9 @@ from src.backend.notifications.exceptions import NotificationNotFoundError
 from src.backend.notifications.filters import NotificationFilter
 from src.backend.notifications.managers.preference import NotificationPreferenceManager
 from src.backend.notifications.models import Notification, NotificationPreference
+from src.backend.notifications.push import send_notification_push
 from src.backend.notifications.repository.notification import NotificationRepository
+from src.backend.notifications.repository.push_subscription import PushSubscriptionRepository
 
 
 class NotificationManager:
@@ -20,6 +22,7 @@ class NotificationManager:
         self.session = session
         self.notification_repo = NotificationRepository(session)
         self.preference_manager = NotificationPreferenceManager(session)
+        self.push_subscription_repo = PushSubscriptionRepository(session)
 
     async def create_notification(
             self,
@@ -119,6 +122,11 @@ class NotificationManager:
 
         if preference is not None and preference.email_enabled and not preference.is_muted:
             send_notification_email.delay(user.email, title, body)
+
+        if preference is not None and preference.push_enabled and not preference.is_muted:
+            subscriptions = await self.push_subscription_repo.get_by_user(user.id)
+            for subscription in subscriptions:
+                send_notification_push.delay(subscription.endpoint, subscription.p256dh, subscription.auth, title, body)
 
         return notification
 

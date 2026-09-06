@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from datetime import datetime
 
 from sqlalchemy import select, and_, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -140,6 +141,40 @@ class NotificationRepository:
         result = await self.session.execute(stmt)
         lst = result.scalars().all()
         return len(lst)
+
+    async def get_notifications_since(
+            self,
+            user_id: int,
+            category: str,
+            club_id: int | None,
+            since: datetime,
+    ) -> list[Notification]:
+        """Lists a user's notifications for a category and club scope created after a timestamp.
+
+        Args:
+            user_id: ID of the user whose notifications to list.
+            category: Notification category to match.
+            club_id: Club ID to scope to, or None for the general (non-club) preference.
+            since: Only notifications created after this timestamp are returned.
+
+        Returns:
+            List of matching Notification instances, oldest first.
+        """
+        stmt = (
+            select(Notification)
+            .where(
+                and_(
+                    Notification.user_id == user_id,
+                    Notification.category == category,
+                    Notification.club_id == club_id,
+                    Notification.created_at > since,
+                )
+            )
+            .order_by(Notification.created_at)
+        )
+        result = await self.session.execute(stmt)
+        lst = result.scalars().all()
+        return lst
 
     async def get_notification_by_id(
             self,

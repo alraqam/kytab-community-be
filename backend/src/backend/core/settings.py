@@ -43,6 +43,10 @@ class Settings(BaseSettings):
     S3_BUCKET_NAME: str
     S3_REGION: str
 
+    VAPID_PUBLIC_KEY: str
+    VAPID_PRIVATE_KEY: str
+    VAPID_CLAIM_EMAIL: str
+
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env"
     )

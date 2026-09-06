@@ -14,6 +14,7 @@ celery_app = Celery(
         "src.backend.identity.auth.services.email",
         "src.backend.clubs.club_membership.email",
         "src.backend.notifications.email",
+        "src.backend.notifications.push",
     ]
 )
 
@@ -42,6 +43,14 @@ celery_app.conf.beat_schedule = {
     "send-deadline-reminders": {
         "task": "src.backend.tasks.event_reminders.send_event_reminders",
         "schedule": crontab(hour=9, minute=0),
+    },
+    "send-daily-digests": {
+        "task": "src.backend.tasks.digests.send_daily_digests",
+        "schedule": crontab(hour=8, minute=0),
+    },
+    "send-weekly-digests": {
+        "task": "src.backend.tasks.digests.send_weekly_digests",
+        "schedule": crontab(day_of_week="mon", hour=8, minute=0),
     },
 }
 

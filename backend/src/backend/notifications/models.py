@@ -1,4 +1,4 @@
-from sqlalchemy import Column, BigInteger, ForeignKey, String, Boolean, Text, UniqueConstraint, select
+from sqlalchemy import Column, BigInteger, ForeignKey, String, Boolean, Text, DateTime, UniqueConstraint, select
 from sqlalchemy.orm import column_property
 
 from src.backend.clubs.clubs.models import Club
@@ -34,10 +34,23 @@ class NotificationPreference(Base, IntIdMixin, TimeActionMixin):
     push_enabled = Column(Boolean, nullable=False, default=False)
     digest_frequency = Column(String(100), nullable=False, default="none")
     is_muted = Column(Boolean, nullable=False, default=False)
+    last_digest_sent_at = Column(DateTime, nullable=True)
 
     __table_args__ = (
         UniqueConstraint("user_id", "club_id", "category", name="uq_user_club_category_preference"),
     )
+
+
+class PushSubscription(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a browser's Web Push subscription for a user."""
+
+    __tablename__ = "push_subscriptions"
+
+    user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    endpoint = Column(Text, nullable=False, unique=True)
+    p256dh = Column(String(255), nullable=False)
+    auth = Column(String(255), nullable=False)
+
 
 Notification.username = column_property(
     select(User.username).where(User.id == Notification.user_id).correlate_except(User).scalar_subquery()
