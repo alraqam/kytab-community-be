@@ -36,6 +36,34 @@ class ReadingPeriodRepository:
         await self.session.flush()
         return result
 
+    async def create_with_dates(
+            self,
+            shelf_item_id: int,
+            started_at: datetime | None,
+            finished_at: datetime | None,
+    ) -> ReadingPeriod:
+        """Inserts a reading period with explicit start/finish timestamps.
+
+        Used for backfilling historical reading periods (e.g. from an import)
+        rather than the "starts now" flow of start_reading_period.
+
+        Args:
+            shelf_item_id: ID of the shelf item the reading period belongs to.
+            started_at: Historical start timestamp, or None if unknown.
+            finished_at: Historical finish timestamp, or None if unknown.
+
+        Returns:
+            Newly created ReadingPeriod instance.
+        """
+        result = ReadingPeriod(
+            shelf_item_id=shelf_item_id,
+            started_at=started_at,
+            finished_at=finished_at,
+        )
+        self.session.add(result)
+        await self.session.flush()
+        return result
+
     async def set_finishing_date(
             self,
             reading_period: ReadingPeriod,

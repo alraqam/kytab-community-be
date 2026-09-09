@@ -43,6 +43,7 @@ from src.backend.library.reviews.routers.like import router as review_like_route
 from src.backend.library.progress.routers.reading_period import router as reading_period_router
 from src.backend.library.progress.routers.progress_logs import router as progress_logs_router
 from src.backend.library.progress.routers.users_progress import router as user_progress_router
+from src.backend.library.goodreads_import.routers import router as goodreads_import_router
 
 from src.backend.clubs.clubs.routers.public import router as clubs_public_router
 from src.backend.clubs.clubs.routers.admin import router as clubs_admin_router
@@ -148,6 +149,7 @@ api_v1_router.include_router(librarian_submission_router)
 api_v1_router.include_router(reading_goals_router)
 api_v1_router.include_router(shelf_router)
 api_v1_router.include_router(user_progress_router)
+api_v1_router.include_router(goodreads_import_router)
 api_v1_router.include_router(clubs_public_router)
 api_v1_router.include_router(clubs_admin_router)
 api_v1_router.include_router(club_analytics_admin_router)

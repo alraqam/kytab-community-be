@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from sqlalchemy import select, update, delete, and_
+from sqlalchemy import select, update, delete, and_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.catalog.books.filters import WorkFilter
@@ -111,6 +111,23 @@ class WorkRepository:
         if filters:
             stmt = filters.filter(stmt)
             stmt = filters.sort(stmt)
+        result = await self.session.execute(stmt)
+        works = list(result.scalars().all())
+        return works
+
+    async def get_works_by_title(
+            self,
+            title: str,
+    ) -> list[Work]:
+        """Fetches works whose canonical title matches exactly, case-insensitively.
+
+        Args:
+            title: Title to match.
+
+        Returns:
+            List of matching Work instances.
+        """
+        stmt = select(Work).where(func.lower(Work.canonical_title) == title.strip().lower())
         result = await self.session.execute(stmt)
         works = list(result.scalars().all())
         return works

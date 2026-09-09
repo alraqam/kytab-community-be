@@ -104,6 +104,20 @@ class WorkManager:
             raise WorkNotFoundError("Work not found")
         return work
 
+    async def get_works_by_title(
+            self,
+            title: str,
+    ) -> list[Work]:
+        """Returns works whose canonical title matches exactly, case-insensitively.
+
+        Args:
+            title: Title to match.
+
+        Returns:
+            List of matching Work instances.
+        """
+        return await self.work_repo.get_works_by_title(title)
+
     async def get_all_works(
             self,
             filters: WorkFilter | None = None,

@@ -1,4 +1,4 @@
-# BookClub Platform
+# Kytab Community
 
 A social reading platform with **private book clubs** at its core — readers keep a personal library (shelves, ratings, reviews, progress), and clubs read on a shared schedule with **spoiler-safe, milestone-gated discussions**. Positioned as a modern, privacy-first alternative to Goodreads, with first-class support for regional-language catalogs (e.g. Uzbek and Russian titles).
 

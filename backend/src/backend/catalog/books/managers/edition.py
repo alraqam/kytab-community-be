@@ -140,6 +140,20 @@ class EditionManager:
         """
         return await self.edition_repo.get_editions_by_work(work_id)
 
+    async def get_edition_by_isbn(
+            self,
+            isbn: str,
+    ) -> Edition | None:
+        """Fetches an edition by its ISBN.
+
+        Args:
+            isbn: ISBN string to search for.
+
+        Returns:
+            Edition instance if found, None otherwise.
+        """
+        return await self.edition_repo.get_edition_by_isbn(isbn)
+
     async def get_all_editions(
             self,
             filters: EditionFilter | None = None,

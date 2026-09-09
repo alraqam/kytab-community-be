@@ -14,6 +14,7 @@ from src.backend.identity.auth.models import User, Session
 from src.backend.identity.blocked_users.models import BlockedUser
 from src.backend.identity.follow.models import Follow
 from src.backend.identity.profile.models import Profile
+from src.backend.library.goodreads_import.models import GoodreadsImportRow
 from src.backend.library.progress.models import ProgressLog, ReadingPeriod
 from src.backend.library.reading_goals.models import ReadingGoal
 from src.backend.library.reviews.models import Review, ReviewLike, ReviewComment

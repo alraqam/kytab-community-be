@@ -39,6 +39,7 @@ from src.backend.catalog.librarian.models import LibrarianSubmission
 from src.backend.library.reading_goals.models import ReadingGoal
 from src.backend.library.shelf.models import Shelf, ShelfItem
 from src.backend.library.progress.models import ProgressLog, ReadingPeriod
+from src.backend.library.goodreads_import.models import GoodreadsImportRow
 from src.backend.library.reviews.models import Review
 from src.backend.clubs.clubs.models import Club, ClubGenre
 from src.backend.clubs.club_membership.models import ClubMembership

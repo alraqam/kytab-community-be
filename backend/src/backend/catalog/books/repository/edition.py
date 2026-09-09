@@ -165,6 +165,23 @@ class EditionRepository:
         edition = result.scalar_one_or_none()
         return edition
 
+    async def get_edition_by_isbn(
+            self,
+            isbn: str,
+    ) -> Edition | None:
+        """Fetches an edition by its ISBN.
+
+        Args:
+            isbn: ISBN string to search for.
+
+        Returns:
+            Edition instance if found, None otherwise.
+        """
+        stmt = select(Edition).where(Edition.isbn == isbn)
+        result = await self.session.execute(stmt)
+        edition = result.scalar_one_or_none()
+        return edition
+
     async def get_editions_by_work(
             self,
             work_id: int,
