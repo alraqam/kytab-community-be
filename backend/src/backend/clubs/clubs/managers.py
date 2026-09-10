@@ -78,6 +78,7 @@ class ClubManager:
             name=request.name,
             description=request.description,
             club_type=request.club_type,
+            member_cap=request.member_cap,
         )
         await self.session.commit()
 

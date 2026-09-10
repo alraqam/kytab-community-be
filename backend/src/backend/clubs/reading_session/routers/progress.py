@@ -58,7 +58,7 @@ class MilestoneProgressRouter:
             progress: MilestoneProgress = Depends(get_milestone_progress_or_404),
     ):
         """Marks the current user's milestone progress as finished."""
-        await self.manager.finish_milestone_progress(progress, self.user)
+        await self.manager.finish_milestone_progress(progress, self.user, self.session)
 
     @router.delete(
         "/{progress_id}",

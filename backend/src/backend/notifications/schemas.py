@@ -14,6 +14,7 @@ class NotificationCategory(str, Enum):
     poll_opening = "poll_opening"
     poll_closing = "poll_closing"
     milestone_date_reached = "milestone_date_reached"
+    discussion_prompt = "discussion_prompt"
     general = "general"
 
 class NotificationObjectType(str, Enum):
@@ -27,6 +28,7 @@ class NotificationObjectType(str, Enum):
     poll = "poll"
     event = "event"
     milestone = "milestone"
+    discussion_prompt = "discussion_prompt"
     complaint = "complaint"
 
 class DigestFrequency(str, Enum):

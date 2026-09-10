@@ -4,7 +4,7 @@ from enum import Enum
 from pydantic import BaseModel, Field
 
 from src.backend.catalog.books.schemas.genre import GetGenre
-from src.backend.clubs.clubs.models import Club
+from src.backend.clubs.clubs.models import Club, DEFAULT_CLUB_MEMBER_CAP
 
 
 class ClubTypes(str, Enum):
@@ -33,6 +33,9 @@ class UpdateClub(BaseModel):
     description: str | None = Field(default=None, max_length=1024)
     club_type: ClubTypes | None = None
     language: str | None = None
+    # Raising the cap beyond the platform default is a future premium lever (FR-CLB-23);
+    # for now owners/moderators may only lower it, not raise it.
+    member_cap: int | None = Field(default=None, ge=1, le=DEFAULT_CLUB_MEMBER_CAP)
 
 class AddClubGenre(BaseModel):
     """Request payload for associating a genre with a club."""
@@ -58,6 +61,7 @@ class GetClub(BaseModel):
     owner_username: str | None = None
     genres: list[GetGenre] = []
     is_archived: bool
+    member_cap: int
     created_at: datetime
 
 def to_get_club(club: Club, cover_url: str | None) -> GetClub:

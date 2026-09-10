@@ -9,7 +9,10 @@ from src.backend.clubs.reading_session.exceptions import ActiveSessionError, Mil
 from src.backend.clubs.reading_session.managers.session import ReadingSessionManager
 from src.backend.clubs.reading_session.models import ReadingSession, Milestone, MilestoneProgress
 from src.backend.clubs.reading_session.repository.progress import MilestoneProgressRepository
+from src.backend.clubs.reading_session.repository.prompt import DiscussionPromptRepository
 from src.backend.identity.auth.models import User
+from src.backend.notifications.managers.notification import NotificationManager
+from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
 
 
 class MilestoneProgressManager:
@@ -22,6 +25,8 @@ class MilestoneProgressManager:
         self.session = session
         self.progress_repo = MilestoneProgressRepository(session)
         self.session_manager = ReadingSessionManager(session)
+        self.prompt_repo = DiscussionPromptRepository(session)
+        self.notification_manager = NotificationManager(session)
 
     async def create_milestone_progress(
             self,
@@ -97,23 +102,43 @@ class MilestoneProgressManager:
             self,
             progress: MilestoneProgress,
             user: User,
+            reading_session: ReadingSession,
     ) -> None:
         """Marks a milestone progress record as finished, for the owning user.
+
+        Surfaces each discussion prompt attached to the milestone to the user as a
+        notification, now that they've reached it.
 
         Args:
             progress: MilestoneProgress instance to mark finished.
             user: User expected to own the progress record.
+            reading_session: ReadingSession the milestone belongs to.
 
         Raises:
             IsNotProgressOwner: When the user does not own the progress record.
         """
         await is_milestone_progress_owner(progress, user)
 
+        milestone_id = progress.milestone_id
+        milestone_label = progress.milestone_label
+
         await self.progress_repo.update_milestone_progress_finished(
             progress=progress,
             status=True
         )
         await self.session.commit()
+
+        prompts = await self.prompt_repo.get_milestone_prompts(milestone_id)
+        for prompt in prompts:
+            await self.notification_manager.notify(
+                user,
+                category=NotificationCategory.discussion_prompt,
+                title=f"Discussion prompt unlocked: \"{milestone_label}\"",
+                body=prompt.text,
+                object_type=NotificationObjectType.discussion_prompt,
+                object_id=prompt.id,
+                club_id=reading_session.club_id,
+            )
 
     async def delete_milestone_progress(
             self,

@@ -17,6 +17,9 @@ class ProgressLogNotFound(NotFound):
 class NoTotalPagesError(NotFound):
     """Raised when recommended pages cannot be calculated because the book has no page count."""
 
+class NoProgressLoggedError(NotFound):
+    """Raised when reading pace cannot be estimated because no progress has been logged yet."""
+
 class ReadingPeriodNotFound(NotFound):
     """Raised when a reading period with the given ID does not exist."""
 

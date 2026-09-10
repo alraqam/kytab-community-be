@@ -34,3 +34,11 @@ class GetReadingPeriod(BaseModel):
     finished_at: datetime | None = None
 
 
+class GetReadingPace(BaseModel):
+    """Estimated reading pace and projected finish date for a reading period."""
+
+    pages_per_day: float
+    pages_remaining: int
+    projected_finish_date: date
+
+

@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.club_membership.exceptions import ClubOwnerError, PrivateClubError
+from src.backend.clubs.club_membership.exceptions import ClubOwnerError, PrivateClubError, ClubMemberCapReachedError
 from src.backend.clubs.club_membership.managers.block import ClubBlockedManager
 from src.backend.clubs.clubs.schemas import ClubTypes
 from src.backend.clubs.clubs.schemas import ManageClubModerators
@@ -59,6 +59,22 @@ class ClubMembershipManager:
             raise AlreadyClubMemberError("Already a member of this club")
         return membership
 
+    async def _ensure_under_member_cap(
+            self,
+            club: Club,
+    ) -> None:
+        """Verifies that a club has room for another member under its configured cap.
+
+        Args:
+            club: Club to check.
+
+        Raises:
+            ClubMemberCapReachedError: When the club is already at its member cap.
+        """
+        member_count = await self.membership_repo.count_memberships(club.id)
+        if member_count >= club.member_cap:
+            raise ClubMemberCapReachedError("This club has reached its member limit")
+
     async def join_public_club(
             self,
             user: User,
@@ -75,12 +91,14 @@ class ClubMembershipManager:
 
         Raises:
             AlreadyClubMemberError: When the user is already a member.
+            ClubMemberCapReachedError: When the club is already at the member cap.
         """
         if club.club_type != ClubTypes.public:
             raise PrivateClubError("Can not join this club")
         await self.get_user_club_membership(club, user)
 
         await self.club_blocked_manager.is_blocked_member(club.id, user.id)
+        await self._ensure_under_member_cap(club)
 
         result = await self.membership_repo.create_membership(
             club_id=club.id,
@@ -110,14 +128,17 @@ class ClubMembershipManager:
         Raises:
             AlreadyClubMemberError: When the user is already a member.
             MemberBlockedError: When the user is blocked from the club.
+            ClubMemberCapReachedError: When the club is already at the member cap.
         """
         await self.get_user_club_membership(club, user)
+        await self.club_blocked_manager.is_blocked_member(club.id, user.id)
+        await self._ensure_under_member_cap(club)
+
         result = await self.membership_repo.create_membership(
             club_id=club.id,
             user_id=user.id,
             role=MemberRole.member
         )
-        await self.club_blocked_manager.is_blocked_member(club.id, user.id)
         await self.session.commit()
         return result
 

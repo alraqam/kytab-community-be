@@ -1,9 +1,10 @@
-from sqlalchemy import Column, BigInteger, ForeignKey, String, Text, Boolean, UniqueConstraint, select
+from sqlalchemy import Column, BigInteger, ForeignKey, String, Text, Boolean, Integer, UniqueConstraint, select
 from sqlalchemy.orm import relationship, column_property
 
 from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
 from src.backend.identity.auth.models import User
 
+DEFAULT_CLUB_MEMBER_CAP = 150
 
 class Club(Base, IntIdMixin, TimeActionMixin):
     """ORM model representing a book club, its ownership, and its visibility settings."""
@@ -17,6 +18,7 @@ class Club(Base, IntIdMixin, TimeActionMixin):
     cover = Column(Text, nullable=True)
     language = Column(String(20), nullable=True)
     is_archived = Column(Boolean, default=False)
+    member_cap = Column(Integer, nullable=False, default=DEFAULT_CLUB_MEMBER_CAP)
 
     members = relationship("ClubMembership", backref="club", lazy="selectin")
     events = relationship("ClubEvent", backref="club", lazy="selectin")

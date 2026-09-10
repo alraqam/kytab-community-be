@@ -49,6 +49,7 @@ class ClubRepository:
             club_type: str | None = None,
             cover: str | None = None,
             language: str | None = None,
+            member_cap: int | None = None,
     ) -> None:
         """Updates the given fields of a club, skipping unset ones.
 
@@ -59,6 +60,7 @@ class ClubRepository:
             club_type: New club type, or None to leave unchanged.
             cover: New cover URL, or None to leave unchanged.
             language: New language, or None to leave unchanged.
+            member_cap: New member cap, or None to leave unchanged.
         """
         updates = {
             "name": name,
@@ -66,6 +68,7 @@ class ClubRepository:
             "club_type": club_type,
             "cover": cover,
             "language": language,
+            "member_cap": member_cap,
         }
         for field, value in updates.items():
             if value is not None:

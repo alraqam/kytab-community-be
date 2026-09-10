@@ -1,4 +1,5 @@
-from datetime import date
+import math
+from datetime import date, timedelta
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,10 +9,11 @@ from src.backend.library.progress.exceptions import ActiveReadingPeriodError
 from src.backend.library.progress.managers.reading_period import ReadingPeriodManager
 from src.backend.identity.auth.models import User
 from src.backend.library.progress.dependencies import is_log_owner
-from src.backend.library.progress.exceptions import ProgressLogNotFound, LogDateError
+from src.backend.library.progress.exceptions import ProgressLogNotFound, LogDateError, NoTotalPagesError, \
+    NoProgressLoggedError
 from src.backend.library.progress.models import ReadingPeriod, ProgressLog
 from src.backend.library.progress.repositories.progress_logs import ProgressLogRepository
-from src.backend.library.progress.schemas import LogProgressSchema
+from src.backend.library.progress.schemas import LogProgressSchema, GetReadingPace
 
 
 class ProgressLogManager:
@@ -72,7 +74,7 @@ class ProgressLogManager:
                 note=request.note
             )
 
-        edition = await self.reading_period_manager.get_edition_by_reading_period(reading_period.id)
+        edition = await self.reading_period_manager.get_edition_by_reading_period(reading_period)
         total_pages = edition.pages_count if edition else None
 
         if total_pages:
@@ -199,3 +201,49 @@ class ProgressLogManager:
         await self.shelf_manager.ensure_shelf_access(shelf, current_user, user)
         logs = await self.log_repo.get_user_progress_logs(user.id)
         return logs
+
+    async def estimate_reading_pace(
+            self,
+            user: User,
+            reading_period: ReadingPeriod,
+    ) -> GetReadingPace:
+        """Estimates the user's reading pace and projects a finish date for a current read.
+
+        Pace is the average pages read per day since the reading period started.
+
+        Args:
+            user: User the reading period belongs to.
+            reading_period: ReadingPeriod to estimate the pace for.
+
+        Returns:
+            GetReadingPace with pages per day, pages remaining, and a projected finish date.
+
+        Raises:
+            ActiveReadingPeriodError: When the reading period has already finished.
+            NoTotalPagesError: When the edition has no page count to project against.
+            NoProgressLoggedError: When no progress has been logged yet for the period.
+        """
+        if reading_period.finished_at is not None:
+            raise ActiveReadingPeriodError("Reading period already finished")
+
+        edition = await self.reading_period_manager.get_edition_by_reading_period(reading_period)
+        total_pages = edition.pages_count if edition else None
+        if not total_pages:
+            raise NoTotalPagesError("Book has no page count")
+
+        total_read = await self.log_repo.get_total_pages_read(user.id, reading_period.id)
+        if not total_read:
+            raise NoProgressLoggedError("No progress logged yet")
+
+        elapsed_days = (date.today() - reading_period.started_at.date()).days + 1
+        pages_per_day = total_read / max(elapsed_days, 1)
+
+        pages_remaining = max(total_pages - total_read, 0)
+        days_remaining = math.ceil(pages_remaining / pages_per_day)
+        projected_finish_date = date.today() + timedelta(days=days_remaining)
+
+        return GetReadingPace(
+            pages_per_day=round(pages_per_day, 2),
+            pages_remaining=pages_remaining,
+            projected_finish_date=projected_finish_date,
+        )

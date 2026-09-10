@@ -81,14 +81,14 @@ async def get_progress_log_manager(
     return ProgressLogManager(session)
 
 async def get_progress_log_or_404(
-        log_id: int,
+        progress_log_id: int,
         reading_period = Depends(get_reading_period_or_404),
         manager: ProgressLogManager = Depends(get_progress_log_manager)
 ) -> ProgressLog:
     """FastAPI dependency that resolves a progress log by ID, scoped to a reading period.
 
     Args:
-        log_id: ID of the progress log to fetch.
+        progress_log_id: ID of the progress log to fetch.
         reading_period: ReadingPeriod the log is expected to belong to.
         manager: ProgressLogManager used to fetch the log.
 
@@ -99,7 +99,7 @@ async def get_progress_log_or_404(
         ProgressLogNotFound: When no progress log matches the ID.
         ProgressLogNotInReadingPeriodError: When the log does not belong to the given reading period.
     """
-    log = await manager.get_progress_log_by_id(log_id)
+    log = await manager.get_progress_log_by_id(progress_log_id)
     if log.period_id != reading_period.id:
         raise ProgressLogNotInReadingPeriodError("Progress log not found in this reading period")
     return log

@@ -57,3 +57,6 @@ class DuplicateInvitationError(Conflict):
 
 class InviteeEmailDisabledError(Conflict):
     """Raised when the invited user does not accept email invitations."""
+
+class ClubMemberCapReachedError(Conflict):
+    """Raised when a club has reached its maximum member count."""

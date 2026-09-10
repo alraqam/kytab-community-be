@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Tuple
 
-from sqlalchemy import select, and_
+from sqlalchemy import select, and_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.clubs.club_membership.filters import ClubMembersFilter
@@ -92,6 +92,22 @@ class ClubMembershipRepository:
         result = await self.session.execute(stmt)
         membership = result.scalar_one_or_none()
         return membership
+
+    async def count_memberships(
+            self,
+            club_id: int,
+    ) -> int:
+        """Counts the current members of a club.
+
+        Args:
+            club_id: ID of the club to count members for.
+
+        Returns:
+            Number of membership records for the club.
+        """
+        stmt = select(func.count()).select_from(ClubMembership).where(ClubMembership.club_id == club_id)
+        result = await self.session.execute(stmt)
+        return result.scalar() or 0
 
     async def get_memberships(
             self,

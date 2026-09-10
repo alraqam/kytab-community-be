@@ -10,7 +10,7 @@ from src.backend.identity.auth.models import User
 from src.backend.library.progress.dependencies import get_reading_period_or_404, get_progress_log_or_404
 from src.backend.library.progress.managers.progress_logs import ProgressLogManager
 from src.backend.library.progress.models import ReadingPeriod, ProgressLog
-from src.backend.library.progress.schemas import LogProgressSchema, GetProgressLog
+from src.backend.library.progress.schemas import LogProgressSchema, GetProgressLog, GetReadingPace
 
 router = APIRouter(
     prefix="/{reading_period_id}/progress",
@@ -62,6 +62,18 @@ class ProgressLogRouter:
     ):
         """Fetches the current user's progress log for today."""
         result = await self.progress_log_manager.get_user_today_progress_log(self.user, self.reading_period)
+        return result
+
+    @router.get(
+        "/pace",
+        summary="estimating reading pace",
+        response_model=GetReadingPace,
+    )
+    async def estimate_reading_pace(
+            self,
+    ):
+        """Estimates the current user's reading pace and projected finish date."""
+        result = await self.progress_log_manager.estimate_reading_pace(self.user, self.reading_period)
         return result
 
     @router.get(
