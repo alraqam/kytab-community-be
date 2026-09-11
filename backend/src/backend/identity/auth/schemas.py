@@ -153,6 +153,17 @@ class TwoFactorVerify(BaseModel):
     pre_auth_token: str
     code: str
 
+class OAuthProviderEnum(str, Enum):
+    """Supported OAuth identity providers for federated sign-in."""
+
+    google = "google"
+    apple = "apple"
+
+class OAuthLogin(BaseModel):
+    """Request payload for signing in via an OAuth provider's identity token."""
+
+    id_token: str
+
 class GetSession(BaseModel):
     """Response payload describing a user's active session."""
 

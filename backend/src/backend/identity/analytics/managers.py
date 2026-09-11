@@ -7,7 +7,7 @@ from src.backend.catalog.books.repository.genre import GenreRepository
 from src.backend.identity.analytics.schemas import GenreBreakdown, GetPlatformUserAnalytics, GetUserAnalytics, \
     MonthlyReadingActivity, SignupsByMonth
 from src.backend.identity.auth.models import User
-from src.backend.identity.auth.repository import SessionRepository
+from src.backend.identity.auth.repository.session import SessionRepository
 from src.backend.identity.auth.schemas import UserRoleEnum
 from src.backend.core.storage import StorageService
 from src.backend.identity.follow.managers import FollowManager

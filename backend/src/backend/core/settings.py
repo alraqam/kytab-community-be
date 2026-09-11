@@ -47,6 +47,9 @@ class Settings(BaseSettings):
     VAPID_PRIVATE_KEY: str
     VAPID_CLAIM_EMAIL: str
 
+    GOOGLE_CLIENT_ID: str
+    APPLE_CLIENT_ID: str
+
     model_config = SettingsConfigDict(
         env_file=BASE_DIR / ".env"
     )

@@ -54,3 +54,9 @@ class TwoFactorSetupNotStartedError(BadRequest):
 
 class InvalidTwoFactorCodeError(Unauthorized):
     """Raised when a submitted TOTP or recovery code does not match."""
+
+class InvalidOAuthTokenError(Unauthorized):
+    """Raised when an OAuth identity token is malformed, expired, or fails signature verification."""
+
+class OAuthEmailNotVerifiedError(Forbidden):
+    """Raised when an OAuth provider does not report a verified email for a first-time sign-in."""

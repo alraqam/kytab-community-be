@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, String, Text, Boolean, Integer, ForeignKey, DateTime, select
+from sqlalchemy import Column, String, Text, Boolean, Integer, ForeignKey, DateTime, UniqueConstraint, select
 from sqlalchemy.orm import column_property
 
 from src.backend.core.models import IntIdMixin, TimeActionMixin, Base
@@ -44,6 +44,19 @@ class RecoveryCode(Base, IntIdMixin, TimeActionMixin):
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     code_hash = Column(Text, nullable=False, unique=True)
     used_at = Column(DateTime(timezone=True), nullable=True)
+
+class OAuthAccount(Base, IntIdMixin, TimeActionMixin):
+    """ORM model linking a user to an external OAuth identity provider account."""
+
+    __tablename__ = "oauth_accounts"
+
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    provider = Column(String(20), nullable=False)
+    provider_user_id = Column(String(255), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("provider", "provider_user_id", name="uq_oauth_accounts_provider_subject"),
+    )
 
 Session.username = column_property(
     select(User.username)

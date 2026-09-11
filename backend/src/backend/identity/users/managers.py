@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.identity.auth.models import User
-from src.backend.identity.auth.repository import SessionRepository
+from src.backend.identity.auth.repository.session import SessionRepository
 from src.backend.identity.users.exceptions import UserNotFoundError
 from src.backend.identity.users.filters import UserFilter
 from src.backend.identity.users.repository import UserRepository

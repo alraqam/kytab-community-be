@@ -2,12 +2,13 @@
 
 from fastapi import APIRouter, FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
+from sqlalchemy.exc import IntegrityError
 
 from src.backend.core.exceptions import Unauthorized, Forbidden, NotFound, Conflict, BadRequest, ServiceUnavailable, \
     TooManyRequests
 from src.backend.core.handlers import unauthorized_exception_handler, forbidden_exception_handler, \
     not_found_exception_handler, conflict_exception_handler, bad_request_exception_handler, \
-    service_unavailable_exception_handler, too_many_requests_exception_handler
+    service_unavailable_exception_handler, too_many_requests_exception_handler, integrity_error_exception_handler
 
 
 from src.backend.identity.auth.routers.auth import router as auth_router
@@ -180,6 +181,7 @@ app.add_exception_handler(Conflict, conflict_exception_handler)
 app.add_exception_handler(BadRequest, bad_request_exception_handler)
 app.add_exception_handler(ServiceUnavailable, service_unavailable_exception_handler)
 app.add_exception_handler(TooManyRequests, too_many_requests_exception_handler)
+app.add_exception_handler(IntegrityError, integrity_error_exception_handler)
 
 
 if __name__ == "__main__":

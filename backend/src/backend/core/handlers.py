@@ -1,3 +1,4 @@
+from sqlalchemy.exc import IntegrityError
 from starlette import status
 from starlette.requests import Request
 from starlette.responses import JSONResponse
@@ -133,5 +134,24 @@ async def too_many_requests_exception_handler(request: Request, exc: TooManyRequ
         content=
         {
             "detail": str(exc),
+        },
+    )
+
+
+async def integrity_error_exception_handler(request: Request, exc: IntegrityError):
+    """Converts unhandled database constraint violations to HTTP 409 JSON responses.
+
+    Args:
+        request: Incoming Starlette request.
+        exc: Raised SQLAlchemy IntegrityError (e.g. a unique or foreign key violation).
+
+    Returns:
+        JSONResponse with status 409 and a generic conflict message as detail.
+    """
+    return JSONResponse(
+        status_code=status.HTTP_409_CONFLICT,
+        content=
+        {
+            "detail": "The request conflicts with existing data",
         },
     )

@@ -1,4 +1,5 @@
 import hashlib
+import secrets
 from datetime import timedelta, datetime
 
 from jose import jwt, JWTError
@@ -29,7 +30,8 @@ class TokenService:
         payload = {
             "sub": sub,
             "is_refresh": is_refresh,
-            "exp": datetime.now() + exp
+            "exp": datetime.now() + exp,
+            "jti": secrets.token_hex(16)
         }
         return jwt.encode(
             payload,

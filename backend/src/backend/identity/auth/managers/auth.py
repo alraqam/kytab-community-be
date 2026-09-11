@@ -1,3 +1,5 @@
+import re
+import secrets
 from datetime import datetime, timedelta, timezone
 
 from jose import jwt
@@ -9,14 +11,16 @@ from src.backend.identity.profile.schemas import CreateProfile
 from src.backend.library.shelf.managers.shelf import ShelfManager
 from src.backend.identity.auth.exceptions import InvalidUsernameOrPasswordError, UnverifiedUserError, \
     UsernameAlreadyExists, EmailAlreadyExists, InvalidTokenError, UsernameChangeTooSoonError, \
-    InvalidTwoFactorCodeError
+    InvalidTwoFactorCodeError, OAuthEmailNotVerifiedError
 from src.backend.identity.auth.managers.two_factor import TwoFactorManager
 from src.backend.identity.auth.models import User
-from src.backend.identity.auth.repository import SessionRepository
+from src.backend.identity.auth.repository.session import SessionRepository
+from src.backend.identity.auth.repository.oauth_account import OAuthAccountRepository
 from src.backend.identity.auth.schemas import Token, UserRegister, ChangeUserPassword, ResetPassword, UpdateUser, \
     ForgotPassword, TwoFactorRequired
 from src.backend.identity.auth.services.email import create_verification_token, create_password_reset_token, \
     decode_password_reset_token, send_verification_email, send_password_reset_email
+from src.backend.identity.auth.services.oauth import OAuthService
 from src.backend.identity.auth.services.security import PasswordService, TokenService, hash_token
 from src.backend.identity.users.managers import UserManager
 from src.backend.identity.users.repository import UserRepository
@@ -35,8 +39,10 @@ class AuthManager:
         self.session = session
         self.user_repo = UserRepository(session)
         self.session_repo = SessionRepository(session)
+        self.oauth_account_repo = OAuthAccountRepository(session)
         self.password_service = PasswordService()
         self.token_service = TokenService()
+        self.oauth_service = OAuthService()
         self.profile_manager = ProfileManager(session, StorageService())
         self.user_manager = UserManager(session)
         self.shelf_manager = ShelfManager(session)
@@ -149,6 +155,108 @@ class AuthManager:
             raise InvalidTwoFactorCodeError("Invalid two-factor code")
 
         return await self._issue_tokens(user, request)
+
+    async def oauth_login(
+            self,
+            provider: str,
+            id_token: str,
+            request
+    ) -> Token:
+        """Signs a user in via a Google or Apple identity token.
+
+        A token from a provider account that is already linked signs directly into its
+        linked user. Otherwise, the verified email is linked to the matching existing
+        account, or used to create a new account if none exists.
+
+        Args:
+            provider: OAuth provider name ("google" or "apple").
+            id_token: Signed identity token issued by the provider.
+            request: Incoming Request, used to read the user-agent and client IP for the new session.
+
+        Returns:
+            Newly issued access/refresh Token pair with the created session's ID.
+
+        Raises:
+            InvalidOAuthTokenError: When the identity token fails verification.
+            OAuthEmailNotVerifiedError: When no account is linked yet and the provider has
+                not verified the account's email.
+        """
+        claims = await self.oauth_service.verify(provider, id_token)
+
+        oauth_account = await self.oauth_account_repo.get_by_provider_subject(provider, claims["sub"])
+        if oauth_account:
+            user = await self.user_repo.get_user_by_id(oauth_account.user_id)
+            return await self._issue_tokens(user, request)
+
+        email = claims.get("email")
+        if not email or not claims.get("email_verified"):
+            raise OAuthEmailNotVerifiedError("OAuth provider did not report a verified email")
+
+        user = await self.user_repo.get_user_by_email(email)
+        if not user:
+            user = await self._create_oauth_user(email, claims.get("name"))
+
+        await self.oauth_account_repo.create(user.id, provider, claims["sub"])
+        await self.session.commit()
+        return await self._issue_tokens(user, request)
+
+    async def _create_oauth_user(
+            self,
+            email: str,
+            fullname: str | None
+    ) -> User:
+        """Creates a new account for a first-time OAuth sign-in with no password set.
+
+        Args:
+            email: Verified email address reported by the OAuth provider.
+            fullname: Display name reported by the OAuth provider, if any.
+
+        Returns:
+            Newly created User instance.
+        """
+        username = await self._generate_username_from_email(email)
+        hashed_password = self.password_service.hash(secrets.token_urlsafe(32))
+        user = await self.user_repo.create(
+            username=username,
+            email=email,
+            hashed_password=hashed_password,
+        )
+        await self.user_repo.update_verification(user, True)
+
+        await self.profile_manager.create(
+            CreateProfile(
+                user_id=user.id,
+                fullname=fullname or username,
+            )
+        )
+        await self.shelf_manager.create_default_shelves(user)
+        return user
+
+    async def _generate_username_from_email(
+            self,
+            email: str
+    ) -> str:
+        """Derives a unique username from the local part of an email address.
+
+        Args:
+            email: Email address to derive the username from.
+
+        Returns:
+            Lowercase username, not already taken by another account.
+        """
+        base = re.sub(r"[^A-Za-z0-9_]", "", email.split("@")[0])
+        if not base or not base[0].isalpha():
+            base = f"user{base}"
+        if len(base) < 3:
+            base = f"{base}{secrets.token_hex(2)}"
+        base = base.lower()
+
+        username = base
+        suffix = 0
+        while await self.user_repo.exists_username(username):
+            suffix += 1
+            username = f"{base}{suffix}"
+        return username
 
     async def register(
             self,

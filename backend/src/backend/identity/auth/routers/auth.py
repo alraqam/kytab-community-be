@@ -6,11 +6,11 @@ from jose.exceptions import ExpiredSignatureError, JWTError
 from src.backend.core.rate_limit import RateLimiter
 from src.backend.identity.auth.dependencies import get_auth_manager, get_current_user
 from src.backend.identity.auth.exceptions import InvalidTokenError, LinkExpiredError, InvalidUsernameOrPasswordError, \
-    UnverifiedUserError, UsernameAlreadyExists, EmailAlreadyExists
+    UnverifiedUserError, UsernameAlreadyExists, EmailAlreadyExists, InvalidOAuthTokenError, OAuthEmailNotVerifiedError
 from src.backend.identity.auth.managers.auth import AuthManager
 from src.backend.identity.auth.models import User
 from src.backend.identity.auth.schemas import UserRegister, ChangeUserPassword, ResetPassword, UpdateUser, RefreshToken, \
-    ForgotPassword
+    ForgotPassword, OAuthProviderEnum, OAuthLogin
 from src.backend.identity.auth.services.email import decode_verification_token
 from src.backend.identity.users.dependencies import get_user_manager
 
@@ -26,6 +26,7 @@ login_limiter = RateLimiter("login")
 register_limiter = RateLimiter("register")
 forgot_password_limiter = RateLimiter("forgot-password")
 reset_password_limiter = RateLimiter("reset-password")
+oauth_login_limiter = RateLimiter("oauth-login")
 
 @cbv(router)
 class AuthRouter:
@@ -52,6 +53,27 @@ class AuthRouter:
             await login_limiter.record_failure(rate_limit_key)
             raise
         await login_limiter.reset(rate_limit_key)
+        return response
+
+    @router.post(
+        "/oauth/{provider}",
+        summary="signing in via an OAuth provider"
+    )
+    async def oauth_login(
+            self,
+            provider: OAuthProviderEnum,
+            payload: OAuthLogin,
+            request: Request
+    ):
+        """Signs a user in via a Google or Apple identity token, linking or creating an account."""
+        rate_limit_key = f"{request.client.host}:{provider.value}"
+        await oauth_login_limiter.check(rate_limit_key)
+        try:
+            response = await self.manager.oauth_login(provider.value, payload.id_token, request)
+        except (InvalidOAuthTokenError, OAuthEmailNotVerifiedError):
+            await oauth_login_limiter.record_failure(rate_limit_key)
+            raise
+        await oauth_login_limiter.reset(rate_limit_key)
         return response
 
     @router.post(
