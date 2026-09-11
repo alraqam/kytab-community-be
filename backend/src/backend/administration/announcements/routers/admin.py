@@ -9,6 +9,8 @@ from src.backend.administration.announcements.models import Announcement
 from src.backend.administration.announcements.schemas import CreateAnnouncement, UpdateAnnouncement, GetAnnouncement
 from src.backend.identity.auth.models import User
 from src.backend.identity.users.dependencies import is_admin
+from src.backend.trust_safety.audit_log.decorators import audit_action
+from src.backend.trust_safety.audit_log.schemas import AuditLogAction
 
 router = APIRouter(
     prefix="/admin/announcements",
@@ -27,6 +29,7 @@ class AnnouncementAdminRouter:
         summary="creating announcement",
         response_model=GetAnnouncement
     )
+    @audit_action(AuditLogAction.announcement_created, "announcement", id_from="result")
     async def create_announcement(
             self,
             request: CreateAnnouncement
@@ -39,6 +42,7 @@ class AnnouncementAdminRouter:
         "/{announcement_id}",
         summary="updating announcement",
     )
+    @audit_action(AuditLogAction.announcement_updated, "announcement", id_from="announcement")
     async def update_announcement(
             self,
             request: UpdateAnnouncement,
@@ -51,6 +55,7 @@ class AnnouncementAdminRouter:
         "/{announcement_id}/publish",
         summary="publishing announcement",
     )
+    @audit_action(AuditLogAction.announcement_published, "announcement", id_from="announcement")
     async def publish_announcement(
             self,
             announcement: Announcement = Depends(get_announcement_or_404),
@@ -62,6 +67,7 @@ class AnnouncementAdminRouter:
         "/{announcement_id}/unpublish",
         summary="unpublishing announcement",
     )
+    @audit_action(AuditLogAction.announcement_unpublished, "announcement", id_from="announcement")
     async def unpublish_announcement(
             self,
             announcement: Announcement = Depends(get_announcement_or_404),
@@ -73,6 +79,7 @@ class AnnouncementAdminRouter:
         "/{announcement_id}",
         summary="deleting announcement",
     )
+    @audit_action(AuditLogAction.announcement_deleted, "announcement", id_from="announcement")
     async def delete_announcement(
             self,
             announcement: Announcement = Depends(get_announcement_or_404),

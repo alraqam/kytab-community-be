@@ -14,6 +14,16 @@ class AuditLogAction(str, Enum):
     complaint_target_suspended = "complaint_target_suspended"
     complaint_target_banned = "complaint_target_banned"
     complaint_escalated = "complaint_escalated"
+    club_archived = "club_archived"
+    club_unarchived = "club_unarchived"
+    announcement_created = "announcement_created"
+    announcement_updated = "announcement_updated"
+    announcement_published = "announcement_published"
+    announcement_unpublished = "announcement_unpublished"
+    announcement_deleted = "announcement_deleted"
+    user_role_updated = "user_role_updated"
+    user_activity_updated = "user_activity_updated"
+    user_deleted = "user_deleted"
 
 class GetAuditLog(BaseModel):
     """Response payload representing an audit log entry."""

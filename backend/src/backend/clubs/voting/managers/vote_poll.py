@@ -49,7 +49,9 @@ class VotePollManager:
             Newly created PollVote instance.
 
         Raises:
-            NotClubMemberError: When the user is not a club member.
+            NotClubMemberError: When the user is not a member of a public club.
+            ClubAccessDeniedError: When the user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
             VotingClosedError: When the poll is already closed.
             UserVoteExistsError: When the user has already voted in this poll.
         """
@@ -85,7 +87,9 @@ class VotePollManager:
             List of PollVote instances.
 
         Raises:
-            NotClubMemberError: When the user is not a club member.
+            NotClubMemberError: When the user is not a member of a public club.
+            ClubAccessDeniedError: When the user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
         """
         await is_club_member(club, user, self.session)
 

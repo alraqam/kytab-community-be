@@ -12,7 +12,7 @@ from src.backend.library.shelf.permissions import is_shelf_owner
 from src.backend.library.shelf.exceptions import PrivateShelfError, ShelfItemNotFoundError
 from src.backend.library.shelf.models import Shelf, ShelfItem
 from src.backend.library.shelf.repositories.shelf_item import ShelfItemRepository
-from src.backend.library.shelf.schemas import CreateShelfItem, ShelfVisibility
+from src.backend.library.shelf.schemas import CreateShelfItem, ShelfVisibility, UpdateShelfItemEdition
 
 
 class ShelfItemManager:
@@ -103,6 +103,39 @@ class ShelfItemManager:
         )
         await self.session.commit()
         return result
+
+    async def update_edition(
+            self,
+            user: User,
+            shelf: Shelf,
+            shelf_item: ShelfItem,
+            request: UpdateShelfItemEdition
+    ) -> None:
+        """Sets a shelf item's preferred edition of its work.
+
+        Args:
+            user: User requesting the update.
+            shelf: Shelf that owns the shelf item.
+            shelf_item: ShelfItem whose preferred edition is being set.
+            request: UpdateShelfItemEdition payload with the new edition ID.
+
+        Raises:
+            IsNotShelfOwnerError: When the user does not own the shelf.
+            EditionNotFoundError: When the given edition does not exist.
+            InvalidWorkEditionError: When the given edition does not belong to the
+                shelf item's work.
+        """
+        await is_shelf_owner(user, shelf)
+
+        edition = await self.edition_manager.get_edition_by_id(request.edition_id) if request.edition_id else None
+        if edition and edition.work_id != shelf_item.work_id:
+            raise InvalidWorkEditionError("Invalid work edition")
+
+        await self.shelf_item_repo.update_edition(
+            shelf_item=shelf_item,
+            edition_id=edition.id if edition else None,
+        )
+        await self.session.commit()
 
     async def change_shelf(
             self,

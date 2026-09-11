@@ -9,8 +9,16 @@ class AlreadyClubMemberError(Conflict):
     """Raised when a user tries to join a club they already belong to."""
 
 
-class NotClubMemberError(Conflict):
-    """Raised when an operation requires club membership but the user is not a member."""
+class NotClubMemberError(Forbidden):
+    """Raised when an operation on a public club requires membership but the user is not a member."""
+
+
+class ClubAccessDeniedError(NotFound):
+    """Raised when a non-member requests private or secret club content.
+
+    Maps to 404 so the response is indistinguishable from the club not existing,
+    per the platform's privacy guarantee for non-public clubs.
+    """
 
 
 class InvitationNotFoundError(NotFound):

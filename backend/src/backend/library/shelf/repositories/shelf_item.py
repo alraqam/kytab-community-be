@@ -64,6 +64,21 @@ class ShelfItemRepository:
         self.session.add(shelf_item)
         await self.session.flush()
 
+    async def update_edition(
+            self,
+            shelf_item: ShelfItem,
+            edition_id: int | None
+    ) -> None:
+        """Updates a shelf item's preferred edition.
+
+        Args:
+            shelf_item: ShelfItem instance to update.
+            edition_id: ID of the new preferred edition, or None to clear it.
+        """
+        shelf_item.edition_id = edition_id
+        self.session.add(shelf_item)
+        await self.session.flush()
+
     async def get_shelf_items(
             self,
             shelf_id: int

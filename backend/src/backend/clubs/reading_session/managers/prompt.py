@@ -119,7 +119,9 @@ class DiscussionPromptManager:
             List of matching DiscussionPrompt instances.
 
         Raises:
-            NotClubMemberError: When the user is not a member of the club.
+            NotClubMemberError: When the user is not a member of a public club.
+            ClubAccessDeniedError: When the user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
         """
         await is_club_member(club, user, self.session)
         return await self.prompt_repo.get_milestone_prompts(milestone.id)

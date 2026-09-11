@@ -9,6 +9,8 @@ from src.backend.trust_safety.complaint.filters import ComplaintFilter
 from src.backend.trust_safety.complaint.managers import ComplaintManager
 from src.backend.trust_safety.complaint.models import Complaint
 from src.backend.trust_safety.complaint.schemas import GetComplaint, WarnComplaintTarget
+from src.backend.trust_safety.audit_log.decorators import audit_action
+from src.backend.trust_safety.audit_log.schemas import AuditLogAction
 
 router = APIRouter(
     prefix="/admin/complaint",
@@ -26,6 +28,7 @@ class ComplaintAdminRouter:
         "/{complaint_id}/resolve",
         summary="resolving complaints",
     )
+    @audit_action(AuditLogAction.complaint_resolved, "complaint", id_from="complaint")
     async def resolve_complaint(
             self,
             complaint: Complaint = Depends(get_complaint_or_404)
@@ -37,6 +40,7 @@ class ComplaintAdminRouter:
         "/{complaint_id}/dismiss",
         summary="dismissing complaints",
     )
+    @audit_action(AuditLogAction.complaint_dismissed, "complaint", id_from="complaint")
     async def dismiss_complaint(
             self,
             complaint: Complaint = Depends(get_complaint_or_404)
@@ -48,6 +52,7 @@ class ComplaintAdminRouter:
         "/{complaint_id}/remove-content",
         summary="removing reported content",
     )
+    @audit_action(AuditLogAction.complaint_content_removed, "complaint", id_from="complaint")
     async def remove_content(
             self,
             complaint: Complaint = Depends(get_complaint_or_404)
@@ -58,6 +63,10 @@ class ComplaintAdminRouter:
     @router.put(
         "/{complaint_id}/warn",
         summary="warning the reported user",
+    )
+    @audit_action(
+        AuditLogAction.complaint_target_warned, "complaint", id_from="complaint",
+        details_from=lambda request, **_: request.message,
     )
     async def warn_target(
             self,
@@ -71,6 +80,7 @@ class ComplaintAdminRouter:
         "/{complaint_id}/suspend",
         summary="suspending the reported user",
     )
+    @audit_action(AuditLogAction.complaint_target_suspended, "complaint", id_from="complaint")
     async def suspend_target(
             self,
             complaint: Complaint = Depends(get_complaint_or_404)
@@ -82,6 +92,7 @@ class ComplaintAdminRouter:
         "/{complaint_id}/ban",
         summary="banning the reported user",
     )
+    @audit_action(AuditLogAction.complaint_target_banned, "complaint", id_from="complaint")
     async def ban_target(
             self,
             complaint: Complaint = Depends(get_complaint_or_404)

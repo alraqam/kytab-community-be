@@ -38,6 +38,10 @@ class AnnouncementManager:
             body=request.body,
         )
         await self.session.commit()
+        # created_by_username is a column_property computed via subquery, so it's never
+        # populated on a freshly-inserted row; set it in-memory to avoid a lazy-load
+        # attempt during response serialization (which fails outside an async context).
+        result.created_by_username = user.username
         return result
 
     async def update_announcement(

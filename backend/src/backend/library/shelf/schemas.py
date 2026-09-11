@@ -51,6 +51,11 @@ class CreateShelfItem(BaseModel):
     work_id: int
     edition_id: int | None = None
 
+class UpdateShelfItemEdition(BaseModel):
+    """Request payload for setting a shelf item's preferred edition."""
+
+    edition_id: int | None = None
+
 class GetShelfItem(BaseModel):
     """Response payload representing an item placed on a shelf."""
 

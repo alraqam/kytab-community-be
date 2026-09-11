@@ -1,10 +1,12 @@
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.club_membership.exceptions import IsNotClubOwnerError, NotClubMemberError
+from src.backend.clubs.club_membership.exceptions import IsNotClubOwnerError, NotClubMemberError, \
+    ClubAccessDeniedError
 from src.backend.clubs.club_membership.repository.membership import ClubMembershipRepository
 from src.backend.clubs.club_membership.schemas import MemberRole
 from src.backend.clubs.clubs.models import Club
+from src.backend.clubs.clubs.schemas import ClubTypes
 from src.backend.identity.auth.models import User
 
 
@@ -74,10 +76,15 @@ async def is_club_member(
         True if the user is a member.
 
     Raises:
-        NotClubMemberError: When the user is not a member of the club.
+        NotClubMemberError: When the user is not a member of a public club.
+        ClubAccessDeniedError: When the user is not a member of a private or secret
+            club; raised instead of NotClubMemberError so the response is
+            indistinguishable from the club not existing.
     """
     repo =  ClubMembershipRepository(session)
     membership = await repo.get_user_club_membership(club, user)
     if not membership:
-        raise NotClubMemberError("Not club member")
+        if club.club_type == ClubTypes.public:
+            raise NotClubMemberError("Not club member")
+        raise ClubAccessDeniedError("Club not found")
     return True

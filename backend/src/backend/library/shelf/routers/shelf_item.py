@@ -7,7 +7,7 @@ from src.backend.identity.auth.models import User
 from src.backend.library.shelf.dependencies import get_shelf_item_manager, get_shelf_item_or_404, get_shelf_or_404
 from src.backend.library.shelf.managers.shelf_item import ShelfItemManager
 from src.backend.library.shelf.models import ShelfItem, Shelf
-from src.backend.library.shelf.schemas import GetShelfItem, CreateShelfItem
+from src.backend.library.shelf.schemas import GetShelfItem, CreateShelfItem, UpdateShelfItemEdition
 
 router = APIRouter(
     prefix="/{shelf_id}/item",
@@ -34,6 +34,19 @@ class ShelfItemRouter:
         """Adds a work to the shelf."""
         result = await self.shelf_item_manager.add_to_shelf(self.user, self.shelf, request)
         return result
+
+    @router.put(
+        "/{shelf_item_id}/edition",
+        summary="updating shelf item's preferred edition",
+        tags=["shelf_item"],
+    )
+    async def update_edition(
+            self,
+            request: UpdateShelfItemEdition,
+            shelf_item: ShelfItem = Depends(get_shelf_item_or_404),
+    ):
+        """Sets the shelf item's preferred edition of its work."""
+        await self.shelf_item_manager.update_edition(self.user, self.shelf, shelf_item, request)
 
     @router.delete(
         "/{shelf_item_id}",

@@ -8,6 +8,8 @@ from src.backend.identity.users.dependencies import get_user_manager, is_admin, 
 from src.backend.identity.users.filters import UserFilter
 from src.backend.identity.users.managers import UserManager
 from src.backend.identity.users.schemas import UpdateUserRole, UpdateUserActivity, GetAdminUser
+from src.backend.trust_safety.audit_log.decorators import audit_action
+from src.backend.trust_safety.audit_log.schemas import AuditLogAction
 
 router = APIRouter(
     prefix="/admin/users",
@@ -25,6 +27,7 @@ class UserRouter:
         "/{user_id}/role",
         summary="updating user role"
     )
+    @audit_action(AuditLogAction.user_role_updated, "user", id_from="user")
     async def update_user_role(
             self,
             request: UpdateUserRole,
@@ -37,6 +40,7 @@ class UserRouter:
         "/{user_id}/activity",
         summary="updating user activity"
     )
+    @audit_action(AuditLogAction.user_activity_updated, "user", id_from="user")
     async def update_user_activity(
             self,
             request: UpdateUserActivity,
@@ -49,6 +53,7 @@ class UserRouter:
         "/{user_id}",
         summary="deleting user"
     )
+    @audit_action(AuditLogAction.user_deleted, "user", id_from="user")
     async def delete_user(
             self,
             user: User = Depends(get_user_or_404)

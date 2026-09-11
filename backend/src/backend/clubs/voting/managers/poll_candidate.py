@@ -88,7 +88,9 @@ class PollCandidateManager:
             List of PollCandidate instances.
 
         Raises:
-            NotClubMemberError: When the user is not a club member.
+            NotClubMemberError: When the user is not a member of a public club.
+            ClubAccessDeniedError: When the user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
         """
         await is_club_member(club, user, self.session)
 

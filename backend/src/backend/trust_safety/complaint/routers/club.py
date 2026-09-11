@@ -9,6 +9,8 @@ from src.backend.trust_safety.complaint.dependencies import get_complaint_manage
 from src.backend.trust_safety.complaint.managers import ComplaintManager
 from src.backend.trust_safety.complaint.models import Complaint
 from src.backend.trust_safety.complaint.schemas import GetComplaint
+from src.backend.trust_safety.audit_log.decorators import audit_action
+from src.backend.trust_safety.audit_log.schemas import AuditLogAction
 
 router = APIRouter(
     prefix="/{club_id}/complaint",
@@ -37,6 +39,7 @@ class ComplaintClubRouter:
         "/{complaint_id}/escalate",
         summary="escalating complaint to platform moderation",
     )
+    @audit_action(AuditLogAction.complaint_escalated, "complaint", id_from="complaint")
     async def escalate_complaint(
             self,
             complaint: Complaint = Depends(get_complaint_or_404)

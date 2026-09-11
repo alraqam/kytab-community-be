@@ -85,7 +85,9 @@ class PostManager:
             Newly created Post instance.
 
         Raises:
-            NotClubMemberError: When the user is not a member of the club.
+            NotClubMemberError: When the user is not a member of a public club.
+            ClubAccessDeniedError: When the user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
             LockedThreadError: When the thread is locked.
             PostNotFoundError: When request.parent_post_id is set but no matching post exists.
         """
@@ -216,7 +218,9 @@ class PostManager:
             List of Post instances in the thread.
 
         Raises:
-            NotClubMemberError: When the user is not a member of the club.
+            NotClubMemberError: When the user is not a member of a public club.
+            ClubAccessDeniedError: When the user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
         """
         await is_club_member(club, user, self.session)
 
@@ -247,7 +251,9 @@ class PostManager:
             the thread's milestone, otherwise a list of GetPost instances with full bodies.
 
         Raises:
-            NotClubMemberError: When the user is not a member of the club.
+            NotClubMemberError: When the user is not a member of a public club.
+            ClubAccessDeniedError: When the user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
         """
         await is_club_member(club, user, self.session)
 
@@ -319,7 +325,9 @@ class PostManager:
             The given Post instance.
 
         Raises:
-            NotClubMemberError: When the user is not a member of the club.
+            NotClubMemberError: When the user is not a member of a public club.
+            ClubAccessDeniedError: When the user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
         """
         await is_club_member(club, user, self.session)
         return post

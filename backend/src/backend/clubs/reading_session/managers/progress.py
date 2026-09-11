@@ -47,7 +47,9 @@ class MilestoneProgressManager:
             Newly created MilestoneProgress instance.
 
         Raises:
-            NotClubMemberError: When the user is not a member of the club.
+            NotClubMemberError: When the user is not a member of a public club.
+            ClubAccessDeniedError: When the user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
             ActiveSessionError: When the reading session is already completed.
             MilestoneProgressAlreadyExists: When progress for this session already exists.
         """
@@ -203,7 +205,9 @@ class MilestoneProgressManager:
             List of matching MilestoneProgress instances.
 
         Raises:
-            NotClubMemberError: When the user is not a member of the club.
+            NotClubMemberError: When the user is not a member of a public club.
+            ClubAccessDeniedError: When the user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
         """
         await is_club_member(club, user, self.session)
 

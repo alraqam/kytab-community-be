@@ -11,6 +11,8 @@ from src.backend.core.dependencies import get_storage_service
 from src.backend.core.storage import StorageService
 from src.backend.identity.auth.models import User
 from src.backend.identity.users.dependencies import is_admin
+from src.backend.trust_safety.audit_log.decorators import audit_action
+from src.backend.trust_safety.audit_log.schemas import AuditLogAction
 
 router = APIRouter(
     prefix="/admin/clubs",
@@ -29,6 +31,7 @@ class ClubAdminRouter:
         "/{club_id}/archive",
         summary="archiving clubs",
     )
+    @audit_action(AuditLogAction.club_archived, "club", id_from="club")
     async def archive_club(
             self,
             club: Club = Depends(get_club_or_404),
@@ -41,6 +44,7 @@ class ClubAdminRouter:
         "/{club_id}/unarchive",
         summary="unarchiving clubs",
     )
+    @audit_action(AuditLogAction.club_unarchived, "club", id_from="club")
     async def unarchive_club(
             self,
             club: Club = Depends(get_club_or_404),

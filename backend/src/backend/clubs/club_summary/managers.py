@@ -38,7 +38,9 @@ class ClubSummaryManager:
             GetClubSummary with member count and latest post/next event, when present.
 
         Raises:
-            NotClubMemberError: When the user is not a member of the club.
+            NotClubMemberError: When the user is not a member of a public club.
+            ClubAccessDeniedError: When the user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
         """
         await is_club_member(club, user, self.session)
 

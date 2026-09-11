@@ -219,7 +219,9 @@ class VotingPollManager:
             Active VotingPoll instance.
 
         Raises:
-            NotClubMemberError: When the user is not a club member.
+            NotClubMemberError: When the user is not a member of a public club.
+            ClubAccessDeniedError: When the user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
             ActivePollsNotFoundError: When no active poll exists for the club.
         """
         await is_club_member(club, user, self.session)
@@ -246,7 +248,9 @@ class VotingPollManager:
             List of VotingPoll instances.
 
         Raises:
-            NotClubMemberError: When the user is not a club member.
+            NotClubMemberError: When the user is not a member of a public club.
+            ClubAccessDeniedError: When the user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
         """
         await is_club_member(club, user, self.session)
 

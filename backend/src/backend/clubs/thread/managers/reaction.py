@@ -54,7 +54,9 @@ class PostReactionManager:
             Newly created PostReaction instance.
 
         Raises:
-            NotClubMemberError: When the user is not a member of the club.
+            NotClubMemberError: When the user is not a member of a public club.
+            ClubAccessDeniedError: When the user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
             PostReactionAlreadyExists: When the user has already reacted to the post with the same emoji.
         """
         await is_club_member(club, user, self.session)

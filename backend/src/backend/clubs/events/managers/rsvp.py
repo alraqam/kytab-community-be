@@ -50,7 +50,9 @@ class EventRSVPManager:
             Newly created EventRSVP instance.
 
         Raises:
-            NotClubMemberError: When the user is not a member of the club.
+            NotClubMemberError: When the user is not a member of a public club.
+            ClubAccessDeniedError: When the user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
             EventDateInPastError: When the event has already ended.
         """
         await is_club_member(club, user, self.session)
@@ -97,7 +99,9 @@ class EventRSVPManager:
             List of matching EventRSVP instances.
 
         Raises:
-            NotClubMemberError: When the user is not a member of the club.
+            NotClubMemberError: When the user is not a member of a public club.
+            ClubAccessDeniedError: When the user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
         """
         await is_club_member(club, user, self.session)
         rsvps = await self.rsvp_repo.get_event_rsvps(
@@ -123,7 +127,9 @@ class EventRSVPManager:
             Mapping of response status to the count of RSVPs with that status.
 
         Raises:
-            NotClubMemberError: When the user is not a member of the club.
+            NotClubMemberError: When the user is not a member of a public club.
+            ClubAccessDeniedError: When the user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
         """
         await is_club_member(club, user, self.session)
         rsvps = await self.rsvp_repo.get_event_rsvps(event.id)
