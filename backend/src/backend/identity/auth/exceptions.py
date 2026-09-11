@@ -42,3 +42,15 @@ class SessionNotFoundError(NotFound):
 
 class UserDeletionError(BadRequest):
     """Raised when a user account cannot be deleted."""
+
+class TwoFactorAlreadyEnabledError(Conflict):
+    """Raised when a user tries to set up or enable two-factor authentication while it is already active."""
+
+class TwoFactorNotEnabledError(BadRequest):
+    """Raised when a user tries to disable two-factor authentication while it is not active."""
+
+class TwoFactorSetupNotStartedError(BadRequest):
+    """Raised when a user tries to enable two-factor authentication before requesting a setup secret."""
+
+class InvalidTwoFactorCodeError(Unauthorized):
+    """Raised when a submitted TOTP or recovery code does not match."""

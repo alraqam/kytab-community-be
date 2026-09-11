@@ -37,6 +37,29 @@ class TokenService:
             key=settings.TOKEN_SECRET_KEY
         )
 
+    def encode_two_factor_pending(
+            self,
+            sub: str
+    ):
+        """Encodes a short-lived JWT marking a login as pending two-factor verification.
+
+        Args:
+            sub: User ID string to embed as the subject claim.
+
+        Returns:
+            Signed JWT string.
+        """
+        payload = {
+            "sub": sub,
+            "two_factor_pending": True,
+            "exp": datetime.now() + timedelta(minutes=5)
+        }
+        return jwt.encode(
+            payload,
+            algorithm=settings.TOKEN_ALGORITHM,
+            key=settings.TOKEN_SECRET_KEY
+        )
+
     def decode(
             self,
             token: str

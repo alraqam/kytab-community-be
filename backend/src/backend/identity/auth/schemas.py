@@ -120,6 +120,39 @@ class ResetPassword(BaseModel):
 class UpdateUser(UserBase):
     """Request payload for updating the user's profile fields (username, email, etc.)."""
 
+class TwoFactorRequired(BaseModel):
+    """Response returned from login when the account has two-factor authentication enabled."""
+
+    two_factor_required: bool = True
+    pre_auth_token: str
+
+class TwoFactorSetup(BaseModel):
+    """Response payload with the pending TOTP secret and its provisioning URI."""
+
+    secret: str
+    provisioning_uri: str
+
+class TwoFactorEnable(BaseModel):
+    """Request payload for confirming a pending TOTP secret and enabling two-factor authentication."""
+
+    code: str
+
+class TwoFactorRecoveryCodes(BaseModel):
+    """Response payload with newly generated single-use recovery codes."""
+
+    recovery_codes: list[str]
+
+class TwoFactorDisable(BaseModel):
+    """Request payload for disabling two-factor authentication."""
+
+    password: str
+
+class TwoFactorVerify(BaseModel):
+    """Request payload for completing a pending login with a TOTP or recovery code."""
+
+    pre_auth_token: str
+    code: str
+
 class GetSession(BaseModel):
     """Response payload describing a user's active session."""
 

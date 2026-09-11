@@ -12,6 +12,7 @@ from src.backend.core.handlers import unauthorized_exception_handler, forbidden_
 
 from src.backend.identity.auth.routers.auth import router as auth_router
 from src.backend.identity.auth.routers.session import router as session_router
+from src.backend.identity.auth.routers.two_factor import router as two_factor_router
 from src.backend.identity.users.routers import router as user_router
 from src.backend.identity.profile.routers import router as profile_router
 from src.backend.identity.blocked_users.routers import router as blocked_users_router
@@ -126,6 +127,7 @@ clubs_public_router.include_router(club_summary_router)
 
 api_v1_router.include_router(auth_router)
 api_v1_router.include_router(session_router)
+api_v1_router.include_router(two_factor_router)
 api_v1_router.include_router(user_router)
 api_v1_router.include_router(profile_router)
 api_v1_router.include_router(blocked_users_router)

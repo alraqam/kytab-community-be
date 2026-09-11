@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.backend.core.dependencies import get_db
 from src.backend.identity.auth.managers.auth import AuthManager
 from src.backend.identity.auth.managers.session import SessionManager
+from src.backend.identity.auth.managers.two_factor import TwoFactorManager
 from src.backend.identity.auth.models import User, Session
 
 oauth2_scheme = OAuth2PasswordBearer(
@@ -59,6 +60,20 @@ async def get_session_manager(
         SessionManager bound to the current session.
     """
     return SessionManager(session)
+
+
+async def get_two_factor_manager(
+        session: AsyncSession = Depends(get_db)
+) -> TwoFactorManager:
+    """FastAPI dependency that provides a TwoFactorManager instance.
+
+    Args:
+        session: Async SQLAlchemy session injected by get_db.
+
+    Returns:
+        TwoFactorManager bound to the current session.
+    """
+    return TwoFactorManager(session)
 
 
 async def get_session_or_404(

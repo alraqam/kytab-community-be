@@ -20,6 +20,8 @@ class User(Base, IntIdMixin, TimeActionMixin):
     is_verified = Column(Boolean, nullable=False, default=False)
     is_deleted = Column(Boolean, nullable=False, default=False)
     deleted_at = Column(DateTime(timezone=True), nullable=True)
+    totp_secret = Column(Text, nullable=True)
+    is_2fa_enabled = Column(Boolean, nullable=False, default=False)
 
 class Session(Base, IntIdMixin, TimeActionMixin):
     """ORM model representing a user's login session tied to a hashed refresh token."""
@@ -33,6 +35,15 @@ class Session(Base, IntIdMixin, TimeActionMixin):
     last_active_at = Column(DateTime(timezone=True), default=datetime.now())
     expires_at = Column(DateTime(timezone=True), nullable=False)
     revoked_at = Column(DateTime(timezone=True), nullable=True)
+
+class RecoveryCode(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a single-use two-factor recovery code."""
+
+    __tablename__ = "recovery_codes"
+
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
+    code_hash = Column(Text, nullable=False, unique=True)
+    used_at = Column(DateTime(timezone=True), nullable=True)
 
 Session.username = column_property(
     select(User.username)

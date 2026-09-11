@@ -8,11 +8,13 @@ from src.backend.identity.profile.managers import ProfileManager
 from src.backend.identity.profile.schemas import CreateProfile
 from src.backend.library.shelf.managers.shelf import ShelfManager
 from src.backend.identity.auth.exceptions import InvalidUsernameOrPasswordError, UnverifiedUserError, \
-    UsernameAlreadyExists, EmailAlreadyExists, InvalidTokenError, UsernameChangeTooSoonError
+    UsernameAlreadyExists, EmailAlreadyExists, InvalidTokenError, UsernameChangeTooSoonError, \
+    InvalidTwoFactorCodeError
+from src.backend.identity.auth.managers.two_factor import TwoFactorManager
 from src.backend.identity.auth.models import User
 from src.backend.identity.auth.repository import SessionRepository
 from src.backend.identity.auth.schemas import Token, UserRegister, ChangeUserPassword, ResetPassword, UpdateUser, \
-    ForgotPassword
+    ForgotPassword, TwoFactorRequired
 from src.backend.identity.auth.services.email import create_verification_token, create_password_reset_token, \
     decode_password_reset_token, send_verification_email, send_password_reset_email
 from src.backend.identity.auth.services.security import PasswordService, TokenService, hash_token
@@ -38,13 +40,48 @@ class AuthManager:
         self.profile_manager = ProfileManager(session, StorageService())
         self.user_manager = UserManager(session)
         self.shelf_manager = ShelfManager(session)
+        self.two_factor_manager = TwoFactorManager(session)
+
+    async def _issue_tokens(
+            self,
+            user: User,
+            request
+    ) -> Token:
+        """Creates a new session and issues an access/refresh token pair for a user.
+
+        Args:
+            user: User to issue tokens for.
+            request: Incoming Request, used to read the user-agent and client IP for the new session.
+
+        Returns:
+            Newly issued access/refresh Token pair with the created session's ID.
+        """
+        access_token = self.token_service.encode(str(user.id))
+        refresh_token = self.token_service.encode(str(user.id), is_refresh=True)
+
+        session = await self.session_repo.create(
+            user_id=user.id,
+            refresh_token_hash=hash_token(refresh_token),
+            device_label=request.headers.get("user-agent", "Unknown device"),
+            ip_address=request.client.host
+        )
+
+        if user.is_deleted:
+            await self.user_repo.update_delete(user, False)
+
+        await self.session.commit()
+        return Token(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            session_id=session.id
+        )
 
     async def login(
             self,
             username: str,
             password: str,
             request
-    ) -> Token:
+    ) -> Token | TwoFactorRequired:
         """Authenticates a user by username and password and starts a new session.
 
         Args:
@@ -53,7 +90,8 @@ class AuthManager:
             request: Incoming Request, used to read the user-agent and client IP for the new session.
 
         Returns:
-            Newly issued access/refresh Token pair with the created session's ID.
+            Newly issued access/refresh Token pair with the created session's ID, or a
+            TwoFactorRequired response when the account has two-factor authentication enabled.
 
         Raises:
             InvalidUsernameOrPasswordError: When the username does not exist or the password is wrong.
@@ -69,25 +107,48 @@ class AuthManager:
         if not self.password_service.verify(password, user.hashed_password):
             raise InvalidUsernameOrPasswordError("Invalid username or password")
 
-        access_token = self.token_service.encode(str(user.id))
-        refresh_token = self.token_service.encode(str(user.id), is_refresh=True)
+        if user.is_2fa_enabled:
+            pre_auth_token = self.token_service.encode_two_factor_pending(str(user.id))
+            return TwoFactorRequired(pre_auth_token=pre_auth_token)
 
-        session = await self.session_repo.create(
-            user_id=user.id,
-            refresh_token_hash=hash_token(refresh_token),
-            device_label=request.headers.get("user-agent", "Unknown device"),
-            ip_address=request.client.host
-        )
+        return await self._issue_tokens(user, request)
 
-        if user.is_deleted:
-            await self.user_repo.update_delete(user,False)
+    async def verify_two_factor(
+            self,
+            pre_auth_token: str,
+            code: str,
+            request
+    ) -> Token:
+        """Completes a pending login by verifying a TOTP or recovery code.
 
-        await self.session.commit()
-        return Token(
-            access_token=access_token,
-            refresh_token=refresh_token,
-            session_id=session.id
-        )
+        Args:
+            pre_auth_token: Short-lived token issued by login() when two-factor authentication is required.
+            code: TOTP code or recovery code entered by the user.
+            request: Incoming Request, used to read the user-agent and client IP for the new session.
+
+        Returns:
+            Newly issued access/refresh Token pair with the created session's ID.
+
+        Raises:
+            InvalidTokenError: When the token is not a valid pending two-factor token, or the user
+                no longer has two-factor authentication enabled.
+            InvalidTwoFactorCodeError: When the code does not match.
+        """
+        payload = self.token_service.decode(pre_auth_token)
+        if not payload.get("two_factor_pending"):
+            raise InvalidTokenError("Invalid token")
+
+        if not payload.get("sub") or not payload.get("sub").isdigit():
+            raise InvalidTokenError("Invalid token")
+
+        user = await self.user_repo.get_user_by_id(int(payload.get("sub")))
+        if not user or not user.is_2fa_enabled:
+            raise InvalidTokenError("Invalid token")
+
+        if not await self.two_factor_manager.verify_code(user, code):
+            raise InvalidTwoFactorCodeError("Invalid two-factor code")
+
+        return await self._issue_tokens(user, request)
 
     async def register(
             self,

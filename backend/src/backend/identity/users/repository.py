@@ -215,6 +215,36 @@ class UserRepository:
         user.deleted_at = datetime.now(timezone.utc) if is_deleted else None
         await self.session.flush()
 
+    async def update_totp_secret(
+            self,
+            user: User,
+            totp_secret: str | None
+    ) -> None:
+        """Sets or clears the user's pending/active TOTP secret and flushes the session.
+
+        Args:
+            user: User instance to update.
+            totp_secret: New base32-encoded TOTP secret, or None to clear it.
+        """
+        user.totp_secret = totp_secret
+        self.session.add(user)
+        await self.session.flush()
+
+    async def update_2fa_enabled(
+            self,
+            user: User,
+            is_2fa_enabled: bool
+    ) -> None:
+        """Sets the user's two-factor enabled flag and flushes the session.
+
+        Args:
+            user: User instance to update.
+            is_2fa_enabled: New two-factor enabled status.
+        """
+        user.is_2fa_enabled = is_2fa_enabled
+        self.session.add(user)
+        await self.session.flush()
+
     async def exists_username(self, username: str, user_id: int = None) -> bool:
         """Checks whether a username is already taken.
 
