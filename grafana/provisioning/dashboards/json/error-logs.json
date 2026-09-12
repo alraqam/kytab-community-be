@@ -38,7 +38,7 @@
       },
       "targets": [
         {
-          "expr": "sum(count_over_time({project=\"bookclub\", service=~\"$service\"} |~ \"(?i)(error|exception|traceback|critical|fatal)\" [$__range]))",
+          "expr": "sum(count_over_time({project=\"kytab-community-be\", service=~\"$service\"} |~ \"(?i)(error|exception|traceback|critical|fatal)\" [$__range]))",
           "refId": "A",
           "instant": true
         }
@@ -59,7 +59,7 @@
       },
       "targets": [
         {
-          "expr": "sum(count_over_time({project=\"bookclub\", service=~\"$service\"} |~ \"(?i)(error|exception|traceback|critical|fatal)\" [$__range])) by (service)",
+          "expr": "sum(count_over_time({project=\"kytab-community-be\", service=~\"$service\"} |~ \"(?i)(error|exception|traceback|critical|fatal)\" [$__range])) by (service)",
           "legendFormat": "{{service}}",
           "refId": "A",
           "instant": true
@@ -75,7 +75,7 @@
       "fieldConfig": { "defaults": { "color": { "mode": "palette-classic" } }, "overrides": [] },
       "targets": [
         {
-          "expr": "sum(count_over_time({project=\"bookclub\", service=~\"$service\"} |~ \"(?i)(error|exception|traceback|critical|fatal)\" [1m])) by (service)",
+          "expr": "sum(count_over_time({project=\"kytab-community-be\", service=~\"$service\"} |~ \"(?i)(error|exception|traceback|critical|fatal)\" [1m])) by (service)",
           "legendFormat": "{{service}}",
           "refId": "A"
         }
@@ -96,7 +96,7 @@
       },
       "targets": [
         {
-          "expr": "{project=\"bookclub\", service=~\"$service\"} |~ \"(?i)(error|exception|traceback|critical|fatal)\"",
+          "expr": "{project=\"kytab-community-be\", service=~\"$service\"} |~ \"(?i)(error|exception|traceback|critical|fatal)\"",
           "refId": "A"
         }
       ]

@@ -31,7 +31,7 @@
       "gridPos": { "h": 8, "w": 24, "x": 0, "y": 0 },
       "targets": [
         {
-          "expr": "sum(count_over_time({project=\"bookclub\", service=~\"$service\"}[1m])) by (service)",
+          "expr": "sum(count_over_time({project=\"kytab-community-be\", service=~\"$service\"}[1m])) by (service)",
           "legendFormat": "{{service}}",
           "refId": "A"
         }
@@ -45,7 +45,7 @@
       "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
       "targets": [
         {
-          "expr": "sum(count_over_time({project=\"bookclub\", service=~\"$service\"} | level != \"\" [1m])) by (level)",
+          "expr": "sum(count_over_time({project=\"kytab-community-be\", service=~\"$service\"} | level != \"\" [1m])) by (level)",
           "legendFormat": "{{level}}",
           "refId": "A"
         }
@@ -63,7 +63,7 @@
       },
       "targets": [
         {
-          "expr": "sum(count_over_time({project=\"bookclub\", service=~\"$service\"} |~ \"(?i)(error|exception|traceback|critical)\" [1m]))",
+          "expr": "sum(count_over_time({project=\"kytab-community-be\", service=~\"$service\"} |~ \"(?i)(error|exception|traceback|critical)\" [1m]))",
           "legendFormat": "errors",
           "refId": "A"
         }
@@ -83,7 +83,7 @@
       },
       "targets": [
         {
-          "expr": "{project=\"bookclub\", service=~\"$service\"}",
+          "expr": "{project=\"kytab-community-be\", service=~\"$service\"}",
           "refId": "A"
         }
       ]
