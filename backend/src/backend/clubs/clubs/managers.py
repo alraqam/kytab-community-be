@@ -53,7 +53,7 @@ class ClubManager:
         )
         await self.membership_repo.create_membership(result.id, user.id, MemberRole.club_owner)
         await self.session.commit()
-        return result
+        return await self.club_repo.get_club_by_id(result.id)
 
     async def update_club(
             self,

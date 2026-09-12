@@ -78,7 +78,7 @@ class EventRSVPManager:
                 object_id=event.id,
                 club_id=club.id,
             )
-        return response
+        return await self.rsvp_repo.get_rsvp_by_id(response.id)
 
     async def get_event_rsvps(
             self,

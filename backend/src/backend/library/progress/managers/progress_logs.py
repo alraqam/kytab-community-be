@@ -83,7 +83,7 @@ class ProgressLogManager:
                 await self.reading_period_manager.set_finishing_date(user, reading_period)
 
         await self.session.commit()
-        return result
+        return await self.log_repo.get_progress_log_by_id(result.id)
 
     async def update_today_progress(
             self,

@@ -57,7 +57,7 @@ class ReviewCommentManager:
                 object_type=NotificationObjectType.comment,
                 object_id=response.id,
             )
-        return response
+        return await self.comment_repo.get_comment_by_id(response.id)
 
     async def update_comment(
             self,

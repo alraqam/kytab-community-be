@@ -15,7 +15,7 @@ class Thread(Base, IntIdMixin, TimeActionMixin):
     milestone_id = Column(BigInteger, ForeignKey("milestones.id", ondelete="CASCADE"), nullable=True)
     is_general = Column(Boolean, default=False)
     title = Column(String(100), nullable=False)
-    created_by_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    created_by_id = Column(BigInteger, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     is_locked = Column(Boolean, default=False)
     is_pinned = Column(Boolean, default=False)
 
@@ -27,7 +27,7 @@ class Post(Base, IntIdMixin, TimeActionMixin):
 
     thread_id = Column(BigInteger, ForeignKey("threads.id", ondelete="CASCADE"), nullable=False)
     parent_post_id = Column(BigInteger, ForeignKey("posts.id", ondelete="SET NULL"), nullable=True)
-    author_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    author_id = Column(BigInteger, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     title = Column(String(100), nullable=False)
     body = Column(String(512), nullable=False)
     is_spoiler = Column(Boolean, default=False)
@@ -40,7 +40,7 @@ class PostReaction(Base, IntIdMixin, TimeActionMixin):
     __tablename__ = "post_reactions"
 
     post_id = Column(BigInteger, ForeignKey("posts.id", ondelete="CASCADE"), nullable=True)
-    user_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(BigInteger, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     emoji = Column(String(30), nullable=False)
 
     __table_args__ = (

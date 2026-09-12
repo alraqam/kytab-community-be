@@ -70,7 +70,7 @@ class ReadingSessionManager:
         )
 
         await self.session.commit()
-        return response
+        return await self.session_repo.get_session_by_id(response.id)
 
     async def complete_session(
             self,

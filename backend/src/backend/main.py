@@ -87,6 +87,8 @@ from src.backend.notifications.routers.push import router as push_subscription_r
 
 from src.backend.administration.announcements.routers.admin import router as announcement_admin_router
 from src.backend.administration.announcements.routers.public import router as announcement_public_router
+from src.backend.administration.feature_flags.routers.admin import router as feature_flag_admin_router
+from src.backend.administration.feature_flags.routers.public import router as feature_flag_public_router
 
 
 app = FastAPI(
@@ -171,6 +173,8 @@ api_v1_router.include_router(push_subscription_router)
 
 api_v1_router.include_router(announcement_admin_router)
 api_v1_router.include_router(announcement_public_router)
+api_v1_router.include_router(feature_flag_admin_router)
+api_v1_router.include_router(feature_flag_public_router)
 
 app.include_router(api_v1_router)
 

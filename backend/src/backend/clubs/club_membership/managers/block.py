@@ -56,7 +56,7 @@ class ClubBlockedManager:
             MemberAlreadyBlockedError: When the target user is already blocked.
         """
         is_owner_or_moderator(club, user.id)
-        club_owner = is_club_owner(club, user.id)
+        club_owner = is_club_owner(club, user)
 
         target_user = await self.user_manager.get_user_by_id(request.user_id)
         membership = await self.membership_repo.get_user_club_membership(club, target_user)
@@ -79,7 +79,7 @@ class ClubBlockedManager:
             await self.membership_repo.delete_membership(membership)
 
         await self.session.commit()
-        return result
+        return await self.blocked_member_repo.get_block_by_id(result.id)
 
     async def delete_block(
             self,

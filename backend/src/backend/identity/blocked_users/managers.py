@@ -43,7 +43,7 @@ class BlockedUserManager:
                 blocked_id=request.blocked_id
             )
             await self.session.commit()
-            return result
+            return await self.blocked_users_repo.get_block_by_id(result.id)
         except IntegrityError:
             raise UserAlreadyBlockedError("User already blocked")
 

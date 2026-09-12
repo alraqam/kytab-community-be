@@ -56,7 +56,7 @@ class EditionManager:
             is_primary=request.is_primary,
         )
         await self.session.commit()
-        return edition
+        return await self.edition_repo.get_edition_by_id(edition.id)
 
     async def update_edition(
             self,

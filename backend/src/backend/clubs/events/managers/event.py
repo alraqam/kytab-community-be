@@ -115,7 +115,7 @@ class ClubEventManager:
             object_type=NotificationObjectType.event,
             object_id=response.id,
         )
-        return response
+        return await self.event_repo.get_event_by_id(response.id)
 
     async def update_event(
             self,

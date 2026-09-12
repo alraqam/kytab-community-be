@@ -71,7 +71,7 @@ class PostReactionManager:
             raise PostReactionAlreadyExists("Reaction for this post already exists")
         await self.session.commit()
 
-        if post.author_id != user.id:
+        if post.author_id is not None and post.author_id != user.id:
             author = await self.user_manager.get_user_by_id(post.author_id)
             await self.notification_manager.notify(
                 author,
@@ -81,7 +81,7 @@ class PostReactionManager:
                 object_id=post.id,
                 club_id=club.id,
             )
-        return response
+        return await self.reaction_repo.get_reaction_by_id(response.id)
 
 
     async def delete_reaction(

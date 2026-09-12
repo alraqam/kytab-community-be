@@ -88,7 +88,7 @@ class ClubInvitationManager:
             object_id=invitation.id,
             club_id=club.id,
         )
-        return invitation
+        return await self.invitation_repo.get_invitation_by_id(invitation.id)
 
 
     async def send_invitation_email(
@@ -149,7 +149,7 @@ class ClubInvitationManager:
             object_id=invitation.id,
             club_id=club.id,
         )
-        return invitation
+        return await self.invitation_repo.get_invitation_by_id(invitation.id)
 
     async def get_invitation_email(
             self,

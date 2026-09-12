@@ -67,7 +67,7 @@ class ThreadManager:
             milestone_id=milestone.id,
         )
         await self.session.commit()
-        return response
+        return await self.thread_repo.get_thread_by_id(response.id)
 
     async def creat_general_thread(
             self,
@@ -99,7 +99,7 @@ class ThreadManager:
             milestone_id=None,
         )
         await self.session.commit()
-        return response
+        return await self.thread_repo.get_thread_by_id(response.id)
 
     async def update_thread(
             self,

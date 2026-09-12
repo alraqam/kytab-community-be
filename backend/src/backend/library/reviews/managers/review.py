@@ -51,7 +51,7 @@ class ReviewManager:
             contains_spoiler=request.contains_spoiler
         )
         await self.session.commit()
-        return result
+        return await self.review_repo.get_review_by_id(result.id)
 
     async def update_review(
             self,

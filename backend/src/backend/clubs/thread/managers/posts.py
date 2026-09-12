@@ -113,7 +113,7 @@ class PostManager:
 
         if not request.is_spoiler:
             await self._notify_mentions(user, club, response)
-        return response
+        return await self.post_repo.get_post_by_id(response.id)
 
 
     async def update_post(

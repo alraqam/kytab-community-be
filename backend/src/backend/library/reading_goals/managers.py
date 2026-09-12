@@ -43,7 +43,7 @@ class ReadingGoalManager:
                 target_count=request.target_count,
             )
             await self.session.commit()
-            return response
+            return await self.goal_repo.get_goal_by_id(response.id)
         except IntegrityError:
             raise ReadingGoalAlreadyExistsError("Reading goal for this year already exists")
 

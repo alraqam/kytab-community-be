@@ -189,7 +189,10 @@ class AuthManager:
             return await self._issue_tokens(user, request)
 
         email = claims.get("email")
-        if not email or not claims.get("email_verified"):
+        email_verified = claims.get("email_verified")
+        if isinstance(email_verified, str):
+            email_verified = email_verified.lower() == "true"
+        if not email or not email_verified:
             raise OAuthEmailNotVerifiedError("OAuth provider did not report a verified email")
 
         user = await self.user_repo.get_user_by_email(email)

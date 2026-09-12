@@ -80,12 +80,12 @@ class ReadingPeriodManager:
         if exists:
             raise ActiveReadingPeriodError("Active reading period already exists")
 
-        currently_reading = await self.shelf_manager.get_shelf_by_name(user.id, ShelfDefault.currently_reading)
+        currently_reading = await self.shelf_manager.get_shelf_by_name(user, ShelfDefault.currently_reading)
         result = await self.reading_period_repo.start_reading_period(shelf_item.id)
         await self.shelf_item_manager.change_shelf(user, shelf_item, currently_reading)
 
         await self.session.commit()
-        return result
+        return await self.reading_period_repo.get_reading_period_by_id(result.id)
 
     async def set_finishing_date(
             self,
@@ -105,7 +105,7 @@ class ReadingPeriodManager:
         """
         await self.is_reading_period_owner(user, reading_period)
 
-        read = await self.shelf_manager.get_shelf_by_name(user.id, ShelfDefault.currently_reading)
+        read = await self.shelf_manager.get_shelf_by_name(user, ShelfDefault.read)
 
         shelf_item = await self.reading_period_repo.get_shelf_item_by_period(reading_period.id)
         if not shelf_item:

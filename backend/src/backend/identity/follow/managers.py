@@ -51,7 +51,7 @@ class FollowManager:
                 followed_id=request.followed_id,
             )
             await self.session.commit()
-            return result
+            return await self.follow_repo.get_follow_by_id(result.id)
         except IntegrityError:
             raise UserAlreadyFollowingError("Already following this user")
 

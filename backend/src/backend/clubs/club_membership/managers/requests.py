@@ -79,7 +79,7 @@ class ClubJoinRequestManager:
             object_id=join_request.id,
             club_id=club.id,
         )
-        return join_request
+        return await self.request_repo.get_request_by_id(join_request.id)
 
     async def accept_join_request(
             self,

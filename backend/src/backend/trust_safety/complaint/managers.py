@@ -72,7 +72,7 @@ class ComplaintManager:
             comment=request.comment,
         )
         await self.session.commit()
-        return result
+        return await self.complaint_repo.get_complaint_by_id(result.id)
 
     async def _mark_resolved(
             self,

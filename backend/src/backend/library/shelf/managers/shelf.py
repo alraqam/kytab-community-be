@@ -96,7 +96,7 @@ class ShelfManager:
             visibility=ShelfVisibility.public
         )
         await self.session.commit()
-        return result
+        return await self.shelf_repo.get_shelf_by_id(result.id)
 
     async def update_shelf(
             self,

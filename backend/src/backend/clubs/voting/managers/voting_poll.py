@@ -109,7 +109,7 @@ class VotingPollManager:
             object_type=NotificationObjectType.poll,
             object_id=response.id,
         )
-        return response
+        return await self.poll_repo.get_poll_by_id(response.id)
 
     async def update_voting_poll(
             self,

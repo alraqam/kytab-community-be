@@ -67,7 +67,7 @@ class PollCandidateManager:
                 work_id=work.id,
             )
             await self.session.commit()
-            return response
+            return await self.candidate_repo.get_poll_candidate_by_id(response.id)
         except IntegrityError:
             raise CandidateInPollError("Candidate is already in poll")
 

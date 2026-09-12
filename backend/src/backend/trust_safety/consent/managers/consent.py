@@ -50,7 +50,7 @@ class ConsentManager:
                 document_id=document.id
             )
             await self.session.commit()
-            return result
+            return await self.consent_repo.get_consent_by_id(result.id)
         except IntegrityError as e:
             raise DocumentAlreadyConsentedError("Document already consented")
 

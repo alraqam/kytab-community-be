@@ -140,6 +140,29 @@ class ShelfItemRepository:
         item = result.scalar_one_or_none()
         return item
 
+    async def exists_in_default_shelf(
+            self,
+            user_id: int,
+            work_id: int,
+    ) -> ShelfItem | None:
+        """Checks whether a work is already present in one of a user's default status shelves.
+
+        Args:
+            user_id: ID of the user whose shelves are checked.
+            work_id: ID of the work to look for.
+
+        Returns:
+            Matching ShelfItem instance, or None if the work is not on a default shelf.
+        """
+        stmt = (
+            select(ShelfItem)
+            .join(Shelf, ShelfItem.shelf_id == Shelf.id)
+            .where(and_(Shelf.user_id == user_id, ShelfItem.work_id == work_id, Shelf.is_default == True))
+        )
+        result = await self.session.execute(stmt)
+        item = result.scalar_one_or_none()
+        return item
+
     async def get_shelf_item_by_id(
             self,
             shelf_item_id: int

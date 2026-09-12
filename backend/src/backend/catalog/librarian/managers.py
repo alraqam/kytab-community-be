@@ -2,12 +2,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.identity.auth.models import User
 from src.backend.catalog.books.managers.work import WorkManager
+from src.backend.catalog.books.schemas.work import CreateWork
 from src.backend.catalog.librarian.exceptions import LibrarianSubmissionNotFoundError, LibrarySubmissionStatusError
 from src.backend.catalog.librarian.filters import LibrarianSubmissionFilter
 from src.backend.catalog.librarian.models import LibrarianSubmission
 from src.backend.catalog.librarian.repository import LibrarianSubmissionRepository
 from src.backend.catalog.librarian.schemas import CreateLibrarianSubmission, LibrarianSubmissionStatus, \
     SetLibrarianSubmissionWork
+from src.backend.library.shelf.managers.shelf import ShelfManager
+from src.backend.library.shelf.managers.shelf_item import ShelfItemManager
+from src.backend.library.shelf.schemas import CreateShelfItem, ShelfDefault
 
 
 class LibrarianSubmissionManager:
@@ -24,6 +28,8 @@ class LibrarianSubmissionManager:
         self.session = session
         self.submission_repo = LibrarianSubmissionRepository(session)
         self.work_manager = WorkManager(session)
+        self.shelf_manager = ShelfManager(session)
+        self.shelf_item_manager = ShelfItemManager(session)
 
 
     async def create(
@@ -32,6 +38,10 @@ class LibrarianSubmissionManager:
             request: CreateLibrarianSubmission,
     ) -> LibrarianSubmission:
         """Creates a new pending librarian submission on behalf of a user.
+
+        The submitted book is immediately usable: a provisional Work is created and
+        placed on the submitter's "want to read" shelf, flagged pending verification
+        until a librarian reviews the submission.
 
         Args:
             user: User submitting the book proposal.
@@ -48,8 +58,23 @@ class LibrarianSubmissionManager:
             isbn=request.isbn,
             cover_url=request.cover_url,
         )
-        await self.session.commit()
-        return result
+
+        work = await self.work_manager.create_work(
+            CreateWork(canonical_title=request.title, primary_language=request.language)
+        )
+        await self.submission_repo.update_resulting_work(
+            submission=result,
+            work_id=work.id,
+        )
+
+        shelf = await self.shelf_manager.get_shelf_by_name(user, ShelfDefault.want_to_read)
+        await self.shelf_item_manager.add_to_shelf(
+            user=user,
+            shelf=shelf,
+            request=CreateShelfItem(work_id=work.id),
+        )
+
+        return await self.submission_repo.get_submission_by_id(result.id)
 
 
     async def approve(

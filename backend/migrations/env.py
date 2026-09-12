@@ -52,6 +52,7 @@ from src.backend.trust_safety.complaint.models import Complaint
 from src.backend.trust_safety.consent.models import ConsentRecords, LegalDocument
 from src.backend.notifications.models import Notification, NotificationPreference
 from src.backend.administration.announcements.models import Announcement
+from src.backend.administration.feature_flags.models import FeatureFlag
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

@@ -51,7 +51,7 @@ class DiscussionPromptManager:
             text=request.text,
         )
         await self.session.commit()
-        return result
+        return await self.prompt_repo.get_prompt_by_id(result.id)
 
     async def update_prompt(
             self,

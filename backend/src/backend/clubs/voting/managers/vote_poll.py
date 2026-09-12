@@ -66,7 +66,7 @@ class VotePollManager:
                 candidate_id=request.candidate_id
             )
             await self.session.commit()
-            return response
+            return await self.vote_repo.get_poll_vote_by_id(response.id)
         except IntegrityError:
             raise UserVoteExistsError("You already voted")
 

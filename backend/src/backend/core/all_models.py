@@ -2,6 +2,7 @@
 before any mapper configuration is triggered (Celery worker, Alembic, etc.)."""
 
 from src.backend.administration.announcements.models import Announcement
+from src.backend.administration.feature_flags.models import FeatureFlag
 from src.backend.catalog.books.models import Work, Edition, Genre, WorkGenre, Author, WorkAuthor, Series, WorkSeries
 from src.backend.catalog.librarian.models import LibrarianSubmission
 from src.backend.clubs.club_membership.models import ClubMembership, ClubBlocked, ClubJoinRequest, ClubInvitation

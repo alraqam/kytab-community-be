@@ -106,7 +106,7 @@ class ClubMembershipManager:
             role=MemberRole.member
         )
         await self.session.commit()
-        return result
+        return await self.membership_repo.get_user_club_membership(club, user)
 
     async def join_club(
             self,
@@ -140,7 +140,7 @@ class ClubMembershipManager:
             role=MemberRole.member
         )
         await self.session.commit()
-        return result
+        return await self.membership_repo.get_user_club_membership(club, user)
 
 
     async def leave_club(

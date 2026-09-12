@@ -39,7 +39,7 @@ class WorkManager:
             primary_language=request.primary_language,
         )
         await self.session.commit()
-        return work
+        return await self.work_repo.get_work_by_id(work.id)
 
     async def update_work(
             self,

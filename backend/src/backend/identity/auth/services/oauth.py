@@ -1,7 +1,11 @@
+import hashlib
+import time
+
 import httpx
 from jose import jwt
 from jose.exceptions import JWTError
 
+from src.backend.core.redis import redis_client
 from src.backend.core.settings import settings
 from src.backend.identity.auth.exceptions import InvalidOAuthTokenError
 
@@ -91,4 +95,10 @@ class OAuthService:
 
         if claims.get("iss") not in config["issuers"]:
             raise InvalidOAuthTokenError("Invalid OAuth token")
+
+        replay_key = f"oauth:used_token:{provider}:{hashlib.sha256(id_token.encode()).hexdigest()}"
+        ttl = max(int(claims["exp"] - time.time()), 1)
+        if not await redis_client.set(replay_key, "1", nx=True, ex=ttl):
+            raise InvalidOAuthTokenError("Invalid OAuth token")
+
         return claims

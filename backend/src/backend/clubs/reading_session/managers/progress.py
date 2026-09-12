@@ -68,7 +68,7 @@ class MilestoneProgressManager:
             raise MilestoneProgressAlreadyExists("Milestone progress for this session already exists")
 
         await self.session.commit()
-        return response
+        return await self.progress_repo.get_milestone_progress_by_id(response.id)
 
     async def update_milestone_progress(
             self,

@@ -54,7 +54,7 @@ class ReviewLikeManager:
                     category=NotificationCategory.general,
                     title=f"{user.username} liked your review",
                 )
-            return response
+            return await self.like_repo.get_like_by_id(response.id)
         except IntegrityError:
             await self.session.rollback()
             raise ReviewLikeAlreadyExists("Like for this review already exists")

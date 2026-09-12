@@ -54,7 +54,7 @@ class NotificationPreferenceManager:
                 digest_frequency=request.digest_frequency,
             )
             await self.session.commit()
-            return result
+            return await self.preference_repo.get_preference_by_id(result.id)
         except IntegrityError:
             await self.session.rollback()
             raise NotificationPreferenceAlreadyExistsError("Preference for this category and club already exists")
