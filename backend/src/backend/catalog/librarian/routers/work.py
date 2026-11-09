@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.identity.auth.models import User
+from src.backend.identity.auth.models.auth import User
 from src.backend.catalog.books.dependencies.work import get_work_manager, get_work_or_404
 from src.backend.catalog.books.managers.work import WorkManager
-from src.backend.catalog.books.models import Work
+from src.backend.catalog.books.models.book import Work
 from src.backend.catalog.books.schemas.work import CreateWork, UpdateWork, GetWork, MergeWork
 
-from src.backend.catalog.librarian.dependencies import is_librarian
+from src.backend.catalog.librarian.dependencies.librarian import is_librarian
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/librarian/work",
@@ -25,7 +26,9 @@ class LibrarianWorkRouter:
     @router.post(
         "/",
         summary="creating work",
-        response_model=GetWork
+        response_model=GetWork,
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403),
     )
     async def create_work(
             self,
@@ -38,6 +41,8 @@ class LibrarianWorkRouter:
     @router.put(
         "/{work_id}",
         summary="updating work",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def update_work(
             self,
@@ -50,6 +55,8 @@ class LibrarianWorkRouter:
     @router.delete(
         "/{work_id}",
         summary="deleting work",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def delete_work(
             self,
@@ -62,6 +69,8 @@ class LibrarianWorkRouter:
         "/{work_id}/merge",
         summary="merging duplicate work into this work",
         response_model=GetWork,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def merge_work(
             self,

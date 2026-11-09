@@ -4,8 +4,8 @@ from datetime import datetime
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.reading_session.models import ReadingSession
-from src.backend.clubs.reading_session.schemas import ReadingSessionStatus
+from src.backend.clubs.reading_session.models.reading_session import ReadingSession
+from src.backend.clubs.reading_session.schemas.reading_session import ReadingSessionStatus
 
 
 @dataclass

@@ -1,15 +1,15 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.clubs.clubs.managers.club import ClubManager
 from src.backend.core.storage import StorageService
-from src.backend.identity.auth.models import User
-from src.backend.notifications.dependencies import is_notification_preference_owner
-from src.backend.notifications.exceptions import NotificationPreferenceNotFoundError, \
+from src.backend.identity.auth.models.auth import User
+from src.backend.notifications.dependencies.notification import is_notification_preference_owner
+from src.backend.notifications.exceptions.notification import NotificationPreferenceNotFoundError, \
     NotificationPreferenceAlreadyExistsError
-from src.backend.notifications.models import NotificationPreference
+from src.backend.notifications.models.notification import NotificationPreference
 from src.backend.notifications.repository.preference import NotificationPreferenceRepository
-from src.backend.notifications.schemas import CreateNotificationPreference, UpdateNotificationPreference
+from src.backend.notifications.schemas.notification import CreateNotificationPreference, UpdateNotificationPreference
 
 
 class NotificationPreferenceManager:

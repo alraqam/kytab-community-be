@@ -1,9 +1,9 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.catalog.books.exceptions import GenreNotFoundError, WorkNotFoundError, GenreWorkLinkExistsError
-from src.backend.catalog.books.filters import GenreFilter
-from src.backend.catalog.books.models import Genre, Work
+from src.backend.catalog.books.exceptions.book import GenreNotFoundError, WorkNotFoundError, GenreWorkLinkExistsError
+from src.backend.catalog.books.filters.book import GenreFilter
+from src.backend.catalog.books.models.book import Genre, Work
 from src.backend.catalog.books.repository.genre import GenreRepository
 from src.backend.catalog.books.repository.work import WorkRepository
 from src.backend.catalog.books.schemas.genre import CreateGenre, UpdateGenre, AddGenreToWork

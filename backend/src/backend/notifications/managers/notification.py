@@ -1,13 +1,13 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.identity.auth.models import User
-from src.backend.notifications.dependencies import is_notification_owner
-from src.backend.notifications.email import send_notification_email
-from src.backend.notifications.exceptions import NotificationNotFoundError
-from src.backend.notifications.filters import NotificationFilter
+from src.backend.identity.auth.models.auth import User
+from src.backend.notifications.dependencies.notification import is_notification_owner
+from src.backend.notifications.services.email import send_notification_email
+from src.backend.notifications.exceptions.notification import NotificationNotFoundError
+from src.backend.notifications.filters.notification import NotificationFilter
 from src.backend.notifications.managers.preference import NotificationPreferenceManager
-from src.backend.notifications.models import Notification, NotificationPreference
-from src.backend.notifications.push import send_notification_push
+from src.backend.notifications.models.notification import Notification, NotificationPreference
+from src.backend.notifications.services.push import send_notification_push
 from src.backend.notifications.repository.notification import NotificationRepository
 from src.backend.notifications.repository.push_subscription import PushSubscriptionRepository
 

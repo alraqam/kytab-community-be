@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.identity.users.dependencies import get_user_or_404
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
-from src.backend.library.shelf.dependencies import get_shelf_item_manager, get_shelf_item_or_404, get_shelf_or_404
+from src.backend.identity.users.dependencies.user import get_user_or_404
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.library.shelf.dependencies.shelf import get_shelf_item_manager, get_shelf_item_or_404, get_shelf_or_404
 from src.backend.library.shelf.managers.shelf_item import ShelfItemManager
-from src.backend.library.shelf.models import ShelfItem, Shelf
-from src.backend.library.shelf.schemas import GetShelfItem, CreateShelfItem, UpdateShelfItemEdition
+from src.backend.library.shelf.models.shelf import ShelfItem, Shelf
+from src.backend.library.shelf.schemas.shelf import GetShelfItem, CreateShelfItem, UpdateShelfItemEdition
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/{shelf_id}/item",
@@ -26,6 +27,8 @@ class ShelfItemRouter:
         summary="adding item to shelf",
         response_model=GetShelfItem,
         tags=["shelf_item"],
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def add_to_shelf(
             self,
@@ -39,6 +42,8 @@ class ShelfItemRouter:
         "/{shelf_item_id}/edition",
         summary="updating shelf item's preferred edition",
         tags=["shelf_item"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def update_edition(
             self,
@@ -52,6 +57,8 @@ class ShelfItemRouter:
         "/{shelf_item_id}",
         summary="removing item from shelf",
         tags=["shelf_item"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def remove_from_shelf(
             self,
@@ -65,6 +72,8 @@ class ShelfItemRouter:
         summary="getting current user's reading shelf items",
         response_model=list[GetShelfItem],
         tags=["shelf_item"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_my_shelf_items(
             self,
@@ -78,6 +87,8 @@ class ShelfItemRouter:
         summary="getting user's shelf items",
         response_model=list[GetShelfItem],
         tags=["shelf_item"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_user_shelf_items(
             self,
@@ -92,6 +103,8 @@ class ShelfItemRouter:
         summary="getting shelf item by id",
         response_model=GetShelfItem,
         tags=["shelf_item"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_shelf_item_by_id(
             self,

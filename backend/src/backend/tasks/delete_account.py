@@ -4,8 +4,8 @@ from sqlalchemy import delete, and_
 
 from src.backend.celery_app import celery_app
 from src.backend.core.task import task_session
-from src.backend.identity.auth.models import User
-from src.backend.identity.users.exceptions import UserDeletionError
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.exceptions.user import UserDeletionError
 
 async def _delete_user_account():
     try:

@@ -1,14 +1,14 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.identity.auth.models import User
-from src.backend.identity.users.managers import UserManager
-from src.backend.library.reviews.dependencies import is_review_like_owner
-from src.backend.library.reviews.exceptions import ReviewLikeNotFoundError, ReviewLikeAlreadyExists
-from src.backend.library.reviews.models import Review, ReviewLike
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.managers.user import UserManager
+from src.backend.library.reviews.dependencies.review import is_review_like_owner
+from src.backend.library.reviews.exceptions.review import ReviewLikeNotFoundError, ReviewLikeAlreadyExists
+from src.backend.library.reviews.models.review import Review, ReviewLike
 from src.backend.library.reviews.repositories.like import ReviewLikeRepository
 from src.backend.notifications.managers.notification import NotificationManager
-from src.backend.notifications.schemas import NotificationCategory
+from src.backend.notifications.schemas.notification import NotificationCategory
 
 
 class ReviewLikeManager:

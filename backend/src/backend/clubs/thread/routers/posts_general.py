@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.clubs.thread.dependencies import get_post_manager, get_thread_general_or_404, get_post_general_or_404
+from src.backend.clubs.thread.dependencies.thread import get_post_manager, get_thread_general_or_404, get_post_general_or_404
 from src.backend.clubs.thread.managers.posts import PostManager
-from src.backend.clubs.thread.models import Thread, Post
-from src.backend.clubs.thread.schemas import GetPost, CreatePost, UpdatePost
-from src.backend.clubs.clubs.dependencies import get_club_or_404
-from src.backend.clubs.clubs.models import Club
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
+from src.backend.clubs.thread.models.thread import Thread, Post
+from src.backend.clubs.thread.schemas.thread import GetPost, CreatePost, UpdatePost
+from src.backend.clubs.clubs.dependencies.club import get_club_or_404
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/{thread_id}/post",
@@ -28,6 +29,8 @@ class PostGeneralRouter:
         summary="creating general thread post",
         response_model=GetPost,
         tags=["posts"],
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def create_post(
             self,
@@ -41,6 +44,8 @@ class PostGeneralRouter:
         "/{post_id}",
         summary="update general post",
         tags=["posts"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def update_post(
             self,
@@ -54,6 +59,8 @@ class PostGeneralRouter:
         "/{post_id}",
         summary="deleting general post",
         tags=["posts"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def delete_post(
             self,
@@ -67,6 +74,8 @@ class PostGeneralRouter:
         summary="getting general posts",
         response_model=list[GetPost],
         tags=["posts"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_all_posts(
             self,

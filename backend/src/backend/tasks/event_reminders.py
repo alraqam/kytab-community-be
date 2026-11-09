@@ -3,9 +3,9 @@ from datetime import timedelta, datetime, timezone
 from src.backend.core.task import task_session
 from src.backend.clubs.club_membership.managers.membership import ClubMembershipManager
 from src.backend.clubs.events.managers.event import ClubEventManager
-from src.backend.identity.users.managers import UserManager
+from src.backend.identity.users.managers.user import UserManager
 from src.backend.notifications.managers.notification import NotificationManager
-from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
+from src.backend.notifications.schemas.notification import NotificationCategory, NotificationObjectType
 from src.backend.celery_app import celery_app
 
 async def _send_event_reminders():

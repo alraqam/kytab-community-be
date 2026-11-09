@@ -1,0 +1,18 @@
+from datetime import date
+
+from fastapi_filter.contrib.sqlalchemy import Filter
+
+from src.backend.clubs.reading_session.models.reading_session import Milestone
+from src.backend.clubs.reading_session.schemas.reading_session import MilestoneBoundaryType
+
+
+class MilestoneFilter(Filter):
+    """Filter and sort parameters for querying the Milestone model."""
+
+    boundary_type: MilestoneBoundaryType | None = None
+    order_by: list[str] | None = None
+
+    class Constants(Filter.Constants):
+        model = Milestone
+        search_model_fields = ("id", "text")
+        ordering_model_fields = ["created_at", "target_date", "order_index"]

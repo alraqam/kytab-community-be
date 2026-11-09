@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_filter import FilterDepends
 from fastapi_utils.cbv import cbv
 
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
-from src.backend.trust_safety.consent.dependencies import get_legal_document_manager, get_legal_document_or_404
-from src.backend.trust_safety.consent.filters import LegalDocumentFilter
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.trust_safety.consent.dependencies.consent import get_legal_document_manager, get_legal_document_or_404
+from src.backend.trust_safety.consent.filters.consent import LegalDocumentFilter
 from src.backend.trust_safety.consent.managers.document import LegalDocumentManager
-from src.backend.trust_safety.consent.models import LegalDocument
-from src.backend.trust_safety.consent.schemas import GetLegalDocument, CreateLegalDocument
+from src.backend.trust_safety.consent.models.consent import LegalDocument
+from src.backend.trust_safety.consent.schemas.consent import GetLegalDocument, CreateLegalDocument
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/document",
@@ -25,7 +26,9 @@ class DocumentRouter:
     @router.post(
         "/",
         summary="creating documents",
-        response_model=GetLegalDocument
+        response_model=GetLegalDocument,
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403),
     )
     async def create_compliant(
             self,
@@ -38,6 +41,8 @@ class DocumentRouter:
     @router.put(
         "/{document_id}/current",
         summary="making document current",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def make_current(
             self,
@@ -49,6 +54,8 @@ class DocumentRouter:
     @router.put(
         "/{document_id}/remove-current",
         summary="removing document current",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def remove_current(
             self,
@@ -61,7 +68,9 @@ class DocumentRouter:
     @router.get(
         "/{document_id}",
         summary="getting document by id",
-        response_model=GetLegalDocument
+        response_model=GetLegalDocument,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_document_by_id(
             self,
@@ -73,7 +82,9 @@ class DocumentRouter:
     @router.get(
         "/",
         summary="getting documents",
-        response_model=list[GetLegalDocument]
+        response_model=list[GetLegalDocument],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401),
     )
     async def get_documents(
             self,

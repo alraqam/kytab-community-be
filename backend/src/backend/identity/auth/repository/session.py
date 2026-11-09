@@ -4,7 +4,7 @@ from datetime import datetime, timezone, timedelta
 from sqlalchemy import select, insert, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.identity.auth.models import Session
+from src.backend.identity.auth.models.auth import Session
 
 
 @dataclass

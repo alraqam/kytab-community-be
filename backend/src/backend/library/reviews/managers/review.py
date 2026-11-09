@@ -1,14 +1,14 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.identity.auth.models import User
-from src.backend.identity.users.dependencies import is_admin
-from src.backend.catalog.books.models import Work
-from src.backend.library.reviews.dependencies import is_review_owner
-from src.backend.library.reviews.exceptions import ReviewNotFound, EmptyReviewError
-from src.backend.library.reviews.filters import ReviewFilter
-from src.backend.library.reviews.models import Review
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.dependencies.user import is_staff
+from src.backend.catalog.books.models.book import Work
+from src.backend.library.reviews.dependencies.review import is_review_owner
+from src.backend.library.reviews.exceptions.review import ReviewNotFound, EmptyReviewError
+from src.backend.library.reviews.filters.review import ReviewFilter
+from src.backend.library.reviews.models.review import Review
 from src.backend.library.reviews.repositories.review import ReviewRepository
-from src.backend.library.reviews.schemas import CreateReview, UpdateReview
+from src.backend.library.reviews.schemas.review import CreateReview, UpdateReview
 
 
 class ReviewManager:
@@ -97,16 +97,16 @@ class ReviewManager:
             user: User,
             review: Review,
     ) -> None:
-        """Deletes a review on behalf of an admin, regardless of ownership.
+        """Deletes a review on behalf of platform staff (admin or platform moderator), regardless of ownership.
 
         Args:
-            user: User requesting the deletion; must be an admin.
+            user: User requesting the deletion; must be an admin or platform moderator.
             review: Review instance to delete.
 
         Raises:
-            PermissionDeniedError: When the user is not an admin.
+            PermissionDeniedError: When the user is not an admin or platform moderator.
         """
-        await is_admin(user)
+        await is_staff(user)
         await self.review_repo.delete_review(review)
         await self.session.commit()
 

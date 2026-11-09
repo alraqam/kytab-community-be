@@ -1,16 +1,17 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_filter import FilterDepends
 from fastapi_utils.cbv import cbv
 
-from src.backend.identity.auth.models import User
-from src.backend.identity.users.dependencies import is_admin
-from src.backend.trust_safety.complaint.dependencies import get_complaint_manager, get_complaint_or_404
-from src.backend.trust_safety.complaint.filters import ComplaintFilter
-from src.backend.trust_safety.complaint.managers import ComplaintManager
-from src.backend.trust_safety.complaint.models import Complaint
-from src.backend.trust_safety.complaint.schemas import GetComplaint, WarnComplaintTarget
-from src.backend.trust_safety.audit_log.decorators import audit_action
-from src.backend.trust_safety.audit_log.schemas import AuditLogAction
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.dependencies.user import is_staff
+from src.backend.trust_safety.complaint.dependencies.complaint import get_complaint_manager, get_complaint_or_404
+from src.backend.trust_safety.complaint.filters.complaint import ComplaintFilter
+from src.backend.trust_safety.complaint.managers.complaint import ComplaintManager
+from src.backend.trust_safety.complaint.models.complaint import Complaint
+from src.backend.trust_safety.complaint.schemas.complaint import GetComplaint, WarnComplaintTarget
+from src.backend.trust_safety.audit_log.decorators.audit import audit_action
+from src.backend.trust_safety.audit_log.schemas.audit_log import AuditLogAction
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/admin/complaint",
@@ -22,11 +23,13 @@ class ComplaintAdminRouter:
     """CBV router for platform-level moderation of complaints: review, resolve, and enforce."""
 
     manager: ComplaintManager = Depends(get_complaint_manager)
-    user: User = Depends(is_admin)
+    user: User = Depends(is_staff)
 
     @router.put(
         "/{complaint_id}/resolve",
         summary="resolving complaints",
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(400, 401, 403, 404),
     )
     @audit_action(AuditLogAction.complaint_resolved, "complaint", id_from="complaint")
     async def resolve_complaint(
@@ -39,6 +42,8 @@ class ComplaintAdminRouter:
     @router.put(
         "/{complaint_id}/dismiss",
         summary="dismissing complaints",
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(400, 401, 403, 404),
     )
     @audit_action(AuditLogAction.complaint_dismissed, "complaint", id_from="complaint")
     async def dismiss_complaint(
@@ -51,6 +56,8 @@ class ComplaintAdminRouter:
     @router.put(
         "/{complaint_id}/remove-content",
         summary="removing reported content",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(400, 401, 403, 404),
     )
     @audit_action(AuditLogAction.complaint_content_removed, "complaint", id_from="complaint")
     async def remove_content(
@@ -63,6 +70,8 @@ class ComplaintAdminRouter:
     @router.put(
         "/{complaint_id}/warn",
         summary="warning the reported user",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(400, 401, 403, 404),
     )
     @audit_action(
         AuditLogAction.complaint_target_warned, "complaint", id_from="complaint",
@@ -79,6 +88,8 @@ class ComplaintAdminRouter:
     @router.put(
         "/{complaint_id}/suspend",
         summary="suspending the reported user",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(400, 401, 403, 404),
     )
     @audit_action(AuditLogAction.complaint_target_suspended, "complaint", id_from="complaint")
     async def suspend_target(
@@ -91,6 +102,8 @@ class ComplaintAdminRouter:
     @router.put(
         "/{complaint_id}/ban",
         summary="banning the reported user",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(400, 401, 403, 404),
     )
     @audit_action(AuditLogAction.complaint_target_banned, "complaint", id_from="complaint")
     async def ban_target(
@@ -103,7 +116,9 @@ class ComplaintAdminRouter:
     @router.get(
         "/",
         summary="getting complaints",
-        response_model=list[GetComplaint]
+        response_model=list[GetComplaint],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403),
     )
     async def get_complaints(
             self,

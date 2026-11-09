@@ -2,7 +2,7 @@ from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.catalog.books.managers.series import SeriesManager
-from src.backend.catalog.books.models import Series
+from src.backend.catalog.books.models.book import Series
 from src.backend.core.dependencies import get_db
 
 

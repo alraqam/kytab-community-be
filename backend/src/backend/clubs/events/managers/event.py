@@ -3,16 +3,16 @@ from datetime import datetime, timezone, date
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.clubs.club_membership.managers.membership import ClubMembershipManager
-from src.backend.clubs.club_membership.services import is_owner_or_moderator, is_club_member
-from src.backend.clubs.clubs.models import Club
-from src.backend.clubs.events.exceptions import EventDateInPastError, EventNotFoundError
-from src.backend.clubs.events.models import ClubEvent
+from src.backend.clubs.club_membership.permissions.membership import is_owner_or_moderator, can_view_club
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.clubs.events.exceptions.event import EventDateInPastError, EventNotFoundError
+from src.backend.clubs.events.models.event import ClubEvent
 from src.backend.clubs.events.repository.event import ClubEventRepository
-from src.backend.clubs.events.schemas import CreateClubEvent, UpdateClubEvent
-from src.backend.identity.auth.models import User
-from src.backend.identity.users.managers import UserManager
+from src.backend.clubs.events.schemas.event import CreateClubEvent, UpdateClubEvent
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.managers.user import UserManager
 from src.backend.notifications.managers.notification import NotificationManager
-from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
+from src.backend.notifications.schemas.notification import NotificationCategory, NotificationObjectType
 
 
 class ClubEventManager:
@@ -198,18 +198,18 @@ class ClubEventManager:
         """Lists all events for a club.
 
         Args:
-            user: User requesting the events; must be a club member.
+            user: User requesting the events; must be a club member or platform staff.
             club: Club whose events are being listed.
 
         Returns:
             List of matching ClubEvent instances.
 
         Raises:
-            NotClubMemberError: When the user is not a member of a public club.
-            ClubAccessDeniedError: When the user is not a member of a private or
+            NotClubMemberError: When a non-staff user is not a member of a public club.
+            ClubAccessDeniedError: When a non-staff user is not a member of a private or
                 secret club (indistinguishable from the club not existing).
         """
-        await is_club_member(club, user, self.session)
+        await can_view_club(club, user, self.session, viewed="events")
         events = await self.event_repo.get_club_events(
             club_id=club.id,
         )
@@ -223,18 +223,18 @@ class ClubEventManager:
         """Lists a club's events that have not yet started.
 
         Args:
-            user: User requesting the events; must be a club member.
+            user: User requesting the events; must be a club member or platform staff.
             club: Club whose future events are being listed.
 
         Returns:
             List of matching ClubEvent instances.
 
         Raises:
-            NotClubMemberError: When the user is not a member of a public club.
-            ClubAccessDeniedError: When the user is not a member of a private or
+            NotClubMemberError: When a non-staff user is not a member of a public club.
+            ClubAccessDeniedError: When a non-staff user is not a member of a private or
                 secret club (indistinguishable from the club not existing).
         """
-        await is_club_member(club, user, self.session)
+        await can_view_club(club, user, self.session, viewed="upcoming events")
         events = await self.event_repo.get_club_future_events(
             club_id=club.id,
         )

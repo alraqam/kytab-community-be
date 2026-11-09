@@ -7,7 +7,7 @@ from jose.exceptions import JWTError
 
 from src.backend.core.redis import redis_client
 from src.backend.core.settings import settings
-from src.backend.identity.auth.exceptions import InvalidOAuthTokenError
+from src.backend.identity.auth.exceptions.auth import InvalidOAuthTokenError
 
 
 class OAuthService:

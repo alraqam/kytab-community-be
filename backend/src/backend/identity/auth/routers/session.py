@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.identity.auth.dependencies import get_session_manager, get_current_user, get_session_or_404
+from src.backend.identity.auth.dependencies.auth import get_session_manager, get_current_user, get_session_or_404
 from src.backend.identity.auth.managers.session import SessionManager
-from src.backend.identity.auth.models import User, Session
-from src.backend.identity.auth.schemas import GetSession
-from src.backend.identity.users.dependencies import get_user_manager
-from src.backend.identity.users.managers import UserManager
+from src.backend.identity.auth.models.auth import User, Session
+from src.backend.identity.auth.schemas.auth import GetSession
+from src.backend.identity.users.dependencies.user import get_user_manager
+from src.backend.identity.users.managers.user import UserManager
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/session",
@@ -23,7 +24,9 @@ class SessionRouter:
     @router.get(
         "/",
         summary="getting user's active sessions",
-        response_model=list[GetSession]
+        response_model=list[GetSession],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401),
     )
     async def get_user_sessions(
             self,
@@ -36,6 +39,8 @@ class SessionRouter:
     @router.delete(
         "/{session_id}",
         summary="revoking session",
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def revoke(
             self,

@@ -2,17 +2,17 @@ from datetime import datetime, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.club_membership.services import is_club_member
-from src.backend.clubs.clubs.models import Club
-from src.backend.clubs.events.exceptions import EventDateInPastError, RsvpNotFoundError
-from src.backend.clubs.events.filters import EventRSVPFilter
-from src.backend.clubs.events.models import EventRSVP, ClubEvent
+from src.backend.clubs.club_membership.permissions.membership import is_club_member, can_view_club
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.clubs.events.exceptions.event import EventDateInPastError, RsvpNotFoundError
+from src.backend.clubs.events.filters.event import EventRSVPFilter
+from src.backend.clubs.events.models.event import EventRSVP, ClubEvent
 from src.backend.clubs.events.repository.rsvp import EventRSVPRepository
-from src.backend.clubs.events.schemas import CreateEventRSVP
-from src.backend.identity.auth.models import User
-from src.backend.identity.users.managers import UserManager
+from src.backend.clubs.events.schemas.event import CreateEventRSVP
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.managers.user import UserManager
 from src.backend.notifications.managers.notification import NotificationManager
-from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
+from src.backend.notifications.schemas.notification import NotificationCategory, NotificationObjectType
 
 
 class EventRSVPManager:
@@ -90,7 +90,7 @@ class EventRSVPManager:
         """Lists RSVPs for an event matching the given filters.
 
         Args:
-            user: User requesting the RSVPs; must be a club member.
+            user: User requesting the RSVPs; must be a club member or platform staff.
             club: Club the event belongs to.
             event: ClubEvent whose RSVPs are being listed.
             filters: EventRSVPFilter with response status and ordering criteria.
@@ -99,11 +99,11 @@ class EventRSVPManager:
             List of matching EventRSVP instances.
 
         Raises:
-            NotClubMemberError: When the user is not a member of a public club.
-            ClubAccessDeniedError: When the user is not a member of a private or
+            NotClubMemberError: When a non-staff user is not a member of a public club.
+            ClubAccessDeniedError: When a non-staff user is not a member of a private or
                 secret club (indistinguishable from the club not existing).
         """
-        await is_club_member(club, user, self.session)
+        await can_view_club(club, user, self.session, viewed=f"RSVPs of event {event.id}")
         rsvps = await self.rsvp_repo.get_event_rsvps(
             event_id=event.id,
             filters=filters
@@ -119,7 +119,7 @@ class EventRSVPManager:
         """Tallies RSVP responses for an event by status.
 
         Args:
-            user: User requesting the results; must be a club member.
+            user: User requesting the results; must be a club member or platform staff.
             club: Club the event belongs to.
             event: ClubEvent whose RSVP results are being tallied.
 
@@ -127,11 +127,11 @@ class EventRSVPManager:
             Mapping of response status to the count of RSVPs with that status.
 
         Raises:
-            NotClubMemberError: When the user is not a member of a public club.
-            ClubAccessDeniedError: When the user is not a member of a private or
+            NotClubMemberError: When a non-staff user is not a member of a public club.
+            ClubAccessDeniedError: When a non-staff user is not a member of a private or
                 secret club (indistinguishable from the club not existing).
         """
-        await is_club_member(club, user, self.session)
+        await can_view_club(club, user, self.session, viewed=f"RSVP results of event {event.id}")
         rsvps = await self.rsvp_repo.get_event_rsvps(event.id)
 
         rsvp_counts: dict[str, int] = {}

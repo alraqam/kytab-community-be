@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.clubs.clubs.dependencies import get_club_or_404
-from src.backend.clubs.clubs.models import Club
-from src.backend.clubs.voting.dependencies import get_poll_candidate_manager, get_voting_poll_or_404
+from src.backend.clubs.clubs.dependencies.club import get_club_or_404
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.clubs.voting.dependencies.voting import get_poll_candidate_manager, get_voting_poll_or_404
 from src.backend.clubs.voting.managers.poll_candidate import PollCandidateManager
-from src.backend.clubs.voting.models import VotingPoll
-from src.backend.clubs.voting.schemas import GetPollCandidate, CreatePollCandidate
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
+from src.backend.clubs.voting.models.voting import VotingPoll
+from src.backend.clubs.voting.schemas.voting import GetPollCandidate, CreatePollCandidate
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/{poll_id}/candidate",
@@ -28,6 +29,8 @@ class PollCandidateRouter:
         "/",
         summary="creating poll candidate",
         response_model=GetPollCandidate,
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(400, 401, 403, 404, 409),
     )
     async def create_poll_candidate(
             self,
@@ -42,6 +45,8 @@ class PollCandidateRouter:
         "/",
         summary="getting poll candidates",
         response_model=list[GetPollCandidate],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_poll_candidates(self) -> list[GetPollCandidate]:
         """Returns all candidates for the current voting poll."""

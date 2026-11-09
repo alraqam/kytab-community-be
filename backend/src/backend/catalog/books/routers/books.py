@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 from fastapi_utils.cbv import cbv
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.catalog.books.filters import WorkFilter
+from src.backend.catalog.books.filters.book import WorkFilter
 from src.backend.catalog.books.repository.work import WorkRepository
 from src.backend.catalog.books.schemas.work import GetWork
-from src.backend.catalog.books.services import DEFAULT_LANGUAGE, fetch_from_open_library, cache_work
+from src.backend.catalog.books.services.external_catalog import DEFAULT_LANGUAGE, fetch_from_open_library, cache_work
 from src.backend.core.dependencies import get_db
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/books",
@@ -24,6 +25,8 @@ class BooksRouter:
         "/",
         summary="getting all books or searching by title/description",
         response_model=list[GetWork],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(503),
     )
     async def get_books(
             self,

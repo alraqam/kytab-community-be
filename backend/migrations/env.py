@@ -30,29 +30,29 @@ if config.config_file_name is not None:
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
 from src.backend.core.models import Base
-from src.backend.identity.auth.models import User, Session
-from src.backend.identity.profile.models import Profile
-from src.backend.identity.blocked_users.models import BlockedUser
-from src.backend.identity.follow.models import Follow
-from src.backend.catalog.books.models import Work, Edition, Genre
-from src.backend.catalog.librarian.models import LibrarianSubmission
-from src.backend.library.reading_goals.models import ReadingGoal
-from src.backend.library.shelf.models import Shelf, ShelfItem
-from src.backend.library.progress.models import ProgressLog, ReadingPeriod
-from src.backend.library.goodreads_import.models import GoodreadsImportRow
-from src.backend.library.reviews.models import Review
-from src.backend.clubs.clubs.models import Club, ClubGenre
-from src.backend.clubs.club_membership.models import ClubMembership
-from src.backend.clubs.reading_session.models import ReadingSession
-from src.backend.clubs.thread.models import Thread
-from src.backend.clubs.voting.models import VotingPoll, PollVote, PollCandidate
-from src.backend.clubs.events.models import ClubEvent, EventRSVP
-from src.backend.trust_safety.audit_log.models import AuditLog
-from src.backend.trust_safety.complaint.models import Complaint
-from src.backend.trust_safety.consent.models import ConsentRecords, LegalDocument
-from src.backend.notifications.models import Notification, NotificationPreference
-from src.backend.administration.announcements.models import Announcement
-from src.backend.administration.feature_flags.models import FeatureFlag
+from src.backend.identity.auth.models.auth import User, Session
+from src.backend.identity.profile.models.profile import Profile
+from src.backend.identity.blocked_users.models.blocked_user import BlockedUser
+from src.backend.identity.follow.models.follow import Follow
+from src.backend.catalog.books.models.book import Work, Edition, Genre
+from src.backend.catalog.librarian.models.librarian import LibrarianSubmission
+from src.backend.library.reading_goals.models.reading_goal import ReadingGoal
+from src.backend.library.shelf.models.shelf import Shelf, ShelfItem
+from src.backend.library.progress.models.progress import ProgressLog, ReadingPeriod
+from src.backend.library.goodreads_import.models.goodreads_import import GoodreadsImportRow
+from src.backend.library.reviews.models.review import Review
+from src.backend.clubs.clubs.models.club import Club, ClubGenre
+from src.backend.clubs.club_membership.models.membership import ClubMembership
+from src.backend.clubs.reading_session.models.reading_session import ReadingSession
+from src.backend.clubs.thread.models.thread import Thread
+from src.backend.clubs.voting.models.voting import VotingPoll, PollVote, PollCandidate
+from src.backend.clubs.events.models.event import ClubEvent, EventRSVP
+from src.backend.trust_safety.audit_log.models.audit_log import AuditLog
+from src.backend.trust_safety.complaint.models.complaint import Complaint
+from src.backend.trust_safety.consent.models.consent import ConsentRecords, LegalDocument
+from src.backend.notifications.models.notification import Notification, NotificationPreference
+from src.backend.administration.announcements.models.announcement import Announcement
+from src.backend.administration.feature_flags.models.feature_flag import FeatureFlag
 target_metadata = Base.metadata
 
 # other values from the config, defined by the needs of env.py,

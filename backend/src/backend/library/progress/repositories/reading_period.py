@@ -4,9 +4,9 @@ from datetime import datetime
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.catalog.books.models import Edition
-from src.backend.library.progress.models import ReadingPeriod
-from src.backend.library.shelf.models import Shelf, ShelfItem
+from src.backend.catalog.books.models.book import Edition
+from src.backend.library.progress.models.progress import ReadingPeriod
+from src.backend.library.shelf.models.shelf import Shelf, ShelfItem
 
 
 @dataclass

@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_filter import FilterDepends
 from fastapi_utils.cbv import cbv
 
-from src.backend.identity.auth.models import User
-from src.backend.catalog.librarian.dependencies import get_librarian_submission_manager, is_librarian, \
+from src.backend.identity.auth.models.auth import User
+from src.backend.catalog.librarian.dependencies.librarian import get_librarian_submission_manager, is_librarian, \
     get_librarian_submission_or_404
-from src.backend.catalog.librarian.filters import LibrarianSubmissionFilter
-from src.backend.catalog.librarian.managers import LibrarianSubmissionManager
-from src.backend.catalog.librarian.models import LibrarianSubmission
-from src.backend.catalog.librarian.schemas import SetLibrarianSubmissionWork, GetLibrarianSubmission
+from src.backend.catalog.librarian.filters.librarian import LibrarianSubmissionFilter
+from src.backend.catalog.librarian.managers.librarian import LibrarianSubmissionManager
+from src.backend.catalog.librarian.models.librarian import LibrarianSubmission
+from src.backend.catalog.librarian.schemas.librarian import SetLibrarianSubmissionWork, GetLibrarianSubmission
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/librarian/submission",
@@ -25,6 +26,8 @@ class LibrarianSubmissionRouter:
     @router.put(
         "/{submission_id}/approve",
         summary="approving submission",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def approve(
             self,
@@ -36,6 +39,8 @@ class LibrarianSubmissionRouter:
     @router.put(
         "/{submission_id}/reject",
         summary="rejecting submission",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def reject(
             self,
@@ -47,6 +52,8 @@ class LibrarianSubmissionRouter:
     @router.put(
         "/{submission_id}/set-work",
         summary="",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def set_work_id(
             self,
@@ -60,6 +67,8 @@ class LibrarianSubmissionRouter:
         "/",
         summary="getting all submissions",
         response_model=list[GetLibrarianSubmission],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403),
     )
     async def get_submissions(
             self,
@@ -73,6 +82,8 @@ class LibrarianSubmissionRouter:
         "/{submission_id}",
         summary="getting submissions by id",
         response_model=GetLibrarianSubmission,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_submission_by_id(
             self,

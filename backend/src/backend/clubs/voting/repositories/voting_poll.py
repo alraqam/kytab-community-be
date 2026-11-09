@@ -4,8 +4,8 @@ from datetime import datetime
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.voting.models import VotingPoll
-from src.backend.clubs.voting.schemas import VotingStatus
+from src.backend.clubs.voting.models.voting import VotingPoll
+from src.backend.clubs.voting.schemas.voting import VotingStatus
 
 
 @dataclass

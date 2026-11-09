@@ -1,16 +1,17 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.clubs.reading_session.dependencies import get_reading_session_or_404, get_milestone_or_404
-from src.backend.clubs.reading_session.models import ReadingSession, Milestone
-from src.backend.clubs.thread.dependencies import get_post_manager, get_thread_session_or_404, get_post_session_or_404
+from src.backend.clubs.reading_session.dependencies.reading_session import get_reading_session_or_404, get_milestone_or_404
+from src.backend.clubs.reading_session.models.reading_session import ReadingSession, Milestone
+from src.backend.clubs.thread.dependencies.thread import get_post_manager, get_thread_session_or_404, get_post_session_or_404
 from src.backend.clubs.thread.managers.posts import PostManager
-from src.backend.clubs.thread.models import Thread, Post
-from src.backend.clubs.thread.schemas import GetPost, CreatePost, UpdatePost, GetPostPartial
-from src.backend.clubs.clubs.dependencies import get_club_or_404
-from src.backend.clubs.clubs.models import Club
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
+from src.backend.clubs.thread.models.thread import Thread, Post
+from src.backend.clubs.thread.schemas.thread import GetPost, CreatePost, UpdatePost, GetPostPartial
+from src.backend.clubs.clubs.dependencies.club import get_club_or_404
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/{thread_id}/post",
@@ -32,6 +33,8 @@ class PostSessionRouter:
         summary="creating session thread post",
         response_model=GetPost,
         tags=["posts"],
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def create_post(
             self,
@@ -45,6 +48,8 @@ class PostSessionRouter:
         "/{post_id}",
         summary="update session post",
         tags=["posts"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def update_post(
             self,
@@ -58,6 +63,8 @@ class PostSessionRouter:
         "/{post_id}",
         summary="deleting session post",
         tags=["posts"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def delete_post(
             self,
@@ -71,6 +78,8 @@ class PostSessionRouter:
         summary="getting session posts by user milestone reached",
         response_model=list[GetPost] | list[GetPostPartial],
         tags=["posts"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_posts(
             self,
@@ -84,6 +93,8 @@ class PostSessionRouter:
         summary="getting and revealing post by id",
         response_model=GetPost,
         tags=["posts"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_session_milestone_threads(
             self,

@@ -1,18 +1,18 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.club_membership.exceptions import ClubModeratorError, MemberBlockedError
+from src.backend.clubs.club_membership.exceptions.membership import ClubModeratorError, MemberBlockedError
 from src.backend.clubs.club_membership.repository.membership import ClubMembershipRepository
-from src.backend.identity.users.managers import UserManager
-from src.backend.identity.users.repository import UserRepository
-from src.backend.clubs.club_membership.exceptions import MemberAlreadyBlockedError, ClubBlockNotFoundError, \
+from src.backend.identity.users.managers.user import UserManager
+from src.backend.identity.users.repository.user import UserRepository
+from src.backend.clubs.club_membership.exceptions.membership import MemberAlreadyBlockedError, ClubBlockNotFoundError, \
     ClubOwnerError
-from src.backend.clubs.club_membership.models import ClubBlocked
+from src.backend.clubs.club_membership.models.membership import ClubBlocked
 from src.backend.clubs.club_membership.repository.block import ClubBlockedRepository
-from src.backend.clubs.club_membership.schemas import CreateBlockedMember, MemberRole
-from src.backend.clubs.club_membership.services import is_owner_or_moderator, is_club_owner
-from src.backend.clubs.clubs.models import Club
-from src.backend.identity.auth.models import User
+from src.backend.clubs.club_membership.schemas.membership import CreateBlockedMember, MemberRole
+from src.backend.clubs.club_membership.permissions.membership import is_owner_or_moderator, is_club_owner
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.identity.auth.models.auth import User
 
 
 class ClubBlockedManager:

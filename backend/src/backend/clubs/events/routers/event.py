@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.clubs.clubs.dependencies import get_club_or_404
-from src.backend.clubs.clubs.models import Club
-from src.backend.clubs.events.dependencies import get_club_event_manager, get_club_event_or_404
+from src.backend.clubs.clubs.dependencies.club import get_club_or_404
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.clubs.events.dependencies.event import get_club_event_manager, get_club_event_or_404
 from src.backend.clubs.events.managers.event import ClubEventManager
-from src.backend.clubs.events.models import ClubEvent
-from src.backend.clubs.events.schemas import GetClubEvent, CreateClubEvent, UpdateClubEvent
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
+from src.backend.clubs.events.models.event import ClubEvent
+from src.backend.clubs.events.schemas.event import GetClubEvent, CreateClubEvent, UpdateClubEvent
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/{club_id}/events",
@@ -27,6 +28,8 @@ class ClubEventRouter:
         summary="creating event",
         response_model=GetClubEvent,
         tags=["events"],
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def create_event(
             self,
@@ -40,6 +43,8 @@ class ClubEventRouter:
         "/{event_id}",
         summary="updating event",
         tags=["events"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def update_event(
             self,
@@ -53,6 +58,8 @@ class ClubEventRouter:
         "/{event_id}",
         summary="deleting event",
         tags=["events"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def delete_event(
             self,
@@ -66,6 +73,8 @@ class ClubEventRouter:
         summary="getting club events",
         response_model=list[GetClubEvent],
         tags=["events"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_club_events(self):
         """Lists all events for the club."""
@@ -77,6 +86,8 @@ class ClubEventRouter:
         summary="getting club future events",
         response_model=list[GetClubEvent],
         tags=["events"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_club_future_events(self):
         """Lists the club's events that have not yet started."""
@@ -88,6 +99,8 @@ class ClubEventRouter:
         summary="getting event by id",
         response_model=GetClubEvent,
         tags=["events"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_event_by_id(
             self,

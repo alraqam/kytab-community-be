@@ -5,7 +5,7 @@ from datetime import datetime
 from sqlalchemy import select, and_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.notifications.models import NotificationPreference
+from src.backend.notifications.models.notification import NotificationPreference
 
 
 @dataclass

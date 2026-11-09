@@ -1,0 +1,27 @@
+
+from sqlalchemy import BigInteger, ForeignKey, Column, UniqueConstraint, CheckConstraint, select
+from sqlalchemy.orm import column_property
+
+from src.backend.core.models import Base, IntIdMixin, TimeActionMixin
+from src.backend.identity.auth.models.auth import User
+
+
+class Follow(Base, IntIdMixin, TimeActionMixin):
+    """ORM model representing a directed follow relationship between two users."""
+
+    __tablename__ = "follows"
+
+    follower_id = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    followed_id  = Column(BigInteger, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("follower_id", "followed_id", name="uq_follower_followed"),
+        CheckConstraint("follower_id != followed_id", name="ck_no_self_follow"),
+    )
+
+Follow.follower_username = column_property(
+    select(User.username).where(User.id == Follow.follower_id).correlate_except(User).scalar_subquery()
+)
+Follow.followed_username = column_property(
+    select(User.username).where(User.id == Follow.followed_id).correlate_except(User).scalar_subquery()
+)

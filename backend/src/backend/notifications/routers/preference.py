@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
-from src.backend.notifications.dependencies import get_notification_preference_manager, \
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.notifications.dependencies.notification import get_notification_preference_manager, \
     get_notification_preference_or_404
 from src.backend.notifications.managers.preference import NotificationPreferenceManager
-from src.backend.notifications.models import NotificationPreference
-from src.backend.notifications.schemas import GetNotificationPreference, CreateNotificationPreference, \
+from src.backend.notifications.models.notification import NotificationPreference
+from src.backend.notifications.schemas.notification import GetNotificationPreference, CreateNotificationPreference, \
     UpdateNotificationPreference
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/notifications/preferences",
@@ -25,7 +26,9 @@ class NotificationPreferenceRouter:
     @router.post(
         "/",
         summary="creating notification preference",
-        response_model=GetNotificationPreference
+        response_model=GetNotificationPreference,
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 404, 409),
     )
     async def create_preference(
             self,
@@ -38,6 +41,8 @@ class NotificationPreferenceRouter:
     @router.put(
         "/mute",
         summary="muting all notifications for current user",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401),
     )
     async def mute_all(self):
         """Mutes all of the current user's notification preferences."""
@@ -46,6 +51,8 @@ class NotificationPreferenceRouter:
     @router.put(
         "/unmute",
         summary="unmuting all notifications for current user",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401),
     )
     async def unmute_all(self):
         """Unmutes all of the current user's notification preferences."""
@@ -54,6 +61,8 @@ class NotificationPreferenceRouter:
     @router.put(
         "/{preference_id}",
         summary="updating notification preference",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403),
     )
     async def update_preference(
             self,
@@ -66,6 +75,8 @@ class NotificationPreferenceRouter:
     @router.delete(
         "/{preference_id}",
         summary="deleting notification preference",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403),
     )
     async def delete_preference(
             self,
@@ -77,7 +88,9 @@ class NotificationPreferenceRouter:
     @router.get(
         "/",
         summary="getting current user notification preferences",
-        response_model=list[GetNotificationPreference]
+        response_model=list[GetNotificationPreference],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401),
     )
     async def get_user_preferences(self):
         """Lists the current user's notification preferences."""
@@ -87,7 +100,9 @@ class NotificationPreferenceRouter:
     @router.get(
         "/{preference_id}",
         summary="getting notification preference by id",
-        response_model=GetNotificationPreference
+        response_model=GetNotificationPreference,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401),
     )
     async def get_preference_by_id(
             self,

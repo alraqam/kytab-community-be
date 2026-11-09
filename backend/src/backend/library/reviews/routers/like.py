@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
 from src.backend.catalog.books.dependencies.work import get_work_or_404
-from src.backend.catalog.books.models import Work
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
-from src.backend.library.reviews.dependencies import get_review_or_404, get_review_like_manager, get_review_like_or_404
+from src.backend.catalog.books.models.book import Work
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.library.reviews.dependencies.review import get_review_or_404, get_review_like_manager, get_review_like_or_404
 from src.backend.library.reviews.managers.like import ReviewLikeManager
-from src.backend.library.reviews.models import Review, ReviewLike
-from src.backend.library.reviews.schemas import GetReviewLike
+from src.backend.library.reviews.models.review import Review, ReviewLike
+from src.backend.library.reviews.schemas.review import GetReviewLike
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/{review_id}/likes",
@@ -27,7 +28,9 @@ class ReviewLikeRouter:
     @router.post(
         "/",
         summary="creating like for review",
-        response_model=GetReviewLike
+        response_model=GetReviewLike,
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 404, 409),
     )
     async def create_like(
             self,
@@ -39,6 +42,8 @@ class ReviewLikeRouter:
     @router.delete(
         "/{like_id}",
         summary="deleting review like",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def delete_like(
             self,
@@ -50,6 +55,8 @@ class ReviewLikeRouter:
     @router.get(
         "/count",
         summary="getting review likes count",
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_review_likes_count(self):
         """Returns the number of likes on the review."""
@@ -59,7 +66,9 @@ class ReviewLikeRouter:
     @router.get(
         "/",
         summary="getting review likes",
-        response_model=list[GetReviewLike]
+        response_model=list[GetReviewLike],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_review_likes(self):
         """Lists all likes on the review."""
@@ -69,7 +78,9 @@ class ReviewLikeRouter:
     @router.get(
         "/{like_id}",
         summary="getting review like by id",
-        response_model=GetReviewLike
+        response_model=GetReviewLike,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_like_by_id(
             self,

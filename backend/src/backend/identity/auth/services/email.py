@@ -6,8 +6,8 @@ from jose import jwt, JWTError
 from src.backend.celery_app import celery_app
 from src.backend.core.services import _send_email_sync
 from src.backend.core.settings import settings
-from src.backend.identity.auth.exceptions import InvalidTokenTypeError, InvalidTokenError
-from src.backend.identity.auth.models import User
+from src.backend.identity.auth.exceptions.auth import InvalidTokenTypeError, InvalidTokenError
+from src.backend.identity.auth.models.auth import User
 
 
 def create_verification_token(user_id: int) -> str:

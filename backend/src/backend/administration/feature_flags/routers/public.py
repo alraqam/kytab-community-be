@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.administration.feature_flags.dependencies import get_feature_flag_manager
-from src.backend.administration.feature_flags.managers import FeatureFlagManager
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
+from src.backend.administration.feature_flags.dependencies.feature_flag import get_feature_flag_manager
+from src.backend.administration.feature_flags.managers.feature_flag import FeatureFlagManager
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/feature-flags",
@@ -21,7 +22,9 @@ class FeatureFlagPublicRouter:
     @router.get(
         "/",
         summary="evaluating feature flags for current user",
-        response_model=dict[str, bool]
+        response_model=dict[str, bool],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401),
     )
     async def evaluate_feature_flags(self):
         """Evaluates every enabled feature flag's staged rollout for the current user."""

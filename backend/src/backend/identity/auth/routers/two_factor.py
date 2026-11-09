@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, status
 from fastapi_utils.cbv import cbv
 
 from src.backend.core.rate_limit import RateLimiter
-from src.backend.identity.auth.dependencies import get_current_user, get_auth_manager, get_two_factor_manager
-from src.backend.identity.auth.exceptions import InvalidTwoFactorCodeError, InvalidTokenError
+from src.backend.identity.auth.dependencies.auth import get_current_user, get_auth_manager, get_two_factor_manager
+from src.backend.identity.auth.exceptions.auth import InvalidTwoFactorCodeError, InvalidTokenError
 from src.backend.identity.auth.managers.auth import AuthManager
 from src.backend.identity.auth.managers.two_factor import TwoFactorManager
-from src.backend.identity.auth.models import User
-from src.backend.identity.auth.schemas import TwoFactorSetup, TwoFactorEnable, TwoFactorRecoveryCodes, \
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.auth.schemas.auth import TwoFactorSetup, TwoFactorEnable, TwoFactorRecoveryCodes, \
     TwoFactorDisable, TwoFactorVerify
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/2fa",
@@ -28,6 +29,8 @@ class TwoFactorRouter:
         "/setup",
         summary="starting two-factor authentication setup",
         response_model=TwoFactorSetup,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 409),
     )
     async def setup(
             self,
@@ -40,6 +43,8 @@ class TwoFactorRouter:
         "/enable",
         summary="confirming and enabling two-factor authentication",
         response_model=TwoFactorRecoveryCodes,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(400, 401, 409),
     )
     async def enable(
             self,
@@ -53,6 +58,8 @@ class TwoFactorRouter:
     @router.post(
         "/disable",
         summary="disabling two-factor authentication",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(400, 401),
     )
     async def disable(
             self,
@@ -65,6 +72,8 @@ class TwoFactorRouter:
     @router.post(
         "/verify",
         summary="completing login with a two-factor code",
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 429),
     )
     async def verify(
             self,

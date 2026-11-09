@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
 
 from src.backend.core.task import task_session
-from src.backend.identity.users.managers import UserManager
-from src.backend.notifications.email import send_digest_email
+from src.backend.identity.users.managers.user import UserManager
+from src.backend.notifications.services.email import send_digest_email
 from src.backend.notifications.repository.notification import NotificationRepository
 from src.backend.notifications.repository.preference import NotificationPreferenceRepository
-from src.backend.notifications.schemas import DigestFrequency
+from src.backend.notifications.schemas.notification import DigestFrequency
 from src.backend.celery_app import celery_app
 
 _DIGEST_WINDOWS = {

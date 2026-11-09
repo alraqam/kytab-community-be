@@ -1,15 +1,16 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.identity.users.dependencies import get_user_or_404
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
-from src.backend.library.progress.dependencies import get_reading_period_manager, get_reading_period_or_404
+from src.backend.identity.users.dependencies.user import get_user_or_404
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.library.progress.dependencies.progress import get_reading_period_manager, get_reading_period_or_404
 from src.backend.library.progress.managers.reading_period import ReadingPeriodManager
-from src.backend.library.progress.models import ReadingPeriod
-from src.backend.library.progress.schemas import GetReadingPeriod
-from src.backend.library.shelf.dependencies import get_shelf_item_or_404, get_shelf_or_404
-from src.backend.library.shelf.models import ShelfItem, Shelf
+from src.backend.library.progress.models.progress import ReadingPeriod
+from src.backend.library.progress.schemas.progress import GetReadingPeriod
+from src.backend.library.shelf.dependencies.shelf import get_shelf_item_or_404, get_shelf_or_404
+from src.backend.library.shelf.models.shelf import ShelfItem, Shelf
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/{shelf_item_id}/period",
@@ -29,6 +30,8 @@ class ReadingPeriodRouter:
         summary="start reading period",
         response_model=GetReadingPeriod,
         tags=["reading_period"],
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def start_reading_period(
             self,
@@ -41,6 +44,8 @@ class ReadingPeriodRouter:
         "/{reading_period_id}",
         summary="set finished reading period",
         tags=["reading_period"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def set_finishing_date(
             self,
@@ -53,6 +58,8 @@ class ReadingPeriodRouter:
         "/{reading_period_id}",
         summary="deleting reading period",
         tags=["reading_period"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def delete_reading_period(
             self,
@@ -66,6 +73,8 @@ class ReadingPeriodRouter:
         summary="getting shelf item's reading periods",
         response_model=list[GetReadingPeriod],
         tags=["reading_period"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_shelf_item_periods(
             self,
@@ -79,6 +88,8 @@ class ReadingPeriodRouter:
         summary="getting reading period by id",
         response_model=GetReadingPeriod,
         tags=["reading_period"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_reading_period_by_id(
             self,
@@ -92,6 +103,8 @@ class ReadingPeriodRouter:
         summary="getting user's reading periods",
         response_model=list[GetReadingPeriod],
         tags=["reading_period"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_user_reading_periods(
             self,

@@ -6,24 +6,24 @@ from jose import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.core.storage import StorageService
-from src.backend.identity.profile.managers import ProfileManager
-from src.backend.identity.profile.schemas import CreateProfile
+from src.backend.identity.profile.managers.profile import ProfileManager
+from src.backend.identity.profile.schemas.profile import CreateProfile
 from src.backend.library.shelf.managers.shelf import ShelfManager
-from src.backend.identity.auth.exceptions import InvalidUsernameOrPasswordError, UnverifiedUserError, \
+from src.backend.identity.auth.exceptions.auth import InvalidUsernameOrPasswordError, UnverifiedUserError, \
     UsernameAlreadyExists, EmailAlreadyExists, InvalidTokenError, UsernameChangeTooSoonError, \
     InvalidTwoFactorCodeError, OAuthEmailNotVerifiedError
 from src.backend.identity.auth.managers.two_factor import TwoFactorManager
-from src.backend.identity.auth.models import User
+from src.backend.identity.auth.models.auth import User
 from src.backend.identity.auth.repository.session import SessionRepository
 from src.backend.identity.auth.repository.oauth_account import OAuthAccountRepository
-from src.backend.identity.auth.schemas import Token, UserRegister, ChangeUserPassword, ResetPassword, UpdateUser, \
+from src.backend.identity.auth.schemas.auth import Token, UserRegister, ChangeUserPassword, ResetPassword, UpdateUser, \
     ForgotPassword, TwoFactorRequired
 from src.backend.identity.auth.services.email import create_verification_token, create_password_reset_token, \
     decode_password_reset_token, send_verification_email, send_password_reset_email
 from src.backend.identity.auth.services.oauth import OAuthService
 from src.backend.identity.auth.services.security import PasswordService, TokenService, hash_token
-from src.backend.identity.users.managers import UserManager
-from src.backend.identity.users.repository import UserRepository
+from src.backend.identity.users.managers.user import UserManager
+from src.backend.identity.users.repository.user import UserRepository
 
 
 USERNAME_CHANGE_COOLDOWN_DAYS = 30

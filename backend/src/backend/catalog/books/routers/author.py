@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_filter import FilterDepends
 from fastapi_utils.cbv import cbv
 
 from src.backend.catalog.books.dependencies.author import get_author_manager, get_author_or_404
-from src.backend.catalog.books.filters import AuthorFilter
+from src.backend.catalog.books.filters.book import AuthorFilter
 from src.backend.catalog.books.managers.author import AuthorManager
-from src.backend.catalog.books.models import Author
+from src.backend.catalog.books.models.book import Author
 from src.backend.catalog.books.schemas.author import GetAuthor
 from src.backend.catalog.books.schemas.work import GetWork
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/authors",
@@ -25,6 +26,7 @@ class AuthorRouter:
         "/",
         summary="getting all authors",
         response_model=list[GetAuthor],
+        status_code=status.HTTP_200_OK,
     )
     async def get_authors(
             self,
@@ -37,6 +39,8 @@ class AuthorRouter:
         "/{author_id}",
         summary="getting author by id",
         response_model=GetAuthor,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(404),
     )
     async def get_author_by_id(
             self,
@@ -49,6 +53,8 @@ class AuthorRouter:
         "/{author_id}/works",
         summary="getting works for author",
         response_model=list[GetWork],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(404),
     )
     async def get_works_for_author(
             self,

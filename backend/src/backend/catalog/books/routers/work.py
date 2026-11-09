@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_filter import FilterDepends
 from fastapi_utils.cbv import cbv
 
@@ -7,18 +7,19 @@ from src.backend.catalog.books.dependencies.edition import get_edition_manager
 from src.backend.catalog.books.dependencies.genre import get_genre_manager
 from src.backend.catalog.books.dependencies.series import get_series_manager
 from src.backend.catalog.books.dependencies.work import get_work_manager, get_work_or_404
-from src.backend.catalog.books.filters import WorkFilter
+from src.backend.catalog.books.filters.book import WorkFilter
 from src.backend.catalog.books.managers.author import AuthorManager
 from src.backend.catalog.books.managers.edition import EditionManager
 from src.backend.catalog.books.managers.genre import GenreManager
 from src.backend.catalog.books.managers.series import SeriesManager
 from src.backend.catalog.books.managers.work import WorkManager
-from src.backend.catalog.books.models import Work
+from src.backend.catalog.books.models.book import Work
 from src.backend.catalog.books.schemas.author import GetAuthor
 from src.backend.catalog.books.schemas.edition import GetEdition
 from src.backend.catalog.books.schemas.genre import GetGenre
 from src.backend.catalog.books.schemas.series import GetSeries
 from src.backend.catalog.books.schemas.work import GetWork
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/works",
@@ -40,6 +41,7 @@ class WorkRouter:
         summary="getting all works",
         response_model=list[GetWork],
         tags=["works"],
+        status_code=status.HTTP_200_OK,
     )
     async def get_works(
             self,
@@ -53,6 +55,8 @@ class WorkRouter:
         summary="getting work by id",
         response_model=GetWork,
         tags=["works"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(404),
     )
     async def get_work_by_id(
             self,
@@ -66,6 +70,8 @@ class WorkRouter:
         summary="getting work's editions",
         response_model=list[GetEdition],
         tags=["works"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(404),
     )
     async def get_editions_by_work(
             self,
@@ -79,6 +85,8 @@ class WorkRouter:
         summary="getting work's authors",
         response_model=list[GetAuthor],
         tags=["works"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(404),
     )
     async def get_authors_for_work(
             self,
@@ -92,6 +100,8 @@ class WorkRouter:
         summary="getting work's genres",
         response_model=list[GetGenre],
         tags=["works"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(404),
     )
     async def get_genres_for_work(
             self,
@@ -105,6 +115,8 @@ class WorkRouter:
         summary="getting work's series",
         response_model=list[GetSeries],
         tags=["works"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(404),
     )
     async def get_genres_for_work(
             self,

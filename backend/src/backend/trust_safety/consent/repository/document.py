@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.trust_safety.consent.filters import LegalDocumentFilter
-from src.backend.trust_safety.consent.models import LegalDocument
+from src.backend.trust_safety.consent.filters.consent import LegalDocumentFilter
+from src.backend.trust_safety.consent.models.consent import LegalDocument
 
 
 @dataclass

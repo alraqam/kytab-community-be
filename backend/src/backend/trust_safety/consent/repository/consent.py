@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.trust_safety.consent.models import ConsentRecords
+from src.backend.trust_safety.consent.models.consent import ConsentRecords
 
 
 @dataclass

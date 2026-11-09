@@ -1,16 +1,17 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_filter import FilterDepends
 from fastapi_utils.cbv import cbv
 
-from src.backend.clubs.clubs.schemas import ManageClubModerators
-from src.backend.clubs.club_membership.dependencies import get_membership_manager
-from src.backend.clubs.club_membership.filters import ClubMembersFilter
+from src.backend.clubs.clubs.schemas.club import ManageClubModerators
+from src.backend.clubs.club_membership.dependencies.membership import get_membership_manager
+from src.backend.clubs.club_membership.filters.membership import ClubMembersFilter
 from src.backend.clubs.club_membership.managers.membership import ClubMembershipManager
-from src.backend.clubs.club_membership.schemas import ManageMember, GetMembership
-from src.backend.clubs.clubs.dependencies import get_club_or_404
-from src.backend.clubs.clubs.models import Club
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
+from src.backend.clubs.club_membership.schemas.membership import ManageMember, GetMembership
+from src.backend.clubs.clubs.dependencies.club import get_club_or_404
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/{club_id}/membership",
@@ -29,6 +30,8 @@ class MembershipRouter:
         "/",
         summary="joining club",
         response_model=GetMembership,
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 404, 409),
     )
     async def join_public_club(self):
         """Joins the current user to the club as a reader."""
@@ -38,6 +41,8 @@ class MembershipRouter:
     @router.delete(
         "/",
         summary="leaving club",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def leave_club(self):
         """Removes the current user from the club."""
@@ -46,6 +51,8 @@ class MembershipRouter:
     @router.delete(
         "/kick",
         summary="kicking club member",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def kick_member(
             self,
@@ -58,6 +65,8 @@ class MembershipRouter:
         "/members",
         summary="getting club members",
         response_model=list[GetMembership],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_memberships(
             self,
@@ -71,6 +80,8 @@ class MembershipRouter:
         "/owner-moderator",
         summary="getting club owners and moderators",
         response_model=list[GetMembership],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_club_owner_moderator(
             self,
@@ -82,6 +93,8 @@ class MembershipRouter:
     @router.put(
         "/assign-moderator",
         summary="assigning club moderator",
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def assign_moderator(
             self,
@@ -95,6 +108,8 @@ class MembershipRouter:
     @router.put(
         "/remove-moderator",
         summary="removing club moderator",
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def remove_moderator(
             self,

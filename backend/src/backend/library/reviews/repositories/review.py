@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.library.reviews.filters import ReviewFilter
-from src.backend.library.reviews.models import Review
+from src.backend.library.reviews.filters.review import ReviewFilter
+from src.backend.library.reviews.models.review import Review
 
 
 @dataclass

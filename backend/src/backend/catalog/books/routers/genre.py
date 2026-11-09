@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_filter import FilterDepends
 from fastapi_utils.cbv import cbv
 
 from src.backend.catalog.books.dependencies.genre import get_genre_manager, get_genre_or_404
-from src.backend.catalog.books.filters import GenreFilter
+from src.backend.catalog.books.filters.book import GenreFilter
 from src.backend.catalog.books.managers.genre import GenreManager
-from src.backend.catalog.books.models import Genre
+from src.backend.catalog.books.models.book import Genre
 from src.backend.catalog.books.schemas.genre import GetGenre
 from src.backend.catalog.books.schemas.work import GetWork
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/genres",
@@ -25,6 +26,7 @@ class GenreRouter:
         "/",
         summary="getting all genres",
         response_model=list[GetGenre],
+        status_code=status.HTTP_200_OK,
     )
     async def get_genres(
             self,
@@ -37,6 +39,8 @@ class GenreRouter:
         "/{genre_id}",
         summary="getting genre by id",
         response_model=GetGenre,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(404),
     )
     async def get_genre_by_id(
             self,
@@ -49,6 +53,8 @@ class GenreRouter:
         "/{genre_id}/works",
         summary="getting works tagged with genre",
         response_model=list[GetWork],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(404),
     )
     async def get_works_for_genre(
             self,

@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.events.filters import EventRSVPFilter
-from src.backend.clubs.events.models import EventRSVP
+from src.backend.clubs.events.filters.event import EventRSVPFilter
+from src.backend.clubs.events.models.event import EventRSVP
 
 
 @dataclass

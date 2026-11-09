@@ -1,0 +1,61 @@
+from datetime import datetime
+from enum import Enum
+
+from pydantic import BaseModel, Field
+
+from src.backend.identity.profile.models.profile import Profile
+
+
+class ProfileVisibilityEnum(str, Enum):
+    """Visibility levels controlling who can view a user's profile."""
+
+    public = "public"
+    private = "private"
+    followers_only = "followers_only"
+
+class CreateProfile(BaseModel):
+    """Payload for creating a new profile, used internally during user registration."""
+
+    user_id: int
+    fullname: str
+
+class UpdateProfile(BaseModel):
+    """Request payload for updating a user's profile fields."""
+
+    fullname: str  | None = Field(max_length=512)
+    bio: str  | None = Field(max_length=1024)
+    favorite_genres: list[str]  | None
+    links: list[str]  | None
+
+class UpdateProfileVisibility(BaseModel):
+    """Request payload for updating a user's profile visibility setting."""
+
+    visibility: ProfileVisibilityEnum
+
+class GetProfile(BaseModel):
+    """Response payload representing a user's profile."""
+
+    user_id: int
+    username: str | None = None
+    fullname: str | None = None
+    bio: str | None = None
+    avatar: str | None = None
+    favorite_genres: list[str] | None = None
+    links: list[str] | None = None
+    visibility: str
+    created_at: datetime
+
+def to_get_profile(profile: Profile, avatar_url: str | None) -> GetProfile:
+    """Builds a GetProfile response with the stored avatar key replaced by a presigned URL.
+
+    Args:
+        profile: Profile instance to serialize.
+        avatar_url: Presigned URL to expose in place of the stored avatar key.
+
+    Returns:
+        GetProfile response payload.
+    """
+    result = GetProfile.model_validate(profile, from_attributes=True)
+    result.avatar = avatar_url
+    return result
+

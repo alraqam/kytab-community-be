@@ -1,16 +1,17 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_filter import FilterDepends
 from fastapi_utils.cbv import cbv
 
-from src.backend.administration.announcements.dependencies import get_announcement_manager, get_announcement_or_404
-from src.backend.administration.announcements.filters import AnnouncementFilter
-from src.backend.administration.announcements.managers import AnnouncementManager
-from src.backend.administration.announcements.models import Announcement
-from src.backend.administration.announcements.schemas import CreateAnnouncement, UpdateAnnouncement, GetAnnouncement
-from src.backend.identity.auth.models import User
-from src.backend.identity.users.dependencies import is_admin
-from src.backend.trust_safety.audit_log.decorators import audit_action
-from src.backend.trust_safety.audit_log.schemas import AuditLogAction
+from src.backend.administration.announcements.dependencies.announcement import get_announcement_manager, get_announcement_or_404
+from src.backend.administration.announcements.filters.announcement import AnnouncementFilter
+from src.backend.administration.announcements.managers.announcement import AnnouncementManager
+from src.backend.administration.announcements.models.announcement import Announcement
+from src.backend.administration.announcements.schemas.announcement import CreateAnnouncement, UpdateAnnouncement, GetAnnouncement
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.dependencies.user import is_staff
+from src.backend.trust_safety.audit_log.decorators.audit import audit_action
+from src.backend.trust_safety.audit_log.schemas.audit_log import AuditLogAction
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/admin/announcements",
@@ -22,12 +23,14 @@ class AnnouncementAdminRouter:
     """CBV router for admin management of announcements: create, update, publish, and delete."""
 
     manager: AnnouncementManager = Depends(get_announcement_manager)
-    user: User = Depends(is_admin)
+    user: User = Depends(is_staff)
 
     @router.post(
         "/",
         summary="creating announcement",
-        response_model=GetAnnouncement
+        response_model=GetAnnouncement,
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403),
     )
     @audit_action(AuditLogAction.announcement_created, "announcement", id_from="result")
     async def create_announcement(
@@ -41,6 +44,8 @@ class AnnouncementAdminRouter:
     @router.put(
         "/{announcement_id}",
         summary="updating announcement",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     @audit_action(AuditLogAction.announcement_updated, "announcement", id_from="announcement")
     async def update_announcement(
@@ -54,6 +59,8 @@ class AnnouncementAdminRouter:
     @router.put(
         "/{announcement_id}/publish",
         summary="publishing announcement",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     @audit_action(AuditLogAction.announcement_published, "announcement", id_from="announcement")
     async def publish_announcement(
@@ -66,6 +73,8 @@ class AnnouncementAdminRouter:
     @router.put(
         "/{announcement_id}/unpublish",
         summary="unpublishing announcement",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     @audit_action(AuditLogAction.announcement_unpublished, "announcement", id_from="announcement")
     async def unpublish_announcement(
@@ -78,6 +87,8 @@ class AnnouncementAdminRouter:
     @router.delete(
         "/{announcement_id}",
         summary="deleting announcement",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     @audit_action(AuditLogAction.announcement_deleted, "announcement", id_from="announcement")
     async def delete_announcement(
@@ -90,7 +101,9 @@ class AnnouncementAdminRouter:
     @router.get(
         "/",
         summary="getting announcements",
-        response_model=list[GetAnnouncement]
+        response_model=list[GetAnnouncement],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403),
     )
     async def get_announcements(
             self,
@@ -103,7 +116,9 @@ class AnnouncementAdminRouter:
     @router.get(
         "/{announcement_id}",
         summary="getting announcement by id",
-        response_model=GetAnnouncement
+        response_model=GetAnnouncement,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_announcement_by_id(
             self,

@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_filter import FilterDepends
 from fastapi_utils.cbv import cbv
 
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
-from src.backend.notifications.dependencies import get_notification_manager, get_notification_or_404
-from src.backend.notifications.filters import NotificationFilter
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.notifications.dependencies.notification import get_notification_manager, get_notification_or_404
+from src.backend.notifications.filters.notification import NotificationFilter
 from src.backend.notifications.managers.notification import NotificationManager
-from src.backend.notifications.models import Notification
-from src.backend.notifications.schemas import GetNotification
+from src.backend.notifications.models.notification import Notification
+from src.backend.notifications.schemas.notification import GetNotification
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/notifications",
@@ -25,6 +26,8 @@ class NotificationRouter:
     @router.put(
         "/read-all",
         summary="marking all notifications as read",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401),
     )
     async def mark_all_as_read(self):
         """Marks all of the current user's notifications as read."""
@@ -33,6 +36,8 @@ class NotificationRouter:
     @router.put(
         "/{notification_id}/read",
         summary="marking notification as read",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403),
     )
     async def mark_as_read(
             self,
@@ -44,6 +49,8 @@ class NotificationRouter:
     @router.delete(
         "/{notification_id}",
         summary="deleting notification",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403),
     )
     async def delete_notification(
             self,
@@ -55,7 +62,9 @@ class NotificationRouter:
     @router.get(
         "/",
         summary="getting current user notifications",
-        response_model=list[GetNotification]
+        response_model=list[GetNotification],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401),
     )
     async def get_user_notifications(
             self,
@@ -68,6 +77,8 @@ class NotificationRouter:
     @router.get(
         "/unread-count",
         summary="getting unread notifications count",
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401),
     )
     async def get_unread_count(self) -> int:
         """Returns the current user's unread notification count."""
@@ -77,7 +88,9 @@ class NotificationRouter:
     @router.get(
         "/{notification_id}",
         summary="getting notification by id",
-        response_model=GetNotification
+        response_model=GetNotification,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401),
     )
     async def get_notification_by_id(
             self,

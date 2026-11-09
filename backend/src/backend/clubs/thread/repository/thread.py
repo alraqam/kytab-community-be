@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from sqlalchemy import select, and_, desc
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.thread.models import Thread
+from src.backend.clubs.thread.models.thread import Thread
 
 
 @dataclass

@@ -1,14 +1,14 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.identity.auth.models import User
-from src.backend.trust_safety.consent.exceptions import DocumentAlreadyConsentedError, OutdatedDocumentError, \
+from src.backend.identity.auth.models.auth import User
+from src.backend.trust_safety.consent.exceptions.consent import DocumentAlreadyConsentedError, OutdatedDocumentError, \
     ConsentNotFoundError
 from src.backend.trust_safety.consent.managers.document import LegalDocumentManager
-from src.backend.trust_safety.consent.models import LegalDocument, ConsentRecords
+from src.backend.trust_safety.consent.models.consent import LegalDocument, ConsentRecords
 
 from src.backend.trust_safety.consent.repository.consent import ConsentRepository
-from src.backend.trust_safety.consent.schemas import CreateConsent
+from src.backend.trust_safety.consent.schemas.consent import CreateConsent
 
 
 class ConsentManager:

@@ -3,11 +3,11 @@ from dataclasses import dataclass
 from sqlalchemy import select, update, delete, and_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.catalog.books.filters import WorkFilter
-from src.backend.catalog.books.models import Work, Edition, WorkAuthor, WorkGenre, WorkSeries
-from src.backend.clubs.reading_session.models import ReadingSession
-from src.backend.library.reviews.models import Review
-from src.backend.library.shelf.models import ShelfItem
+from src.backend.catalog.books.filters.book import WorkFilter
+from src.backend.catalog.books.models.book import Work, Edition, WorkAuthor, WorkGenre, WorkSeries
+from src.backend.clubs.reading_session.models.reading_session import ReadingSession
+from src.backend.library.reviews.models.review import Review
+from src.backend.library.shelf.models.shelf import ShelfItem
 
 
 @dataclass

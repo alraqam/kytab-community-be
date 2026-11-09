@@ -1,15 +1,15 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.library.shelf.exceptions import IsNotShelfOwnerError
+from src.backend.library.shelf.exceptions.shelf import IsNotShelfOwnerError
 from src.backend.library.shelf.managers.shelf import ShelfManager
 from src.backend.library.shelf.managers.shelf_item import ShelfItemManager
-from src.backend.library.shelf.schemas import ShelfDefault
-from src.backend.library.shelf.exceptions import ShelfNotFoundError
-from src.backend.identity.auth.models import User
-from src.backend.library.progress.exceptions import ReadingPeriodNotFound, ActiveReadingPeriodError
-from src.backend.library.progress.models import ReadingPeriod
-from src.backend.library.shelf.permissions import is_shelf_owner
-from src.backend.library.shelf.models import ShelfItem, Shelf
+from src.backend.library.shelf.schemas.shelf import ShelfDefault
+from src.backend.library.shelf.exceptions.shelf import ShelfNotFoundError
+from src.backend.identity.auth.models.auth import User
+from src.backend.library.progress.exceptions.progress import ReadingPeriodNotFound, ActiveReadingPeriodError
+from src.backend.library.progress.models.progress import ReadingPeriod
+from src.backend.library.shelf.permissions.shelf import is_shelf_owner
+from src.backend.library.shelf.models.shelf import ShelfItem, Shelf
 from src.backend.library.progress.repositories.reading_period import ReadingPeriodRepository
 
 

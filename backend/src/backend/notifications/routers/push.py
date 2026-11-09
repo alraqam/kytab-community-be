@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
-from src.backend.notifications.dependencies import get_push_subscription_manager
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.notifications.dependencies.notification import get_push_subscription_manager
 from src.backend.notifications.managers.push_subscription import PushSubscriptionManager
-from src.backend.notifications.schemas import CreatePushSubscription, DeletePushSubscription, GetPushSubscription
+from src.backend.notifications.schemas.notification import CreatePushSubscription, DeletePushSubscription, GetPushSubscription
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/notifications/push-subscriptions",
@@ -22,7 +23,9 @@ class PushSubscriptionRouter:
     @router.post(
         "/",
         summary="registering a push subscription",
-        response_model=GetPushSubscription
+        response_model=GetPushSubscription,
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401),
     )
     async def subscribe(
             self,
@@ -35,6 +38,8 @@ class PushSubscriptionRouter:
     @router.delete(
         "/",
         summary="removing a push subscription",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401),
     )
     async def unsubscribe(
             self,

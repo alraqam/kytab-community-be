@@ -1,16 +1,17 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.clubs.clubs.dependencies import get_club_or_404
-from src.backend.clubs.clubs.models import Club
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
-from src.backend.trust_safety.complaint.dependencies import get_complaint_manager, get_complaint_or_404
-from src.backend.trust_safety.complaint.managers import ComplaintManager
-from src.backend.trust_safety.complaint.models import Complaint
-from src.backend.trust_safety.complaint.schemas import GetComplaint
-from src.backend.trust_safety.audit_log.decorators import audit_action
-from src.backend.trust_safety.audit_log.schemas import AuditLogAction
+from src.backend.clubs.clubs.dependencies.club import get_club_or_404
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.trust_safety.complaint.dependencies.complaint import get_complaint_manager, get_complaint_or_404
+from src.backend.trust_safety.complaint.managers.complaint import ComplaintManager
+from src.backend.trust_safety.complaint.models.complaint import Complaint
+from src.backend.trust_safety.complaint.schemas.complaint import GetComplaint
+from src.backend.trust_safety.audit_log.decorators.audit import audit_action
+from src.backend.trust_safety.audit_log.schemas.audit_log import AuditLogAction
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/{club_id}/complaint",
@@ -28,7 +29,9 @@ class ComplaintClubRouter:
     @router.get(
         "/",
         summary="getting club complaints",
-        response_model=list[GetComplaint]
+        response_model=list[GetComplaint],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_club_complaints(self):
         """Lists complaints filed within the club."""
@@ -38,6 +41,8 @@ class ComplaintClubRouter:
     @router.put(
         "/{complaint_id}/escalate",
         summary="escalating complaint to platform moderation",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(400, 401, 403, 404),
     )
     @audit_action(AuditLogAction.complaint_escalated, "complaint", id_from="complaint")
     async def escalate_complaint(

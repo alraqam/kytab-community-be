@@ -12,9 +12,9 @@ celery_app = Celery(
         "src.backend.core.all_models",
         "src.backend.tasks",
         "src.backend.identity.auth.services.email",
-        "src.backend.clubs.club_membership.email",
-        "src.backend.notifications.email",
-        "src.backend.notifications.push",
+        "src.backend.clubs.club_membership.services.email",
+        "src.backend.notifications.services.email",
+        "src.backend.notifications.services.push",
     ]
 )
 

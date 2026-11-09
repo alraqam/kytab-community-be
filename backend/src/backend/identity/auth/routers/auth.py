@@ -1,21 +1,22 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, status
 from fastapi.security import OAuth2PasswordRequestForm
 from fastapi_utils.cbv import cbv
 from jose.exceptions import ExpiredSignatureError, JWTError
 
 from src.backend.core.rate_limit import RateLimiter
-from src.backend.identity.auth.dependencies import get_auth_manager, get_current_user
-from src.backend.identity.auth.exceptions import InvalidTokenError, LinkExpiredError, InvalidUsernameOrPasswordError, \
+from src.backend.identity.auth.dependencies.auth import get_auth_manager, get_current_user
+from src.backend.identity.auth.exceptions.auth import InvalidTokenError, LinkExpiredError, InvalidUsernameOrPasswordError, \
     UnverifiedUserError, UsernameAlreadyExists, EmailAlreadyExists, InvalidOAuthTokenError, OAuthEmailNotVerifiedError
 from src.backend.identity.auth.managers.auth import AuthManager
-from src.backend.identity.auth.models import User
-from src.backend.identity.auth.schemas import UserRegister, ChangeUserPassword, ResetPassword, UpdateUser, RefreshToken, \
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.auth.schemas.auth import UserRegister, ChangeUserPassword, ResetPassword, UpdateUser, RefreshToken, \
     ForgotPassword, OAuthProviderEnum, OAuthLogin
 from src.backend.identity.auth.services.email import decode_verification_token
-from src.backend.identity.users.dependencies import get_user_manager
+from src.backend.identity.users.dependencies.user import get_user_manager
 
-from src.backend.identity.users.managers import UserManager
-from src.backend.identity.users.schemas import UpdateUserVerification
+from src.backend.identity.users.managers.user import UserManager
+from src.backend.identity.users.schemas.user import UpdateUserVerification
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/auth",
@@ -37,7 +38,9 @@ class AuthRouter:
 
     @router.post(
         "/login",
-        summary="authorization to the system"
+        summary="authorization to the system",
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 429),
     )
     async def login(
             self,
@@ -57,7 +60,9 @@ class AuthRouter:
 
     @router.post(
         "/oauth/{provider}",
-        summary="signing in via an OAuth provider"
+        summary="signing in via an OAuth provider",
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 429),
     )
     async def oauth_login(
             self,
@@ -78,7 +83,9 @@ class AuthRouter:
 
     @router.post(
         "/register",
-        summary="user registration"
+        summary="user registration",
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(400, 409, 429),
     )
     async def register(
             self,
@@ -97,7 +104,9 @@ class AuthRouter:
 
     @router.post(
         "/logout",
-        summary = "logging out from the system"
+        summary = "logging out from the system",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401),
     )
     async def logout_route(
             self,
@@ -109,7 +118,10 @@ class AuthRouter:
 
     @router.get(
         "/verify-email",
-        summary="verifying email")
+        summary="verifying email",
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(400, 401, 404),
+    )
     async def verify_email(
             self,
             token: str
@@ -130,7 +142,9 @@ class AuthRouter:
 
     @router.get(
         "/me",
-        summary="getting current user"
+        summary="getting current user",
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401),
     )
     async def get_me(
             self,
@@ -142,6 +156,8 @@ class AuthRouter:
     @router.post(
         "/refresh",
         summary="refresh token",
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401),
     )
     async def refresh(
             self,
@@ -154,6 +170,8 @@ class AuthRouter:
     @router.delete(
         "/delete",
         summary="delete account",
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401),
     )
     async def delete_user(
             self,
@@ -165,7 +183,9 @@ class AuthRouter:
 
     @router.put(
         "/password",
-        summary="updating password"
+        summary="updating password",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(400, 401),
     )
     async def change_password(
             self,
@@ -177,7 +197,9 @@ class AuthRouter:
 
     @router.put(
         "/info",
-        summary="updating current user information"
+        summary="updating current user information",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 409),
     )
     async def update_user(
             self,
@@ -189,7 +211,9 @@ class AuthRouter:
 
     @router.post(
         "/forgot-password",
-        summary="sending email for resetting password"
+        summary="sending email for resetting password",
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(429),
     )
     async def forgot_password(
             self,
@@ -204,7 +228,9 @@ class AuthRouter:
 
     @router.post(
         "/reset-password",
-        summary="resetting password"
+        summary="resetting password",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(400, 401, 404, 429),
     )
     async def reset_password(
             self,

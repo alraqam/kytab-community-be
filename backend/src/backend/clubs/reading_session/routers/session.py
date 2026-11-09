@@ -1,16 +1,17 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.clubs.reading_session.dependencies import get_milestone_progress_manager
+from src.backend.clubs.reading_session.dependencies.reading_session import get_milestone_progress_manager
 from src.backend.clubs.reading_session.managers.progress import MilestoneProgressManager
-from src.backend.clubs.clubs.dependencies import get_club_or_404
-from src.backend.clubs.clubs.models import Club
-from src.backend.clubs.reading_session.dependencies import get_reading_session_manager, get_reading_session_or_404
+from src.backend.clubs.clubs.dependencies.club import get_club_or_404
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.clubs.reading_session.dependencies.reading_session import get_reading_session_manager, get_reading_session_or_404
 from src.backend.clubs.reading_session.managers.session import ReadingSessionManager
-from src.backend.clubs.reading_session.models import ReadingSession
-from src.backend.clubs.reading_session.schemas import GetReadingSession, CreateReadingSession, GetMilestoneProgress
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
+from src.backend.clubs.reading_session.models.reading_session import ReadingSession
+from src.backend.clubs.reading_session.schemas.reading_session import GetReadingSession, CreateReadingSession, GetMilestoneProgress
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/{club_id}/sessions",
@@ -30,6 +31,8 @@ class ReadingSessionRouter:
         summary="creating reading session",
         response_model=GetReadingSession,
         tags=["reading_sessions"],
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def create_session(
             self,
@@ -43,6 +46,8 @@ class ReadingSessionRouter:
         "/{session_id}",
         summary="completing active reading session",
         tags=["reading_sessions"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def complete_session(
             self,
@@ -55,6 +60,8 @@ class ReadingSessionRouter:
         "/{session_id}",
         summary="deleting reading session",
         tags=["reading_sessions"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def delete_session(
             self,
@@ -68,6 +75,8 @@ class ReadingSessionRouter:
         summary="getting club's active reading sessions",
         response_model=list[GetReadingSession],
         tags=["reading_sessions"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_club_active_sessions(self):
         """Returns the club's current active reading session."""
@@ -79,6 +88,8 @@ class ReadingSessionRouter:
         summary="getting club's sessions",
         response_model=list[GetReadingSession],
         tags=["reading_sessions"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_club_sessions(self):
         """Returns all reading sessions for the club."""
@@ -90,6 +101,8 @@ class ReadingSessionRouter:
         summary="getting session milestone progresses",
         response_model=list[GetMilestoneProgress],
         tags=["reading_sessions"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_session_milestone_progress(
             self,
@@ -104,6 +117,8 @@ class ReadingSessionRouter:
         summary="getting current users milestone progress",
         response_model=GetMilestoneProgress,
         tags=["reading_sessions"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_user_milestone_progress(
             self,

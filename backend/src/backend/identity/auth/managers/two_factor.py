@@ -1,13 +1,13 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.identity.auth.exceptions import TwoFactorAlreadyEnabledError, TwoFactorNotEnabledError, \
+from src.backend.identity.auth.exceptions.auth import TwoFactorAlreadyEnabledError, TwoFactorNotEnabledError, \
     TwoFactorSetupNotStartedError, InvalidTwoFactorCodeError, InvalidUsernameOrPasswordError
-from src.backend.identity.auth.models import User
+from src.backend.identity.auth.models.auth import User
 from src.backend.identity.auth.repository.recovery_code import RecoveryCodeRepository
-from src.backend.identity.auth.schemas import TwoFactorSetup
+from src.backend.identity.auth.schemas.auth import TwoFactorSetup
 from src.backend.identity.auth.services.security import PasswordService, hash_token
 from src.backend.identity.auth.services.two_factor import TOTPService, generate_recovery_codes
-from src.backend.identity.users.repository import UserRepository
+from src.backend.identity.users.repository.user import UserRepository
 
 
 class TwoFactorManager:

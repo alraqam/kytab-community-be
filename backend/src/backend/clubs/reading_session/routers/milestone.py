@@ -1,17 +1,18 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_filter import FilterDepends
 from fastapi_utils.cbv import cbv
 
-from src.backend.clubs.reading_session.dependencies import get_reading_session_or_404
-from src.backend.clubs.reading_session.filters import MilestoneFilter
-from src.backend.clubs.reading_session.dependencies import get_milestone_manager, get_milestone_or_404
+from src.backend.clubs.reading_session.dependencies.reading_session import get_reading_session_or_404
+from src.backend.clubs.reading_session.filters.reading_session import MilestoneFilter
+from src.backend.clubs.reading_session.dependencies.reading_session import get_milestone_manager, get_milestone_or_404
 from src.backend.clubs.reading_session.managers.milestone import MilestoneManager
-from src.backend.clubs.reading_session.models import ReadingSession, Milestone
-from src.backend.clubs.reading_session.schemas import GetMilestone, CreateMilestone, UpdateMilestone
-from src.backend.clubs.clubs.dependencies import get_club_or_404
-from src.backend.clubs.clubs.models import Club
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
+from src.backend.clubs.reading_session.models.reading_session import ReadingSession, Milestone
+from src.backend.clubs.reading_session.schemas.reading_session import GetMilestone, CreateMilestone, UpdateMilestone
+from src.backend.clubs.clubs.dependencies.club import get_club_or_404
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/{session_id}/milestone",
@@ -31,6 +32,8 @@ class MilestoneRouter:
         summary="creating milestone",
         response_model=GetMilestone,
         tags=["milestones"],
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def create_milestone(
             self,
@@ -44,6 +47,8 @@ class MilestoneRouter:
         "/{milestone_id}",
         summary="update milestone",
         tags=["milestones"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def update_milestone(
             self,
@@ -57,6 +62,8 @@ class MilestoneRouter:
         "/{milestone_id}",
         summary="deleting milestone",
         tags=["milestones"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def delete_milestone(
             self,
@@ -70,6 +77,8 @@ class MilestoneRouter:
         summary="getting session milestones",
         response_model=list[GetMilestone],
         tags=["milestones"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_session_milestones(
             self,
@@ -84,6 +93,8 @@ class MilestoneRouter:
         summary="getting milestone by id",
         response_model=GetMilestone,
         tags=["milestones"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_milestone_by_id(
             self,

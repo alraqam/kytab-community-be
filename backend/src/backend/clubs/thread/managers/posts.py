@@ -2,25 +2,25 @@ import re
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.reading_session.models import ReadingSession, Milestone
-from src.backend.clubs.thread.schemas import GetPost, GetPostPartial
+from src.backend.clubs.reading_session.models.reading_session import ReadingSession, Milestone
+from src.backend.clubs.thread.schemas.thread import GetPost, GetPostPartial
 from src.backend.clubs.reading_session.managers.milestone import MilestoneManager
 from src.backend.clubs.reading_session.managers.progress import MilestoneProgressManager
-from src.backend.clubs.club_membership.services import is_club_member, is_owner_or_moderator
-from src.backend.clubs.thread.dependencies import is_post_owner
-from src.backend.clubs.thread.exceptions import LockedThreadError, PostNotFoundError
+from src.backend.clubs.club_membership.permissions.membership import is_club_member, is_owner_or_moderator, can_view_club, bypasses_spoiler_gate
+from src.backend.clubs.thread.dependencies.thread import is_post_owner
+from src.backend.clubs.thread.exceptions.thread import LockedThreadError, PostNotFoundError
 from src.backend.clubs.thread.managers.thread import ThreadManager
-from src.backend.clubs.thread.models import Post, Thread
+from src.backend.clubs.thread.models.thread import Post, Thread
 from src.backend.clubs.thread.repository.posts import PostRepository
-from src.backend.clubs.thread.schemas import CreatePost, UpdatePost
-from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.clubs.thread.schemas.thread import CreatePost, UpdatePost
+from src.backend.clubs.clubs.managers.club import ClubManager
 from src.backend.core.storage import StorageService
-from src.backend.clubs.clubs.models import Club
-from src.backend.identity.auth.models import User
-from src.backend.identity.users.dependencies import is_admin
-from src.backend.identity.users.managers import UserManager
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.dependencies.user import is_staff
+from src.backend.identity.users.managers.user import UserManager
 from src.backend.notifications.managers.notification import NotificationManager
-from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
+from src.backend.notifications.schemas.notification import NotificationCategory, NotificationObjectType
 
 MENTION_PATTERN = re.compile(r"@(\w+)")
 
@@ -186,16 +186,16 @@ class PostManager:
             user: User,
             post: Post,
     ) -> None:
-        """Deletes a post on behalf of an admin, bypassing ownership and lock checks.
+        """Deletes a post on behalf of platform staff (admin or platform moderator), bypassing ownership and lock checks.
 
         Args:
-            user: User requesting the deletion; must be an admin.
+            user: User requesting the deletion; must be an admin or platform moderator.
             post: Post instance to delete.
 
         Raises:
-            PermissionDeniedError: When the user is not an admin.
+            PermissionDeniedError: When the user is not an admin or platform moderator.
         """
-        await is_admin(user)
+        await is_staff(user)
         await self.post_repo.delete_post(
             post=post,
         )
@@ -211,18 +211,18 @@ class PostManager:
 
         Args:
             club: Club the thread belongs to.
-            user: User requesting the posts; must be a club member.
+            user: User requesting the posts; must be a club member or platform staff.
             thread: Thread to list posts from.
 
         Returns:
             List of Post instances in the thread.
 
         Raises:
-            NotClubMemberError: When the user is not a member of a public club.
-            ClubAccessDeniedError: When the user is not a member of a private or
+            NotClubMemberError: When a non-staff user is not a member of a public club.
+            ClubAccessDeniedError: When a non-staff user is not a member of a private or
                 secret club (indistinguishable from the club not existing).
         """
-        await is_club_member(club, user, self.session)
+        await can_view_club(club, user, self.session, viewed=f"posts in thread {thread.id}")
 
         posts = await self.post_repo.get_posts(
             thread_id=thread.id,
@@ -244,18 +244,18 @@ class PostManager:
             thread: Thread to list posts from.
             reading_session: Reading session the thread's milestone belongs to.
             milestone: Milestone the thread is scoped to.
-            user: User requesting the posts; must be a club member.
+            user: User requesting the posts; must be a club member or platform staff.
 
         Returns:
             List of GetPostPartial instances (bodies withheld) if the user has not reached
             the thread's milestone, otherwise a list of GetPost instances with full bodies.
 
         Raises:
-            NotClubMemberError: When the user is not a member of a public club.
-            ClubAccessDeniedError: When the user is not a member of a private or
+            NotClubMemberError: When a non-staff user is not a member of a public club.
+            ClubAccessDeniedError: When a non-staff user is not a member of a private or
                 secret club (indistinguishable from the club not existing).
         """
-        await is_club_member(club, user, self.session)
+        await can_view_club(club, user, self.session, viewed=f"posts in milestone thread {thread.id}")
 
         posts = await self.post_repo.get_posts(
             thread_id=thread.id,
@@ -263,7 +263,11 @@ class PostManager:
 
         progress = await self.milestone_progress_manager.get_user_milestone_progress(reading_session, user)
 
-        if not progress:
+        if bypasses_spoiler_gate(club, user):
+            # Staff moderating a club they are not part of see full post bodies.
+            spoiler_safe = False
+
+        elif not progress:
             spoiler_safe = True
 
         elif progress.is_finished:
@@ -318,18 +322,18 @@ class PostManager:
 
         Args:
             club: Club the thread belongs to.
-            user: User requesting the post; must be a club member.
+            user: User requesting the post; must be a club member or platform staff.
             post: Post instance to reveal.
 
         Returns:
             The given Post instance.
 
         Raises:
-            NotClubMemberError: When the user is not a member of a public club.
-            ClubAccessDeniedError: When the user is not a member of a private or
+            NotClubMemberError: When a non-staff user is not a member of a public club.
+            ClubAccessDeniedError: When a non-staff user is not a member of a private or
                 secret club (indistinguishable from the club not existing).
         """
-        await is_club_member(club, user, self.session)
+        await can_view_club(club, user, self.session, viewed=f"post {post.id}")
         return post
 
     async def get_post_by_id(

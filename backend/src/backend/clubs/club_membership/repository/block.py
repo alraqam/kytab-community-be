@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.club_membership.models import ClubBlocked
+from src.backend.clubs.club_membership.models.membership import ClubBlocked
 
 
 @dataclass

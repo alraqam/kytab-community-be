@@ -4,11 +4,11 @@ from typing import Tuple
 from sqlalchemy import select, and_, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.club_membership.filters import ClubMembersFilter
-from src.backend.clubs.club_membership.models import ClubMembership
-from src.backend.clubs.club_membership.schemas import MemberRole
-from src.backend.clubs.clubs.models import Club
-from src.backend.identity.auth.models import User
+from src.backend.clubs.club_membership.filters.membership import ClubMembersFilter
+from src.backend.clubs.club_membership.models.membership import ClubMembership
+from src.backend.clubs.club_membership.schemas.membership import MemberRole
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.identity.auth.models.auth import User
 
 
 @dataclass

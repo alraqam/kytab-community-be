@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.identity.auth.models import User
-from src.backend.notifications.models import PushSubscription
+from src.backend.identity.auth.models.auth import User
+from src.backend.notifications.models.notification import PushSubscription
 from src.backend.notifications.repository.push_subscription import PushSubscriptionRepository
-from src.backend.notifications.schemas import CreatePushSubscription
+from src.backend.notifications.schemas.notification import CreatePushSubscription
 
 
 class PushSubscriptionManager:

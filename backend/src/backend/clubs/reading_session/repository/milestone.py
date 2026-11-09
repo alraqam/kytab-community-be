@@ -4,8 +4,8 @@ from datetime import date
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.reading_session.filters import MilestoneFilter
-from src.backend.clubs.reading_session.models import Milestone
+from src.backend.clubs.reading_session.filters.reading_session import MilestoneFilter
+from src.backend.clubs.reading_session.models.reading_session import Milestone
 
 
 @dataclass

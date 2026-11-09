@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.library.reviews.models import ReviewComment
+from src.backend.library.reviews.models.review import ReviewComment
 
 
 @dataclass

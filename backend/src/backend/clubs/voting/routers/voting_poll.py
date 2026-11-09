@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.clubs.clubs.dependencies import get_club_or_404
-from src.backend.clubs.clubs.models import Club
-from src.backend.clubs.voting.dependencies import get_voting_poll_or_404, get_voting_poll_manager
+from src.backend.clubs.clubs.dependencies.club import get_club_or_404
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.clubs.voting.dependencies.voting import get_voting_poll_or_404, get_voting_poll_manager
 from src.backend.clubs.voting.managers.voting_poll import VotingPollManager
-from src.backend.clubs.voting.models import VotingPoll
-from src.backend.clubs.voting.schemas import GetVotingPoll, CreateVotingPoll, UpdateVotingPoll, GetPollResult
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
+from src.backend.clubs.voting.models.voting import VotingPoll
+from src.backend.clubs.voting.schemas.voting import GetVotingPoll, CreateVotingPoll, UpdateVotingPoll, GetPollResult
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/{club_id}/poll",
@@ -27,6 +28,8 @@ class VotingPollRouter:
         summary="creating poll",
         response_model=GetVotingPoll,
         tags=["polls"],
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def create_poll(
             self,
@@ -40,6 +43,8 @@ class VotingPollRouter:
         "/{poll_id}",
         summary="updating voting poll",
         tags=["polls"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(400, 401, 403, 404, 409),
     )
     async def update_voting_poll(
             self,
@@ -53,6 +58,8 @@ class VotingPollRouter:
         "/{poll_id}/close",
         summary="closing voting poll",
         tags=["polls"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def close_voting_poll(
             self,
@@ -65,6 +72,8 @@ class VotingPollRouter:
         "/{poll_id}",
         summary="deleting voting poll",
         tags=["polls"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(400, 401, 403, 404),
     )
     async def delete_voting_poll(
             self,
@@ -78,6 +87,8 @@ class VotingPollRouter:
         summary="getting club's active voting poll",
         response_model=GetVotingPoll,
         tags=["polls"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_active_poll(self) -> GetVotingPoll:
         """Returns the club's currently active voting poll."""
@@ -88,6 +99,8 @@ class VotingPollRouter:
         "/",
         summary="getting club's polls",
         tags=["polls"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_club_polls(self):
         """Returns all voting polls for the club."""
@@ -99,6 +112,8 @@ class VotingPollRouter:
         summary="getting poll results",
         response_model=list[GetPollResult],
         tags=["polls"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_poll_results(
             self,
@@ -112,6 +127,8 @@ class VotingPollRouter:
         "/{poll_id}/winner",
         summary="getting poll winner/winners",
         tags=["polls"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def confirm_winner(
             self,

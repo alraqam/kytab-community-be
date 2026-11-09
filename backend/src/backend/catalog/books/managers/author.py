@@ -1,9 +1,9 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.catalog.books.exceptions import AuthorNotFoundError, WorkNotFoundError, AuthorWorkLinkExistsError
-from src.backend.catalog.books.filters import AuthorFilter
-from src.backend.catalog.books.models import Author, Work
+from src.backend.catalog.books.exceptions.book import AuthorNotFoundError, WorkNotFoundError, AuthorWorkLinkExistsError
+from src.backend.catalog.books.filters.book import AuthorFilter
+from src.backend.catalog.books.models.book import Author, Work
 from src.backend.catalog.books.repository.author import AuthorRepository
 from src.backend.catalog.books.repository.work import WorkRepository
 from src.backend.catalog.books.schemas.author import CreateAuthor, UpdateAuthor, AddAuthorToWork

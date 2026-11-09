@@ -1,16 +1,16 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.identity.auth.models import User
-from src.backend.identity.users.dependencies import is_admin
-from src.backend.identity.users.managers import UserManager
-from src.backend.library.reviews.dependencies import is_review_comment_owner
-from src.backend.library.reviews.exceptions import ReviewCommentNotFoundError, ReviewLikeAlreadyExists
-from src.backend.library.reviews.models import ReviewComment, Review
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.dependencies.user import is_staff
+from src.backend.identity.users.managers.user import UserManager
+from src.backend.library.reviews.dependencies.review import is_review_comment_owner
+from src.backend.library.reviews.exceptions.review import ReviewCommentNotFoundError, ReviewLikeAlreadyExists
+from src.backend.library.reviews.models.review import ReviewComment, Review
 from src.backend.library.reviews.repositories.comments import ReviewCommentRepository
-from src.backend.library.reviews.schemas import CreateReviewComment, UpdateReviewComment
+from src.backend.library.reviews.schemas.review import CreateReviewComment, UpdateReviewComment
 from src.backend.notifications.managers.notification import NotificationManager
-from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
+from src.backend.notifications.schemas.notification import NotificationCategory, NotificationObjectType
 
 
 class ReviewCommentManager:
@@ -109,16 +109,16 @@ class ReviewCommentManager:
             user: User,
             comment: ReviewComment,
     ) -> None:
-        """Deletes a comment on behalf of an admin, regardless of ownership.
+        """Deletes a comment on behalf of platform staff (admin or platform moderator), regardless of ownership.
 
         Args:
-            user: User requesting the deletion; must be an admin.
+            user: User requesting the deletion; must be an admin or platform moderator.
             comment: ReviewComment instance to delete.
 
         Raises:
-            PermissionDeniedError: When the user is not an admin.
+            PermissionDeniedError: When the user is not an admin or platform moderator.
         """
-        await is_admin(user)
+        await is_staff(user)
 
         await self.comment_repo.delete_comment(
             comment=comment,

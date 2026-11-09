@@ -1,19 +1,20 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.clubs.reading_session.dependencies import get_reading_session_or_404, get_milestone_or_404
-from src.backend.clubs.reading_session.models import ReadingSession, Milestone
-from src.backend.clubs.thread.dependencies import get_thread_manager, get_thread_session_or_404
+from src.backend.clubs.reading_session.dependencies.reading_session import get_reading_session_or_404, get_milestone_or_404
+from src.backend.clubs.reading_session.models.reading_session import ReadingSession, Milestone
+from src.backend.clubs.thread.dependencies.thread import get_thread_manager, get_thread_session_or_404
 from src.backend.clubs.thread.managers.thread import ThreadManager
-from src.backend.clubs.thread.models import Thread
-from src.backend.clubs.thread.schemas import GetThread, CreateThread, UpdateThread
-from src.backend.clubs.clubs.dependencies import get_club_or_404
-from src.backend.clubs.clubs.models import Club
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
+from src.backend.clubs.thread.models.thread import Thread
+from src.backend.clubs.thread.schemas.thread import GetThread, CreateThread, UpdateThread
+from src.backend.clubs.clubs.dependencies.club import get_club_or_404
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
-    prefix="/{milestone}/thread",
+    prefix="/{milestone_id}/thread",
 )
 
 @cbv(router)
@@ -31,6 +32,8 @@ class ThreadSessionRouter:
         summary="creating milestone thread",
         response_model=GetThread,
         tags=["threads"],
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403, 404),
     )
     async def create_thread(
             self,
@@ -44,6 +47,8 @@ class ThreadSessionRouter:
         "/{thread_id}",
         summary="update milestone thread",
         tags=["threads"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def update_thread(
             self,
@@ -57,6 +62,8 @@ class ThreadSessionRouter:
         "/{thread_id}/lock",
         summary="locking milestone thread",
         tags=["threads"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def lock_thread(
             self,
@@ -69,6 +76,8 @@ class ThreadSessionRouter:
         "/{thread_id}/unlock",
         summary="unlocking milestone thread",
         tags=["threads"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def unlock_thread(
             self,
@@ -81,6 +90,8 @@ class ThreadSessionRouter:
         "/{thread_id}/pin",
         summary="pining milestone thread",
         tags=["threads"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def pin_thread(
             self,
@@ -93,6 +104,8 @@ class ThreadSessionRouter:
         "/{thread_id}/unpin",
         summary="unpining milestone thread",
         tags=["threads"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def unpin_thread(
             self,
@@ -105,6 +118,8 @@ class ThreadSessionRouter:
         "/{thread_id}",
         summary="deleting milestone thread",
         tags=["threads"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def delete_thread(
             self,
@@ -118,23 +133,27 @@ class ThreadSessionRouter:
         summary="getting club milestone threads by user milestone reached",
         response_model=list[GetThread],
         tags=["threads"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_session_milestone_threads(
             self,
     ):
         """Lists milestone threads visible based on the user's reading progress."""
-        result = await self.manager.get_session_milestone_threads(self.user, self.reading_session, self.milestone)
+        result = await self.manager.get_session_milestone_threads(self.user, self.club, self.reading_session, self.milestone)
         return result
 
     @router.get(
-        "/{thead_id}/reveal",
+        "/{thread_id}/reveal",
         summary="getting and revealing thread by id",
         response_model=GetThread,
         tags=["threads"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
-    async def get_session_milestone_threads(
+    async def reveal_thread(
             self,
             thread: Thread = Depends(get_thread_session_or_404),
     ):
-        """Fetches and reveals a single milestone thread by ID."""
-        return thread
+        """Fetches and reveals a single milestone thread by ID, regardless of the user's milestone progress."""
+        return await self.manager.reveal_thread(self.user, self.club, thread)

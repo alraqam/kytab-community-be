@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.identity.auth.models import User
+from src.backend.identity.auth.models.auth import User
 from src.backend.catalog.books.dependencies.author import get_author_manager, get_author_or_404
 from src.backend.catalog.books.dependencies.work import get_work_or_404
 from src.backend.catalog.books.managers.author import AuthorManager
-from src.backend.catalog.books.models import Author, Work
+from src.backend.catalog.books.models.book import Author, Work
 from src.backend.catalog.books.schemas.author import CreateAuthor, UpdateAuthor, AddAuthorToWork, GetAuthor
-from src.backend.catalog.librarian.dependencies import is_librarian
+from src.backend.catalog.librarian.dependencies.librarian import is_librarian
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/librarian/author",
@@ -24,7 +25,9 @@ class LibrarianAuthorRouter:
     @router.post(
         "/",
         summary="creating author",
-        response_model=GetAuthor
+        response_model=GetAuthor,
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403),
     )
     async def create_author(
             self,
@@ -37,6 +40,8 @@ class LibrarianAuthorRouter:
     @router.put(
         "/{author_id}",
         summary="updating author",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def update_author(
             self,
@@ -49,6 +54,8 @@ class LibrarianAuthorRouter:
     @router.delete(
         "/{author_id}",
         summary="deleting author",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def delete_author(
             self,
@@ -60,6 +67,8 @@ class LibrarianAuthorRouter:
     @router.put(
         "/{author_id}/work/add",
         summary="adding author to work",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def add_author_to_work(
             self,
@@ -71,6 +80,8 @@ class LibrarianAuthorRouter:
     @router.put(
         "/{author_id}/work/{work_id}/remove",
         summary="removing author from work",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def remove_author_from_work(
             self,

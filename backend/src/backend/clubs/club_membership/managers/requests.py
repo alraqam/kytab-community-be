@@ -3,20 +3,20 @@ from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.clubs.club_membership.managers.block import ClubBlockedManager
-from src.backend.clubs.club_membership.exceptions import UnavailableRequestError, JoinRequestNotFound
-from src.backend.clubs.club_membership.models import ClubJoinRequest
+from src.backend.clubs.club_membership.exceptions.membership import UnavailableRequestError, JoinRequestNotFound
+from src.backend.clubs.club_membership.models.membership import ClubJoinRequest
 from src.backend.clubs.club_membership.repository.requests import ClubJoinRequestRepository
-from src.backend.clubs.club_membership.schemas import SendJoinRequest, JoinRequestStatus
-from src.backend.clubs.clubs.models import Club
-from src.backend.clubs.clubs.schemas import ClubTypes
+from src.backend.clubs.club_membership.schemas.membership import SendJoinRequest, JoinRequestStatus
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.clubs.clubs.schemas.club import ClubTypes
 from src.backend.clubs.club_membership.managers.membership import ClubMembershipManager
-from src.backend.clubs.club_membership.services import is_owner_or_moderator
-from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.clubs.club_membership.permissions.membership import is_owner_or_moderator
+from src.backend.clubs.clubs.managers.club import ClubManager
 from src.backend.core.storage import StorageService
-from src.backend.identity.auth.models import User
-from src.backend.identity.users.managers import UserManager
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.managers.user import UserManager
 from src.backend.notifications.managers.notification import NotificationManager
-from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
+from src.backend.notifications.schemas.notification import NotificationCategory, NotificationObjectType
 
 
 class ClubJoinRequestManager:

@@ -1,11 +1,12 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
-from src.backend.trust_safety.consent.dependencies import get_consent_manager
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.trust_safety.consent.dependencies.consent import get_consent_manager
 from src.backend.trust_safety.consent.managers.consent import ConsentManager
-from src.backend.trust_safety.consent.schemas import GetConsent, CreateConsent
+from src.backend.trust_safety.consent.schemas.consent import GetConsent, CreateConsent
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/consent",
@@ -23,6 +24,8 @@ class ConsentRouter:
         "/create-consent",
         summary="creating consents",
         response_model=GetConsent,
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 404, 409),
     )
     async def create_consent(
             self,
@@ -35,7 +38,9 @@ class ConsentRouter:
     @router.get(
         "/",
         summary="getting current user consents",
-        response_model=list[GetConsent]
+        response_model=list[GetConsent],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401),
     )
     async def get_user_consents(
             self,
@@ -47,7 +52,9 @@ class ConsentRouter:
     @router.get(
         "/{consent_id}",
         summary="getting consent by id",
-        response_model=GetConsent
+        response_model=GetConsent,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_consent_by_id(
             self,

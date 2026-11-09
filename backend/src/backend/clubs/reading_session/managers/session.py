@@ -2,16 +2,16 @@ from datetime import datetime, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.club_membership.services import is_club_member
+from src.backend.clubs.club_membership.permissions.membership import can_view_club
 from src.backend.catalog.books.managers.work import WorkManager
-from src.backend.clubs.club_membership.services import is_owner_or_moderator
-from src.backend.clubs.clubs.models import Club
-from src.backend.clubs.reading_session.exceptions import DateInPastError, MaxActiveSessionsError, ActiveSessionError, \
+from src.backend.clubs.club_membership.permissions.membership import is_owner_or_moderator
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.clubs.reading_session.exceptions.reading_session import DateInPastError, MaxActiveSessionsError, ActiveSessionError, \
     ReadingSessionNotFound
-from src.backend.clubs.reading_session.models import ReadingSession
+from src.backend.clubs.reading_session.models.reading_session import ReadingSession
 from src.backend.clubs.reading_session.repository.session import ReadingSessionRepository
-from src.backend.clubs.reading_session.schemas import CreateReadingSession, ReadingSessionStatus
-from src.backend.identity.auth.models import User
+from src.backend.clubs.reading_session.schemas.reading_session import CreateReadingSession, ReadingSessionStatus
+from src.backend.identity.auth.models.auth import User
 
 
 class ReadingSessionManager:
@@ -136,17 +136,17 @@ class ReadingSessionManager:
 
         Args:
             club: Club whose active sessions are listed.
-            user: User requesting the sessions; must be a club member.
+            user: User requesting the sessions; must be a club member or platform staff.
 
         Returns:
             List of active ReadingSession instances.
 
         Raises:
-            NotClubMemberError: When the user is not a member of a public club.
-            ClubAccessDeniedError: When the user is not a member of a private or
+            NotClubMemberError: When a non-staff user is not a member of a public club.
+            ClubAccessDeniedError: When a non-staff user is not a member of a private or
                 secret club (indistinguishable from the club not existing).
         """
-        await is_club_member(club, user, self.session)
+        await can_view_club(club, user, self.session, viewed="active reading sessions")
         sessions = await self.session_repo.get_club_active_sessions(
             club_id=club.id,
         )
@@ -161,17 +161,17 @@ class ReadingSessionManager:
 
         Args:
             club: Club whose sessions are listed.
-            user: User requesting the sessions; must be a club member.
+            user: User requesting the sessions; must be a club member or platform staff.
 
         Returns:
             List of ReadingSession instances.
 
         Raises:
-            NotClubMemberError: When the user is not a member of a public club.
-            ClubAccessDeniedError: When the user is not a member of a private or
+            NotClubMemberError: When a non-staff user is not a member of a public club.
+            ClubAccessDeniedError: When a non-staff user is not a member of a private or
                 secret club (indistinguishable from the club not existing).
         """
-        await is_club_member(club, user, self.session)
+        await can_view_club(club, user, self.session, viewed="reading sessions")
         sessions = await self.session_repo.get_club_sessions(
             club_id=club.id,
         )

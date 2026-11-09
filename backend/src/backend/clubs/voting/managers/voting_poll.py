@@ -2,22 +2,22 @@ from datetime import datetime, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.clubs.club_membership.managers.membership import ClubMembershipManager
-from src.backend.clubs.reading_session.exceptions import DateInPastError
+from src.backend.clubs.reading_session.exceptions.reading_session import DateInPastError
 from src.backend.clubs.voting.managers.poll_candidate import PollCandidateManager
 from src.backend.clubs.voting.managers.vote_poll import VotePollManager
 from src.backend.clubs.voting.repositories.voting_poll import VotingPollRepository
-from src.backend.clubs.club_membership.services import is_owner_or_moderator, is_club_member
-from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.clubs.club_membership.permissions.membership import is_owner_or_moderator, can_view_club
+from src.backend.clubs.clubs.managers.club import ClubManager
 from src.backend.core.storage import StorageService
-from src.backend.clubs.clubs.models import Club
-from src.backend.clubs.voting.exceptions import VotingClosedError, ActivePollAlreadyExistsError, ActivePollError, \
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.clubs.voting.exceptions.voting import VotingClosedError, ActivePollAlreadyExistsError, ActivePollError, \
     ActivePollsNotFoundError, PollNotFoundError
-from src.backend.clubs.voting.models import VotingPoll
-from src.backend.clubs.voting.schemas import VotingStatus, CreateVotingPoll, UpdateVotingPoll
-from src.backend.identity.auth.models import User
-from src.backend.identity.users.managers import UserManager
+from src.backend.clubs.voting.models.voting import VotingPoll
+from src.backend.clubs.voting.schemas.voting import VotingStatus, CreateVotingPoll, UpdateVotingPoll
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.managers.user import UserManager
 from src.backend.notifications.managers.notification import NotificationManager
-from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
+from src.backend.notifications.schemas.notification import NotificationCategory, NotificationObjectType
 
 
 class VotingPollManager:
@@ -219,12 +219,12 @@ class VotingPollManager:
             Active VotingPoll instance.
 
         Raises:
-            NotClubMemberError: When the user is not a member of a public club.
-            ClubAccessDeniedError: When the user is not a member of a private or
+            NotClubMemberError: When a non-staff user is not a member of a public club.
+            ClubAccessDeniedError: When a non-staff user is not a member of a private or
                 secret club (indistinguishable from the club not existing).
             ActivePollsNotFoundError: When no active poll exists for the club.
         """
-        await is_club_member(club, user, self.session)
+        await can_view_club(club, user, self.session, viewed="active poll")
 
         poll = await self.poll_repo.get_active_poll(
             club_id=club.id,
@@ -248,11 +248,11 @@ class VotingPollManager:
             List of VotingPoll instances.
 
         Raises:
-            NotClubMemberError: When the user is not a member of a public club.
-            ClubAccessDeniedError: When the user is not a member of a private or
+            NotClubMemberError: When a non-staff user is not a member of a public club.
+            ClubAccessDeniedError: When a non-staff user is not a member of a private or
                 secret club (indistinguishable from the club not existing).
         """
-        await is_club_member(club, user, self.session)
+        await can_view_club(club, user, self.session, viewed="polls")
 
         polls = await self.poll_repo.get_club_polls(
             club_id=club.id,

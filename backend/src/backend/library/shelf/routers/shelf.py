@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.identity.users.dependencies import get_user_or_404
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
-from src.backend.library.shelf.dependencies import get_shelf_manager, get_shelf_or_404
+from src.backend.identity.users.dependencies.user import get_user_or_404
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.library.shelf.dependencies.shelf import get_shelf_manager, get_shelf_or_404
 from src.backend.library.shelf.managers.shelf import ShelfManager
-from src.backend.library.shelf.models import Shelf
-from src.backend.library.shelf.schemas import GetShelf, CreateShelf, UpdateShelf, UpdateShelfVisibility
+from src.backend.library.shelf.models.shelf import Shelf
+from src.backend.library.shelf.schemas.shelf import GetShelf, CreateShelf, UpdateShelf, UpdateShelfVisibility
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/shelf",
@@ -25,6 +26,8 @@ class ShelfRouter:
         summary="creating custom shelf",
         response_model=GetShelf,
         tags=["shelf"],
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 409),
     )
     async def create_custom_shelf(
             self,
@@ -38,6 +41,8 @@ class ShelfRouter:
         "/{shelf_id}",
         summary="updating custom shelf",
         tags=["shelf"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(400, 401, 403, 404),
     )
     async def update_shelf(
             self,
@@ -51,6 +56,8 @@ class ShelfRouter:
         "/{shelf_id}/visibility",
         summary="updating shelf visibility",
         tags=["shelf"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def update_shelf_visibility(
             self,
@@ -64,6 +71,8 @@ class ShelfRouter:
         "/{shelf_id}",
         summary="deleting shelf",
         tags=["shelf"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(400, 401, 403, 404),
     )
     async def delete_shelf(
             self,
@@ -77,6 +86,8 @@ class ShelfRouter:
         summary="getting current user's shelves",
         response_model=list[GetShelf],
         tags=["shelf"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401),
     )
     async def get_my_shelves(
             self,
@@ -90,6 +101,8 @@ class ShelfRouter:
         summary="getting user's shelf by name",
         response_model=GetShelf,
         tags=["shelf"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_shelf_by_name(
             self,
@@ -104,6 +117,8 @@ class ShelfRouter:
         summary="getting user's shelves",
         response_model=list[GetShelf],
         tags=["shelf"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_user_shelves(
             self,
@@ -119,6 +134,8 @@ class ShelfRouter:
         summary="getting shelf by id",
         response_model=GetShelf,
         tags=["shelf"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_shelf_by_id(
             self,

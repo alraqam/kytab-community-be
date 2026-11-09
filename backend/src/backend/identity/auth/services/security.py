@@ -6,7 +6,7 @@ from jose import jwt, JWTError
 from passlib.hash import argon2
 
 from src.backend.core.settings import settings
-from src.backend.identity.auth.exceptions import InvalidTokenError
+from src.backend.identity.auth.exceptions.auth import InvalidTokenError
 
 
 class TokenService:

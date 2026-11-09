@@ -8,3 +8,8 @@ class TimeActionSchema(BaseModel):
 
     created_at: datetime | None = None
     updated_at: datetime | None = None
+
+class ErrorResponse(BaseModel):
+    """Error body returned by every exception handler (see core/handlers.py)."""
+
+    detail: str

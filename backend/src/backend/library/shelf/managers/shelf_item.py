@@ -1,18 +1,18 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.catalog.books.exceptions import InvalidWorkEditionError
+from src.backend.catalog.books.exceptions.book import InvalidWorkEditionError
 from src.backend.catalog.books.managers.edition import EditionManager
 from src.backend.catalog.books.managers.work import WorkManager
-from src.backend.identity.follow.managers import FollowManager
+from src.backend.identity.follow.managers.follow import FollowManager
 from src.backend.library.shelf.managers.shelf import ShelfManager
-from src.backend.library.shelf.exceptions import IsNotShelfOwnerError, ShelfNotFoundError, WorkAlreadyInShelfError
-from src.backend.identity.auth.models import User
-from src.backend.library.shelf.permissions import is_shelf_owner
-from src.backend.library.shelf.exceptions import PrivateShelfError, ShelfItemNotFoundError
-from src.backend.library.shelf.models import Shelf, ShelfItem
+from src.backend.library.shelf.exceptions.shelf import IsNotShelfOwnerError, ShelfNotFoundError, WorkAlreadyInShelfError
+from src.backend.identity.auth.models.auth import User
+from src.backend.library.shelf.permissions.shelf import is_shelf_owner
+from src.backend.library.shelf.exceptions.shelf import PrivateShelfError, ShelfItemNotFoundError
+from src.backend.library.shelf.models.shelf import Shelf, ShelfItem
 from src.backend.library.shelf.repositories.shelf_item import ShelfItemRepository
-from src.backend.library.shelf.schemas import CreateShelfItem, ShelfVisibility, UpdateShelfItemEdition
+from src.backend.library.shelf.schemas.shelf import CreateShelfItem, ShelfVisibility, UpdateShelfItemEdition
 
 
 class ShelfItemManager:

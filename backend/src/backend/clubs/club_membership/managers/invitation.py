@@ -2,23 +2,23 @@ from datetime import datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.club_membership.email import create_club_invite_token, send_club_invite_email, \
+from src.backend.clubs.club_membership.services.email import create_club_invite_token, send_club_invite_email, \
     decode_club_invite_token
 from src.backend.clubs.club_membership.managers.block import ClubBlockedManager
-from src.backend.identity.auth.exceptions import InvalidTokenError
-from src.backend.clubs.club_membership.exceptions import UnavailableInvitationError, InvitationNotFoundError, \
+from src.backend.identity.auth.exceptions.auth import InvalidTokenError
+from src.backend.clubs.club_membership.exceptions.membership import UnavailableInvitationError, InvitationNotFoundError, \
     DuplicateInvitationError, InviteeEmailDisabledError
 from src.backend.clubs.club_membership.managers.membership import ClubMembershipManager
-from src.backend.clubs.club_membership.models import ClubInvitation
+from src.backend.clubs.club_membership.models.membership import ClubInvitation
 from src.backend.clubs.club_membership.repository.invitation import ClubInvitationRepository
-from src.backend.clubs.club_membership.schemas import SendInvitation, InvitationStatus, InvitationEmail
-from src.backend.clubs.club_membership.services import is_owner_or_moderator
-from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.clubs.club_membership.schemas.membership import SendInvitation, InvitationStatus, InvitationEmail
+from src.backend.clubs.club_membership.permissions.membership import is_owner_or_moderator
+from src.backend.clubs.clubs.managers.club import ClubManager
 from src.backend.core.storage import StorageService
-from src.backend.identity.auth.models import User
-from src.backend.identity.users.managers import UserManager
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.managers.user import UserManager
 from src.backend.notifications.managers.notification import NotificationManager
-from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
+from src.backend.notifications.schemas.notification import NotificationCategory, NotificationObjectType
 
 
 

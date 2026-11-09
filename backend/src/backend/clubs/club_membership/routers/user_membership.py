@@ -1,12 +1,13 @@
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.clubs.club_membership.dependencies import get_membership_manager
+from src.backend.clubs.club_membership.dependencies.membership import get_membership_manager
 from src.backend.clubs.club_membership.managers.membership import ClubMembershipManager
-from src.backend.clubs.club_membership.schemas import GetMembership
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
+from src.backend.clubs.club_membership.schemas.membership import GetMembership
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/membership",
@@ -23,6 +24,8 @@ class UserMembershipRouter:
         "/",
         summary="getting club memberships",
         response_model=list[GetMembership],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401),
     )
     async def get_user_memberships(self):
         """Returns all club memberships for the current user."""

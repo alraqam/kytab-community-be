@@ -14,13 +14,13 @@ from src.backend.core.handlers import unauthorized_exception_handler, forbidden_
 from src.backend.identity.auth.routers.auth import router as auth_router
 from src.backend.identity.auth.routers.session import router as session_router
 from src.backend.identity.auth.routers.two_factor import router as two_factor_router
-from src.backend.identity.users.routers import router as user_router
-from src.backend.identity.profile.routers import router as profile_router
-from src.backend.identity.blocked_users.routers import router as blocked_users_router
-from src.backend.identity.follow.routers import router as follow_router
+from src.backend.identity.users.routers.user import router as user_router
+from src.backend.identity.profile.routers.profile import router as profile_router
+from src.backend.identity.blocked_users.routers.blocked_user import router as blocked_users_router
+from src.backend.identity.follow.routers.follow import router as follow_router
 from src.backend.identity.analytics.routers.public import router as user_analytics_router
 from src.backend.identity.analytics.routers.admin import router as user_analytics_admin_router
-from src.backend.identity.feed.routers import router as feed_router
+from src.backend.identity.feed.routers.feed import router as feed_router
 
 from src.backend.catalog.books.routers.books import router as books_router
 from src.backend.catalog.books.routers.work import router as work_router
@@ -36,7 +36,7 @@ from src.backend.catalog.librarian.routers.genre import router as librarian_genr
 from src.backend.catalog.librarian.routers.series import router as librarian_series_router
 from src.backend.catalog.librarian.routers.work import router as librarian_work_router
 
-from src.backend.library.reading_goals.routers import router as reading_goals_router
+from src.backend.library.reading_goals.routers.reading_goal import router as reading_goals_router
 from src.backend.library.shelf.routers.shelf import router as shelf_router
 from src.backend.library.shelf.routers.shelf_item import router as shelf_item_router
 from src.backend.library.reviews.routers.review import router as review_router
@@ -45,7 +45,7 @@ from src.backend.library.reviews.routers.like import router as review_like_route
 from src.backend.library.progress.routers.reading_period import router as reading_period_router
 from src.backend.library.progress.routers.progress_logs import router as progress_logs_router
 from src.backend.library.progress.routers.users_progress import router as user_progress_router
-from src.backend.library.goodreads_import.routers import router as goodreads_import_router
+from src.backend.library.goodreads_import.routers.goodreads_import import router as goodreads_import_router
 
 from src.backend.clubs.clubs.routers.public import router as clubs_public_router
 from src.backend.clubs.clubs.routers.admin import router as clubs_admin_router
@@ -71,7 +71,7 @@ from src.backend.clubs.events.routers.event import router as event_router
 from src.backend.clubs.events.routers.rsvp import router as event_rsvp_router
 from src.backend.clubs.analytics.routers.public import router as club_analytics_router
 from src.backend.clubs.analytics.routers.admin import router as club_analytics_admin_router
-from src.backend.clubs.club_summary.routers import router as club_summary_router
+from src.backend.clubs.club_summary.routers.club_summary import router as club_summary_router
 
 from src.backend.trust_safety.audit_log.routers.admin import router as audit_log_admin_router
 from src.backend.trust_safety.complaint.routers.public import router as public_complaint_router
@@ -79,7 +79,7 @@ from src.backend.trust_safety.complaint.routers.admin import router as admin_com
 from src.backend.trust_safety.complaint.routers.club import router as club_complaint_router
 from src.backend.trust_safety.consent.routers.document import router as document_router
 from src.backend.trust_safety.consent.routers.consent import router as consent_router
-from src.backend.trust_safety.export.routers import router as export_router
+from src.backend.trust_safety.export.routers.export import router as export_router
 
 from src.backend.notifications.routers.preference import router as preference_router
 from src.backend.notifications.routers.notification import router as notification_router

@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.catalog.books.exceptions import WorkNotFoundError, DuplicateMergeError
-from src.backend.catalog.books.filters import WorkFilter
-from src.backend.catalog.books.models import Work
+from src.backend.catalog.books.exceptions.book import WorkNotFoundError, DuplicateMergeError
+from src.backend.catalog.books.filters.book import WorkFilter
+from src.backend.catalog.books.models.book import Work
 from src.backend.catalog.books.repository.work import WorkRepository
 from src.backend.catalog.books.schemas.work import CreateWork, UpdateWork
 

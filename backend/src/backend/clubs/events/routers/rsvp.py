@@ -1,16 +1,17 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_filter import FilterDepends
 from fastapi_utils.cbv import cbv
 
-from src.backend.clubs.clubs.dependencies import get_club_or_404
-from src.backend.clubs.clubs.models import Club
-from src.backend.clubs.events.dependencies import get_club_event_or_404, get_event_rsvp_manager
-from src.backend.clubs.events.filters import EventRSVPFilter
+from src.backend.clubs.clubs.dependencies.club import get_club_or_404
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.clubs.events.dependencies.event import get_club_event_or_404, get_event_rsvp_manager
+from src.backend.clubs.events.filters.event import EventRSVPFilter
 from src.backend.clubs.events.managers.rsvp import EventRSVPManager
-from src.backend.clubs.events.models import ClubEvent
-from src.backend.clubs.events.schemas import GetEventRSVP, CreateEventRSVP
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
+from src.backend.clubs.events.models.event import ClubEvent
+from src.backend.clubs.events.schemas.event import GetEventRSVP, CreateEventRSVP
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/{event_id}/rsvp",
@@ -30,7 +31,9 @@ class EventRSVPRouter:
     @router.post(
         "/",
         summary="creating rsvp",
-        response_model=GetEventRSVP
+        response_model=GetEventRSVP,
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def create_event(
             self,
@@ -43,7 +46,9 @@ class EventRSVPRouter:
     @router.get(
         "/",
         summary="getting event rsvp",
-        response_model=list[GetEventRSVP]
+        response_model=list[GetEventRSVP],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_event_rsvps(
             self,
@@ -56,7 +61,9 @@ class EventRSVPRouter:
     @router.get(
         "/results",
         summary="getting event rsvp results",
-        response_model=dict
+        response_model=dict,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_event_rsvp_results(self):
         """Tallies RSVP responses for the event by status."""

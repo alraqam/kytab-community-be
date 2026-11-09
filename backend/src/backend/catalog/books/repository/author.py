@@ -3,8 +3,8 @@ from dataclasses import dataclass
 from sqlalchemy import and_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.catalog.books.filters import AuthorFilter
-from src.backend.catalog.books.models import Author, WorkAuthor, Work
+from src.backend.catalog.books.filters.book import AuthorFilter
+from src.backend.catalog.books.models.book import Author, WorkAuthor, Work
 
 
 @dataclass

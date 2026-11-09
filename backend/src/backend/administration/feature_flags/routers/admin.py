@@ -1,16 +1,17 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_filter import FilterDepends
 from fastapi_utils.cbv import cbv
 
-from src.backend.administration.feature_flags.dependencies import get_feature_flag_manager, get_feature_flag_or_404
-from src.backend.administration.feature_flags.filters import FeatureFlagFilter
-from src.backend.administration.feature_flags.managers import FeatureFlagManager
-from src.backend.administration.feature_flags.models import FeatureFlag
-from src.backend.administration.feature_flags.schemas import CreateFeatureFlag, UpdateFeatureFlag, GetFeatureFlag
-from src.backend.identity.auth.models import User
-from src.backend.identity.users.dependencies import is_admin
-from src.backend.trust_safety.audit_log.decorators import audit_action
-from src.backend.trust_safety.audit_log.schemas import AuditLogAction
+from src.backend.administration.feature_flags.dependencies.feature_flag import get_feature_flag_manager, get_feature_flag_or_404
+from src.backend.administration.feature_flags.filters.feature_flag import FeatureFlagFilter
+from src.backend.administration.feature_flags.managers.feature_flag import FeatureFlagManager
+from src.backend.administration.feature_flags.models.feature_flag import FeatureFlag
+from src.backend.administration.feature_flags.schemas.feature_flag import CreateFeatureFlag, UpdateFeatureFlag, GetFeatureFlag
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.dependencies.user import is_admin
+from src.backend.trust_safety.audit_log.decorators.audit import audit_action
+from src.backend.trust_safety.audit_log.schemas.audit_log import AuditLogAction
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/admin/feature-flags",
@@ -27,7 +28,9 @@ class FeatureFlagAdminRouter:
     @router.post(
         "/",
         summary="creating feature flag",
-        response_model=GetFeatureFlag
+        response_model=GetFeatureFlag,
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403),
     )
     @audit_action(AuditLogAction.feature_flag_created, "feature_flag", id_from="result")
     async def create_feature_flag(
@@ -41,6 +44,8 @@ class FeatureFlagAdminRouter:
     @router.put(
         "/{flag_id}",
         summary="updating feature flag",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     @audit_action(AuditLogAction.feature_flag_updated, "feature_flag", id_from="flag")
     async def update_feature_flag(
@@ -54,6 +59,8 @@ class FeatureFlagAdminRouter:
     @router.put(
         "/{flag_id}/enable",
         summary="enabling feature flag",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     @audit_action(AuditLogAction.feature_flag_enabled, "feature_flag", id_from="flag")
     async def enable_feature_flag(
@@ -66,6 +73,8 @@ class FeatureFlagAdminRouter:
     @router.put(
         "/{flag_id}/disable",
         summary="disabling feature flag",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     @audit_action(AuditLogAction.feature_flag_disabled, "feature_flag", id_from="flag")
     async def disable_feature_flag(
@@ -78,6 +87,8 @@ class FeatureFlagAdminRouter:
     @router.delete(
         "/{flag_id}",
         summary="deleting feature flag",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     @audit_action(AuditLogAction.feature_flag_deleted, "feature_flag", id_from="flag")
     async def delete_feature_flag(
@@ -90,7 +101,9 @@ class FeatureFlagAdminRouter:
     @router.get(
         "/",
         summary="getting feature flags",
-        response_model=list[GetFeatureFlag]
+        response_model=list[GetFeatureFlag],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403),
     )
     async def get_feature_flags(
             self,
@@ -103,7 +116,9 @@ class FeatureFlagAdminRouter:
     @router.get(
         "/{flag_id}",
         summary="getting feature flag by id",
-        response_model=GetFeatureFlag
+        response_model=GetFeatureFlag,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_feature_flag_by_id(
             self,

@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.identity.auth.models import User
+from src.backend.identity.auth.models.auth import User
 from src.backend.catalog.books.dependencies.genre import get_genre_manager, get_genre_or_404
 from src.backend.catalog.books.dependencies.work import get_work_or_404
 from src.backend.catalog.books.managers.genre import GenreManager
-from src.backend.catalog.books.models import Work, Genre
+from src.backend.catalog.books.models.book import Work, Genre
 from src.backend.catalog.books.schemas.genre import AddGenreToWork, GetGenre, CreateGenre, UpdateGenre
 
-from src.backend.catalog.librarian.dependencies import is_librarian
+from src.backend.catalog.librarian.dependencies.librarian import is_librarian
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/librarian/genre",
@@ -25,7 +26,9 @@ class LibrarianGenreRouter:
     @router.post(
         "/",
         summary="creating genre",
-        response_model=GetGenre
+        response_model=GetGenre,
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403),
     )
     async def create_genre(
             self,
@@ -38,6 +41,8 @@ class LibrarianGenreRouter:
     @router.put(
         "/{genre_id}",
         summary="updating genre",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def update_genre(
             self,
@@ -50,6 +55,8 @@ class LibrarianGenreRouter:
     @router.delete(
         "/{genre_id}",
         summary="deleting genre",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def delete_genre(
             self,
@@ -61,6 +68,8 @@ class LibrarianGenreRouter:
     @router.put(
         "/{genre_id}/work/add",
         summary="adding genre to work",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def add_genre_to_work(
             self,
@@ -72,6 +81,8 @@ class LibrarianGenreRouter:
     @router.put(
         "/{genre_id}/work/{work_id}/remove",
         summary="removing genre from work",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def remove_genre_from_work(
             self,

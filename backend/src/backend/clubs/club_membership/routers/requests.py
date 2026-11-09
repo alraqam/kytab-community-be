@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.clubs.club_membership.dependencies import get_join_request_manager, get_join_request_or_404
+from src.backend.clubs.club_membership.dependencies.membership import get_join_request_manager, get_join_request_or_404
 from src.backend.clubs.club_membership.managers.requests import ClubJoinRequestManager
-from src.backend.clubs.club_membership.models import ClubJoinRequest
-from src.backend.clubs.club_membership.schemas import GetJoinRequest, SendJoinRequest
-from src.backend.clubs.clubs.dependencies import get_club_or_404
-from src.backend.clubs.clubs.models import Club
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
+from src.backend.clubs.club_membership.models.membership import ClubJoinRequest
+from src.backend.clubs.club_membership.schemas.membership import GetJoinRequest, SendJoinRequest
+from src.backend.clubs.clubs.dependencies.club import get_club_or_404
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/join-request",
@@ -25,7 +26,9 @@ class ClubJoinRequestRouter:
     @router.post(
         "/",
         summary="sending join request",
-        response_model=GetJoinRequest | None
+        response_model=GetJoinRequest | None,
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 404, 409),
     )
     async def send_join_request(
             self,
@@ -38,6 +41,8 @@ class ClubJoinRequestRouter:
     @router.put(
         "/{join_request_id}/accept",
         summary="accepting join request",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(400, 401, 403, 404, 409),
     )
     async def accept_join_request(
             self,
@@ -49,6 +54,8 @@ class ClubJoinRequestRouter:
     @router.put(
         "/{join_request_id}/reject",
         summary="rejecting join request",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(400, 401, 403, 404),
     )
     async def reject_join_request(
             self,
@@ -60,7 +67,9 @@ class ClubJoinRequestRouter:
     @router.get(
         "/",
         summary="getting club join request",
-        response_model=list[GetJoinRequest]
+        response_model=list[GetJoinRequest],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_club_join_requests(
             self,

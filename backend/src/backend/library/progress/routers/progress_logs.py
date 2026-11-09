@@ -1,16 +1,17 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.identity.users.dependencies import get_user_or_404
-from src.backend.library.progress.dependencies import get_progress_log_manager
-from src.backend.library.shelf.dependencies import get_shelf_item_or_404, get_shelf_or_404
-from src.backend.library.shelf.models import Shelf, ShelfItem
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
-from src.backend.library.progress.dependencies import get_reading_period_or_404, get_progress_log_or_404
+from src.backend.identity.users.dependencies.user import get_user_or_404
+from src.backend.library.progress.dependencies.progress import get_progress_log_manager
+from src.backend.library.shelf.dependencies.shelf import get_shelf_item_or_404, get_shelf_or_404
+from src.backend.library.shelf.models.shelf import Shelf, ShelfItem
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.library.progress.dependencies.progress import get_reading_period_or_404, get_progress_log_or_404
 from src.backend.library.progress.managers.progress_logs import ProgressLogManager
-from src.backend.library.progress.models import ReadingPeriod, ProgressLog
-from src.backend.library.progress.schemas import LogProgressSchema, GetProgressLog, GetReadingPace
+from src.backend.library.progress.models.progress import ReadingPeriod, ProgressLog
+from src.backend.library.progress.schemas.progress import LogProgressSchema, GetProgressLog, GetReadingPace
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/{reading_period_id}/progress",
@@ -31,6 +32,8 @@ class ProgressLogRouter:
         "/",
         summary="logging progress",
         response_model=GetProgressLog,
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def log_progress(
             self,
@@ -43,6 +46,8 @@ class ProgressLogRouter:
     @router.put(
         "/{progress_log_id}",
         summary="updating today's progress",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def update_today_progress(
             self,
@@ -56,6 +61,8 @@ class ProgressLogRouter:
         "/today",
         summary="getting user's today progress log",
         response_model=GetProgressLog,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_user_today_progress_log(
             self,
@@ -68,6 +75,8 @@ class ProgressLogRouter:
         "/pace",
         summary="estimating reading pace",
         response_model=GetReadingPace,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404, 409),
     )
     async def estimate_reading_pace(
             self,
@@ -79,6 +88,8 @@ class ProgressLogRouter:
     @router.get(
         "/{progress_log_id}",
         summary="getting progress log by id",
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_progress_log_by_id(
             self,
@@ -90,7 +101,9 @@ class ProgressLogRouter:
     @router.get(
         "/user/{user_id}",
         summary="getting user's progress logs",
-        response_model=list[GetProgressLog]
+        response_model=list[GetProgressLog],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_user_reading_periods(
             self,

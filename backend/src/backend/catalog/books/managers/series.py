@@ -1,9 +1,9 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.catalog.books.exceptions import SeriesNotFoundError, WorkNotFoundError, SeriesWorkLinkExistsError
-from src.backend.catalog.books.filters import SeriesFilter
-from src.backend.catalog.books.models import Series, Work
+from src.backend.catalog.books.exceptions.book import SeriesNotFoundError, WorkNotFoundError, SeriesWorkLinkExistsError
+from src.backend.catalog.books.filters.book import SeriesFilter
+from src.backend.catalog.books.models.book import Series, Work
 from src.backend.catalog.books.repository.series import SeriesRepository
 from src.backend.catalog.books.repository.work import WorkRepository
 from src.backend.catalog.books.schemas.series import CreateSeries, UpdateSeries, AddWorkToSeries

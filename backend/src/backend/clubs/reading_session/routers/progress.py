@@ -1,15 +1,16 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.clubs.clubs.dependencies import get_club_or_404
-from src.backend.clubs.clubs.models import Club
-from src.backend.clubs.reading_session.dependencies import get_milestone_progress_manager, get_reading_session_or_404, \
+from src.backend.clubs.clubs.dependencies.club import get_club_or_404
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.clubs.reading_session.dependencies.reading_session import get_milestone_progress_manager, get_reading_session_or_404, \
      get_milestone_progress_or_404, get_milestone_or_404
 from src.backend.clubs.reading_session.managers.progress import MilestoneProgressManager
-from src.backend.clubs.reading_session.models import ReadingSession, Milestone, MilestoneProgress
-from src.backend.clubs.reading_session.schemas import GetMilestoneProgress
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
+from src.backend.clubs.reading_session.models.reading_session import ReadingSession, Milestone, MilestoneProgress
+from src.backend.clubs.reading_session.schemas.reading_session import GetMilestoneProgress
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/{milestone_id}/progress",
@@ -29,7 +30,9 @@ class MilestoneProgressRouter:
     @router.post(
         "/",
         summary="creating milestone progress",
-        response_model=GetMilestoneProgress
+        response_model=GetMilestoneProgress,
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def create_milestone_progress(
             self,
@@ -41,6 +44,8 @@ class MilestoneProgressRouter:
     @router.put(
         "/{progress_id}",
         summary="update milestone progress",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def update_milestone_progress(
             self,
@@ -52,6 +57,8 @@ class MilestoneProgressRouter:
     @router.put(
         "/{progress_id}/finish",
         summary="finishing milestone progress",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def finish_milestone_progress(
             self,
@@ -62,7 +69,9 @@ class MilestoneProgressRouter:
 
     @router.delete(
         "/{progress_id}",
-        summary="deleting milestone progress"
+        summary="deleting milestone progress",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def delete_milestone_progress(
             self,
@@ -74,7 +83,9 @@ class MilestoneProgressRouter:
     @router.get(
         "/{progress_id}",
         summary="getting milestone progress by id",
-        response_model=GetMilestoneProgress
+        response_model=GetMilestoneProgress,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_milestone_progress_by_id(
             self,

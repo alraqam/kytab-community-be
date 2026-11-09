@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.club_membership.models import ClubInvitation
-from src.backend.clubs.club_membership.schemas import InvitationStatus
+from src.backend.clubs.club_membership.models.membership import ClubInvitation
+from src.backend.clubs.club_membership.schemas.membership import InvitationStatus
 
 
 @dataclass
@@ -112,7 +112,7 @@ class ClubInvitationRepository:
             and_(
                 ClubInvitation.invited_user_id == user_id,
                 ClubInvitation.status == InvitationStatus.pending,
-                ClubInvitation.club_id >= club_id
+                ClubInvitation.club_id == club_id
             ))
         result = await self.session.execute(stmt)
         invitations = result.scalars().all()

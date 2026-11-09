@@ -1,9 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.identity.auth.exceptions import SessionNotFoundError, NotSessionOwnerError
-from src.backend.identity.auth.models import User, Session
+from src.backend.identity.auth.exceptions.auth import SessionNotFoundError, NotSessionOwnerError
+from src.backend.identity.auth.models.auth import User, Session
 from src.backend.identity.auth.repository.session import SessionRepository
-from src.backend.identity.users.repository import UserRepository
+from src.backend.identity.users.repository.user import UserRepository
 
 
 class SessionManager:

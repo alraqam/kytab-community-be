@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.identity.auth.models import User
+from src.backend.identity.auth.models.auth import User
 from src.backend.catalog.books.dependencies.edition import get_edition_manager, get_edition_or_404
 from src.backend.catalog.books.managers.edition import EditionManager
-from src.backend.catalog.books.models import Edition
+from src.backend.catalog.books.models.book import Edition
 from src.backend.catalog.books.schemas.edition import CreateEdition, UpdateEdition, GetEdition
 
-from src.backend.catalog.librarian.dependencies import is_librarian
+from src.backend.catalog.librarian.dependencies.librarian import is_librarian
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/librarian/edition",
@@ -25,7 +26,9 @@ class LibrarianEditionRouter:
     @router.post(
         "/",
         summary="creating edition",
-        response_model=GetEdition
+        response_model=GetEdition,
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403, 404),
     )
     async def create_edition(
             self,
@@ -38,6 +41,8 @@ class LibrarianEditionRouter:
     @router.put(
         "/{edition_id}",
         summary="updating edition",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def update_edition(
             self,
@@ -48,8 +53,10 @@ class LibrarianEditionRouter:
         await self.manager.update_edition(edition.id, request)
 
     @router.delete(
-        "/edition_id}",
+        "/{edition_id}",
         summary="deleting edition",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def delete_edition(
             self,

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.thread.models import PostReaction
+from src.backend.clubs.thread.models.thread import PostReaction
 
 @dataclass
 class PostReactionRepository:

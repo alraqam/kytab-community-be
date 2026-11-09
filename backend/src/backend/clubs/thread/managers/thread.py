@@ -2,17 +2,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.clubs.reading_session.managers.milestone import MilestoneManager
 from src.backend.clubs.reading_session.managers.progress import MilestoneProgressManager
-from src.backend.clubs.club_membership.services import is_owner_or_moderator
-from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.clubs.club_membership.permissions.membership import is_owner_or_moderator, can_view_club, bypasses_spoiler_gate
+from src.backend.clubs.clubs.managers.club import ClubManager
 from src.backend.core.storage import StorageService
-from src.backend.clubs.clubs.models import Club
-from src.backend.clubs.reading_session.models import ReadingSession, Milestone
-from src.backend.clubs.thread.exceptions import LockedThreadError, PinnedThreadError, ThreadNotFoundError, \
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.clubs.reading_session.models.reading_session import ReadingSession, Milestone
+from src.backend.clubs.thread.exceptions.thread import LockedThreadError, PinnedThreadError, ThreadNotFoundError, \
     MilestoneNotReachedError
-from src.backend.clubs.thread.models import Thread
+from src.backend.clubs.thread.models.thread import Thread
 from src.backend.clubs.thread.repository.thread import ThreadRepository
-from src.backend.clubs.thread.schemas import CreateThread, UpdateThread
-from src.backend.identity.auth.models import User
+from src.backend.clubs.thread.schemas.thread import CreateThread, UpdateThread
+from src.backend.identity.auth.models.auth import User
 
 
 class ThreadManager:
@@ -268,16 +268,25 @@ class ThreadManager:
 
     async def get_club_general_threads(
             self,
+            user: User,
             club: Club
     ) -> list[Thread]:
         """Lists all club-general threads for a club, pinned threads first.
 
         Args:
+            user: User requesting the threads; must be a club member or platform staff.
             club: Club to list threads for.
 
         Returns:
             List of Thread instances.
+
+        Raises:
+            NotClubMemberError: When a non-staff user is not a member of a public club.
+            ClubAccessDeniedError: When a non-staff user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
         """
+        await can_view_club(club, user, self.session, viewed="general threads")
+
         threads = await self.thread_repo.get_club_general_threads(
             club_id=club.id,
         )
@@ -306,13 +315,17 @@ class ThreadManager:
     async def get_session_milestone_threads(
             self,
             user: User,
+            club: Club,
             reading_session: ReadingSession,
             milestone: Milestone,
     ) -> list[Thread]:
         """Lists threads scoped to a session milestone, gated by the user's reading progress.
 
+        Platform staff who are not members of the club skip the progress gate.
+
         Args:
-            user: User requesting the threads.
+            user: User requesting the threads; must be a club member or platform staff.
+            club: Club the reading session belongs to.
             reading_session: Reading session the milestone belongs to.
             milestone: Milestone to list threads for.
 
@@ -320,13 +333,21 @@ class ThreadManager:
             List of Thread instances.
 
         Raises:
+            NotClubMemberError: When a non-staff user is not a member of a public club.
+            ClubAccessDeniedError: When a non-staff user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
             MilestoneNotReachedError: When the user has no recorded progress, or has not
                 yet reached the given milestone.
         """
+        await can_view_club(club, user, self.session, viewed=f"threads of milestone {milestone.id}")
+
         threads = await self.thread_repo.get_session_milestone_threads(
             session_id=reading_session.id,
             milestone_id=milestone.id,
         )
+
+        if bypasses_spoiler_gate(club, user):
+            return threads
 
         progress = await self.milestone_progress_manager.get_user_milestone_progress(reading_session, user)
         if not progress:
@@ -340,6 +361,34 @@ class ThreadManager:
             raise MilestoneNotReachedError("Milestone for this thread not reached")
 
         return threads
+
+    async def reveal_thread(
+            self,
+            user: User,
+            club: Club,
+            thread: Thread,
+    ) -> Thread:
+        """Returns a milestone thread on explicit request, without checking the user's milestone progress.
+
+        This backs the "reveal" button: club members may open a thread for a milestone
+        they have not reached yet. Membership is still required (platform staff may
+        view any club).
+
+        Args:
+            user: User revealing the thread; must be a club member or platform staff.
+            club: Club the thread belongs to.
+            thread: Thread to reveal.
+
+        Returns:
+            The given Thread instance.
+
+        Raises:
+            NotClubMemberError: When a non-staff user is not a member of a public club.
+            ClubAccessDeniedError: When a non-staff user is not a member of a private or
+                secret club (indistinguishable from the club not existing).
+        """
+        await can_view_club(club, user, self.session, viewed=f"thread {thread.id}")
+        return thread
 
     async def get_thread_by_id(
             self,

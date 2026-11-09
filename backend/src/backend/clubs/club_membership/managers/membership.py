@@ -1,22 +1,22 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.club_membership.exceptions import ClubOwnerError, PrivateClubError, ClubMemberCapReachedError
+from src.backend.clubs.club_membership.exceptions.membership import ClubOwnerError, PrivateClubError, ClubMemberCapReachedError
 from src.backend.clubs.club_membership.managers.block import ClubBlockedManager
-from src.backend.clubs.clubs.schemas import ClubTypes
-from src.backend.clubs.clubs.schemas import ManageClubModerators
-from src.backend.clubs.club_membership.exceptions import AlreadyClubMemberError, NotClubMemberError, ClubModeratorError
-from src.backend.clubs.club_membership.filters import ClubMembersFilter
-from src.backend.clubs.club_membership.models import ClubMembership
+from src.backend.clubs.clubs.schemas.club import ClubTypes
+from src.backend.clubs.clubs.schemas.club import ManageClubModerators
+from src.backend.clubs.club_membership.exceptions.membership import AlreadyClubMemberError, NotClubMemberError, ClubModeratorError
+from src.backend.clubs.club_membership.filters.membership import ClubMembersFilter
+from src.backend.clubs.club_membership.models.membership import ClubMembership
 from src.backend.clubs.club_membership.repository.membership import ClubMembershipRepository
-from src.backend.clubs.club_membership.schemas import MemberRole, ManageMember
-from src.backend.clubs.club_membership.services import is_owner_or_moderator, is_club_owner, is_club_member
-from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.clubs.club_membership.schemas.membership import MemberRole, ManageMember
+from src.backend.clubs.club_membership.permissions.membership import is_owner_or_moderator, is_club_owner, can_view_club
+from src.backend.clubs.clubs.managers.club import ClubManager
 from src.backend.core.storage import StorageService
-from src.backend.clubs.clubs.models import Club
-from src.backend.identity.auth.models import User
-from src.backend.identity.users.managers import UserManager
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.managers.user import UserManager
 from src.backend.notifications.managers.notification import NotificationManager
-from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
+from src.backend.notifications.schemas.notification import NotificationCategory, NotificationObjectType
 
 
 class ClubMembershipManager:
@@ -226,7 +226,7 @@ class ClubMembershipManager:
         Returns:
             List of ClubMembership instances.
         """
-        await is_club_member(club, user, self.session)
+        await can_view_club(club, user, self.session, viewed="member list")
         memberships = await self.membership_repo.get_memberships(club, filters)
         return memberships
 

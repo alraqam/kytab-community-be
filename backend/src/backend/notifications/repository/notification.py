@@ -4,8 +4,8 @@ from datetime import datetime
 from sqlalchemy import select, and_, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.notifications.filters import NotificationFilter
-from src.backend.notifications.models import Notification
+from src.backend.notifications.filters.notification import NotificationFilter
+from src.backend.notifications.models.notification import Notification
 
 
 @dataclass

@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.identity.analytics.dependencies import get_user_analytics_manager
-from src.backend.identity.analytics.managers import UserAnalyticsManager
-from src.backend.identity.analytics.schemas import GetUserAnalytics
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
-from src.backend.identity.users.dependencies import get_user_or_404
+from src.backend.identity.analytics.dependencies.user_analytics import get_user_analytics_manager
+from src.backend.identity.analytics.managers.user_analytics import UserAnalyticsManager
+from src.backend.identity.analytics.schemas.user_analytics import GetUserAnalytics
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.dependencies.user import get_user_or_404
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/analytics/users",
@@ -24,6 +25,8 @@ class UserAnalyticsRouter:
         "/me",
         summary="getting current user's analytics",
         response_model=GetUserAnalytics,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_my_analytics(self):
         """Fetches the current user's reading analytics."""
@@ -34,6 +37,8 @@ class UserAnalyticsRouter:
         "/{user_id}",
         summary="getting user's analytics",
         response_model=GetUserAnalytics,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_user_analytics(
             self,

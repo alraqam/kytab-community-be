@@ -4,16 +4,16 @@ from datetime import date, timedelta
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.library.shelf.managers.shelf import ShelfManager
-from src.backend.library.shelf.models import Shelf
-from src.backend.library.progress.exceptions import ActiveReadingPeriodError
+from src.backend.library.shelf.models.shelf import Shelf
+from src.backend.library.progress.exceptions.progress import ActiveReadingPeriodError
 from src.backend.library.progress.managers.reading_period import ReadingPeriodManager
-from src.backend.identity.auth.models import User
-from src.backend.library.progress.dependencies import is_log_owner
-from src.backend.library.progress.exceptions import ProgressLogNotFound, LogDateError, NoTotalPagesError, \
+from src.backend.identity.auth.models.auth import User
+from src.backend.library.progress.dependencies.progress import is_log_owner
+from src.backend.library.progress.exceptions.progress import ProgressLogNotFound, LogDateError, NoTotalPagesError, \
     NoProgressLoggedError
-from src.backend.library.progress.models import ReadingPeriod, ProgressLog
+from src.backend.library.progress.models.progress import ReadingPeriod, ProgressLog
 from src.backend.library.progress.repositories.progress_logs import ProgressLogRepository
-from src.backend.library.progress.schemas import LogProgressSchema, GetReadingPace
+from src.backend.library.progress.schemas.progress import LogProgressSchema, GetReadingPace
 
 
 class ProgressLogManager:

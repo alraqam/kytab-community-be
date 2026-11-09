@@ -2,9 +2,9 @@ from datetime import datetime
 from sqlalchemy import update, and_
 
 from src.backend.core.task import task_session
-from src.backend.clubs.club_membership.exceptions import ExpiredInvitationError
-from src.backend.clubs.club_membership.models import ClubInvitation
-from src.backend.clubs.club_membership.schemas import InvitationStatus
+from src.backend.clubs.club_membership.exceptions.membership import ExpiredInvitationError
+from src.backend.clubs.club_membership.models.membership import ClubInvitation
+from src.backend.clubs.club_membership.schemas.membership import InvitationStatus
 from src.backend.celery_app import celery_app
 
 

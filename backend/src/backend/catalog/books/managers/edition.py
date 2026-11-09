@@ -1,8 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.catalog.books.exceptions import WorkNotFoundError, EditionNotFoundError
-from src.backend.catalog.books.filters import EditionFilter
-from src.backend.catalog.books.models import Edition
+from src.backend.catalog.books.exceptions.book import WorkNotFoundError, EditionNotFoundError
+from src.backend.catalog.books.filters.book import EditionFilter
+from src.backend.catalog.books.models.book import Edition
 from src.backend.catalog.books.repository.edition import EditionRepository
 from src.backend.catalog.books.repository.work import WorkRepository
 from src.backend.catalog.books.schemas.edition import CreateEdition, UpdateEdition

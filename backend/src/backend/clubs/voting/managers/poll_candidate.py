@@ -2,16 +2,16 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.catalog.books.managers.work import WorkManager
-from src.backend.clubs.club_membership.services import is_owner_or_moderator, is_club_member
-from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.clubs.club_membership.permissions.membership import is_owner_or_moderator, can_view_club
+from src.backend.clubs.clubs.managers.club import ClubManager
 from src.backend.core.storage import StorageService
-from src.backend.clubs.clubs.models import Club
-from src.backend.clubs.voting.exceptions import VotingClosedError, CandidateInPollError, PollCandidateNotFound
-from src.backend.clubs.voting.models import VotingPoll, PollCandidate
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.clubs.voting.exceptions.voting import VotingClosedError, CandidateInPollError, PollCandidateNotFound
+from src.backend.clubs.voting.models.voting import VotingPoll, PollCandidate
 from src.backend.clubs.voting.repositories.poll_candidate import PollCandidateRepository
-from src.backend.clubs.voting.schemas import CreatePollCandidate, VotingStatus
-from src.backend.identity.auth.models import User
-from src.backend.identity.users.managers import UserManager
+from src.backend.clubs.voting.schemas.voting import CreatePollCandidate, VotingStatus
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.managers.user import UserManager
 
 
 class PollCandidateManager:
@@ -88,11 +88,11 @@ class PollCandidateManager:
             List of PollCandidate instances.
 
         Raises:
-            NotClubMemberError: When the user is not a member of a public club.
-            ClubAccessDeniedError: When the user is not a member of a private or
+            NotClubMemberError: When a non-staff user is not a member of a public club.
+            ClubAccessDeniedError: When a non-staff user is not a member of a private or
                 secret club (indistinguishable from the club not existing).
         """
-        await is_club_member(club, user, self.session)
+        await can_view_club(club, user, self.session, viewed=f"candidates of poll {poll.id}")
 
         candidates = await self.candidate_repo.get_poll_candidates(
             poll_id=poll.id,

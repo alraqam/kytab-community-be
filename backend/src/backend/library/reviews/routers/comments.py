@@ -1,15 +1,16 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
 from src.backend.catalog.books.dependencies.work import get_work_or_404
-from src.backend.catalog.books.models import Work
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
-from src.backend.library.reviews.dependencies import get_review_or_404, get_review_comment_manager, \
+from src.backend.catalog.books.models.book import Work
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.library.reviews.dependencies.review import get_review_or_404, get_review_comment_manager, \
     get_review_comment_or_404
 from src.backend.library.reviews.managers.comments import ReviewCommentManager
-from src.backend.library.reviews.models import Review, ReviewComment
-from src.backend.library.reviews.schemas import GetReviewComment, CreateReviewComment, UpdateReviewComment
+from src.backend.library.reviews.models.review import Review, ReviewComment
+from src.backend.library.reviews.schemas.review import GetReviewComment, CreateReviewComment, UpdateReviewComment
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/{review_id}/comments",
@@ -28,7 +29,9 @@ class ReviewCommentRouter:
     @router.post(
         "/",
         summary="creating comment for review",
-        response_model=GetReviewComment
+        response_model=GetReviewComment,
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 404),
     )
     async def create_comment(
             self,
@@ -41,6 +44,8 @@ class ReviewCommentRouter:
     @router.put(
         "/{comment_id}",
         summary="updating review comment",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def update_comment(
             self,
@@ -53,6 +58,8 @@ class ReviewCommentRouter:
     @router.delete(
         "/{comment_id}",
         summary="deleting review comment",
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def delete_comment(
             self,
@@ -64,7 +71,9 @@ class ReviewCommentRouter:
     @router.get(
         "/",
         summary="getting review comments",
-        response_model=list[GetReviewComment]
+        response_model=list[GetReviewComment],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_review_comments(self):
         """Lists all comments on the review."""
@@ -74,7 +83,9 @@ class ReviewCommentRouter:
     @router.get(
         "/{comment_id}",
         summary="getting review comment by id",
-        response_model=GetReviewComment
+        response_model=GetReviewComment,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 404),
     )
     async def get_comment_by_id(
             self,

@@ -1,18 +1,18 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.club_membership.services import is_club_member
-from src.backend.clubs.clubs.models import Club
-from src.backend.clubs.reading_session.dependencies import is_milestone_progress_owner
-from src.backend.clubs.reading_session.exceptions import ActiveSessionError, MilestoneProgressNotFound, \
+from src.backend.clubs.club_membership.permissions.membership import is_club_member, can_view_club
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.clubs.reading_session.dependencies.reading_session import is_milestone_progress_owner
+from src.backend.clubs.reading_session.exceptions.reading_session import ActiveSessionError, MilestoneProgressNotFound, \
     MilestoneProgressAlreadyExists
 from src.backend.clubs.reading_session.managers.session import ReadingSessionManager
-from src.backend.clubs.reading_session.models import ReadingSession, Milestone, MilestoneProgress
+from src.backend.clubs.reading_session.models.reading_session import ReadingSession, Milestone, MilestoneProgress
 from src.backend.clubs.reading_session.repository.progress import MilestoneProgressRepository
 from src.backend.clubs.reading_session.repository.prompt import DiscussionPromptRepository
-from src.backend.identity.auth.models import User
+from src.backend.identity.auth.models.auth import User
 from src.backend.notifications.managers.notification import NotificationManager
-from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
+from src.backend.notifications.schemas.notification import NotificationCategory, NotificationObjectType
 
 
 class MilestoneProgressManager:
@@ -198,18 +198,18 @@ class MilestoneProgressManager:
 
         Args:
             reading_session: ReadingSession to list progress for.
-            user: User requesting the list; must be a club member.
+            user: User requesting the list; must be a club member or platform staff.
             club: Club the reading session belongs to.
 
         Returns:
             List of matching MilestoneProgress instances.
 
         Raises:
-            NotClubMemberError: When the user is not a member of a public club.
-            ClubAccessDeniedError: When the user is not a member of a private or
+            NotClubMemberError: When a non-staff user is not a member of a public club.
+            ClubAccessDeniedError: When a non-staff user is not a member of a private or
                 secret club (indistinguishable from the club not existing).
         """
-        await is_club_member(club, user, self.session)
+        await can_view_club(club, user, self.session, viewed=f"member progress in reading session {reading_session.id}")
 
         progress = await self.progress_repo.get_session_milestone_progress(
             session_id=reading_session.id,

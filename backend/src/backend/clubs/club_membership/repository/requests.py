@@ -4,8 +4,8 @@ from datetime import datetime, timedelta
 from sqlalchemy import select, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.club_membership.models import ClubJoinRequest
-from src.backend.clubs.club_membership.schemas import JoinRequestStatus
+from src.backend.clubs.club_membership.models.membership import ClubJoinRequest
+from src.backend.clubs.club_membership.schemas.membership import JoinRequestStatus
 
 
 @dataclass

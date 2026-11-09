@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from sqlalchemy import select, delete, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.notifications.models import PushSubscription
+from src.backend.notifications.models.notification import PushSubscription
 
 
 @dataclass

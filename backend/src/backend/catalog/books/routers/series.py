@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_filter import FilterDepends
 from fastapi_utils.cbv import cbv
 
 from src.backend.catalog.books.dependencies.series import get_series_manager, get_series_or_404
-from src.backend.catalog.books.filters import SeriesFilter
+from src.backend.catalog.books.filters.book import SeriesFilter
 from src.backend.catalog.books.managers.series import SeriesManager
-from src.backend.catalog.books.models import Series
+from src.backend.catalog.books.models.book import Series
 from src.backend.catalog.books.schemas.series import GetSeries
 from src.backend.catalog.books.schemas.work import GetWork
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/series",
@@ -25,6 +26,7 @@ class SeriesRouter:
         "/",
         summary="getting all series",
         response_model=list[GetSeries],
+        status_code=status.HTTP_200_OK,
     )
     async def get_all_series(
             self,
@@ -37,6 +39,8 @@ class SeriesRouter:
         "/{series_id}",
         summary="getting series by id",
         response_model=GetSeries,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(404),
     )
     async def get_series_by_id(
             self,
@@ -49,6 +53,8 @@ class SeriesRouter:
         "/{series_id}/works",
         summary="getting works in series",
         response_model=list[GetWork],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(404),
     )
     async def get_works_for_series(
             self,

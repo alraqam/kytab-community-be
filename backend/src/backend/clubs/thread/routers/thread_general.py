@@ -1,14 +1,15 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_utils.cbv import cbv
 
-from src.backend.clubs.thread.dependencies import get_thread_manager, get_thread_general_or_404
+from src.backend.clubs.thread.dependencies.thread import get_thread_manager, get_thread_general_or_404
 from src.backend.clubs.thread.managers.thread import ThreadManager
-from src.backend.clubs.thread.models import Thread
-from src.backend.clubs.thread.schemas import GetThread, CreateThread, UpdateThread
-from src.backend.clubs.clubs.dependencies import get_club_or_404
-from src.backend.clubs.clubs.models import Club
-from src.backend.identity.auth.dependencies import get_current_user
-from src.backend.identity.auth.models import User
+from src.backend.clubs.thread.models.thread import Thread
+from src.backend.clubs.thread.schemas.thread import GetThread, CreateThread, UpdateThread
+from src.backend.clubs.clubs.dependencies.club import get_club_or_404
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.identity.auth.dependencies.auth import get_current_user
+from src.backend.identity.auth.models.auth import User
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/{club_id}/thread",
@@ -27,6 +28,8 @@ class ThreadGeneralRouter:
         summary="creating general thread",
         response_model=GetThread,
         tags=["threads"],
+        status_code=status.HTTP_201_CREATED,
+        responses=error_responses(401, 403, 404),
     )
     async def create_thread(
             self,
@@ -40,6 +43,8 @@ class ThreadGeneralRouter:
         "/{thread_id}",
         summary="update general thread",
         tags=["threads"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def update_thread(
             self,
@@ -53,6 +58,8 @@ class ThreadGeneralRouter:
         "/{thread_id}/lock",
         summary="locking general thread",
         tags=["threads"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def lock_thread(
             self,
@@ -65,6 +72,8 @@ class ThreadGeneralRouter:
         "/{thread_id}/unlock",
         summary="unlocking general thread",
         tags=["threads"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def unlock_thread(
             self,
@@ -77,6 +86,8 @@ class ThreadGeneralRouter:
         "/{thread_id}/pin",
         summary="pining general thread",
         tags=["threads"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def pin_thread(
             self,
@@ -89,6 +100,8 @@ class ThreadGeneralRouter:
         "/{thread_id}/unpin",
         summary="unpining general thread",
         tags=["threads"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404, 409),
     )
     async def unpin_thread(
             self,
@@ -101,6 +114,8 @@ class ThreadGeneralRouter:
         "/{thread_id}",
         summary="deleting general thread",
         tags=["threads"],
+        status_code=status.HTTP_204_NO_CONTENT,
+        responses=error_responses(401, 403, 404),
     )
     async def delete_thread(
             self,
@@ -114,10 +129,12 @@ class ThreadGeneralRouter:
         summary="getting club general threads",
         response_model=list[GetThread],
         tags=["threads"],
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(401, 403, 404),
     )
     async def get_club_general_threads(
             self,
     ):
         """Lists all club-general threads for the club."""
-        result = await self.manager.get_club_general_threads(self.club)
+        result = await self.manager.get_club_general_threads(self.user, self.club)
         return result

@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 from fastapi_filter import FilterDepends
 from fastapi_utils.cbv import cbv
 
 from src.backend.catalog.books.dependencies.edition import get_edition_manager, get_edition_or_404
-from src.backend.catalog.books.filters import EditionFilter
+from src.backend.catalog.books.filters.book import EditionFilter
 from src.backend.catalog.books.managers.edition import EditionManager
-from src.backend.catalog.books.models import Edition
+from src.backend.catalog.books.models.book import Edition
 from src.backend.catalog.books.schemas.edition import GetEdition
+from src.backend.core.responses import error_responses
 
 router = APIRouter(
     prefix="/editions",
@@ -24,6 +25,7 @@ class EditionRouter:
         "/",
         summary="getting all editions",
         response_model=list[GetEdition],
+        status_code=status.HTTP_200_OK,
     )
     async def get_editions(
             self,
@@ -36,6 +38,8 @@ class EditionRouter:
         "/{edition_id}",
         summary="getting edition by id",
         response_model=GetEdition,
+        status_code=status.HTTP_200_OK,
+        responses=error_responses(404),
     )
     async def get_edition_by_id(
             self,

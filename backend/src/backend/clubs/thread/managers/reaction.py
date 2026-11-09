@@ -1,20 +1,20 @@
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.club_membership.services import is_club_member
-from src.backend.clubs.thread.dependencies import is_reaction_owner
-from src.backend.clubs.thread.exceptions import ReactionNotFoundError, PostReactionAlreadyExists
+from src.backend.clubs.club_membership.permissions.membership import is_club_member
+from src.backend.clubs.thread.dependencies.thread import is_reaction_owner
+from src.backend.clubs.thread.exceptions.thread import ReactionNotFoundError, PostReactionAlreadyExists
 from src.backend.clubs.thread.managers.thread import ThreadManager
-from src.backend.clubs.thread.models import PostReaction, Post
+from src.backend.clubs.thread.models.thread import PostReaction, Post
 from src.backend.clubs.thread.repository.reaction import PostReactionRepository
-from src.backend.clubs.thread.schemas import CreatePostReaction
-from src.backend.clubs.clubs.managers import ClubManager
+from src.backend.clubs.thread.schemas.thread import CreatePostReaction
+from src.backend.clubs.clubs.managers.club import ClubManager
 from src.backend.core.storage import StorageService
-from src.backend.clubs.clubs.models import Club
-from src.backend.identity.auth.models import User
-from src.backend.identity.users.managers import UserManager
+from src.backend.clubs.clubs.models.club import Club
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.managers.user import UserManager
 from src.backend.notifications.managers.notification import NotificationManager
-from src.backend.notifications.schemas import NotificationCategory, NotificationObjectType
+from src.backend.notifications.schemas.notification import NotificationCategory, NotificationObjectType
 
 class PostReactionManager:
     """Handles business logic for reactions on posts: creation, deletion, retrieval, and reaction notifications."""

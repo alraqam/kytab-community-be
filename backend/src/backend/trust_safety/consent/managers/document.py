@@ -1,12 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.identity.auth.models import User
-from src.backend.identity.users.dependencies import is_admin
-from src.backend.trust_safety.consent.exceptions import DocumentNotFoundError
-from src.backend.trust_safety.consent.filters import LegalDocumentFilter
-from src.backend.trust_safety.consent.models import LegalDocument
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.dependencies.user import is_admin
+from src.backend.trust_safety.consent.exceptions.consent import DocumentNotFoundError
+from src.backend.trust_safety.consent.filters.consent import LegalDocumentFilter
+from src.backend.trust_safety.consent.models.consent import LegalDocument
 from src.backend.trust_safety.consent.repository.document import LegalDocumentRepository
-from src.backend.trust_safety.consent.schemas import CreateLegalDocument
+from src.backend.trust_safety.consent.schemas.consent import CreateLegalDocument
 
 
 class LegalDocumentManager:

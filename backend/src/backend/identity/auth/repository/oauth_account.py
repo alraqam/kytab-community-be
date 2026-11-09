@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from sqlalchemy import select, insert, and_
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.identity.auth.models import OAuthAccount
+from src.backend.identity.auth.models.auth import OAuthAccount
 
 
 @dataclass
