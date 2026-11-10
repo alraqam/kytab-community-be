@@ -89,6 +89,25 @@ class GetAdminClub(GetClub):
     """Response payload representing a club for platform staff, including staff-only fields."""
 
     opening_reason: str | None = None
+    platform_manager_id: int | None = None
+    platform_manager_username: str | None = None
+
+class AssignPlatformManager(BaseModel):
+    """Request payload for manually assigning a club to a platform moderator."""
+
+    user_id: int
+
+class GetPlatformManagerLoad(BaseModel):
+    """A platform moderator and the number of active (non-archived) clubs assigned to them."""
+
+    manager_id: int
+    username: str
+    active_clubs: int
+
+class AssignUnassignedClubsResult(BaseModel):
+    """Result of assigning clubs that had no platform moderator."""
+
+    assigned: int
 
 def to_get_admin_club(club: Club, cover_url: str | None) -> GetAdminClub:
     """Builds a GetAdminClub response with the stored cover key replaced by a presigned URL.

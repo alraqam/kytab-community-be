@@ -1,11 +1,13 @@
 from dataclasses import dataclass
 
-from sqlalchemy import and_, select
+from sqlalchemy import and_, select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.backend.clubs.clubs.filters.club import ClubFilter, ClubPublicFilter
 from src.backend.clubs.clubs.models.club import Club
 from src.backend.clubs.clubs.schemas.club import ClubTypes
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.auth.schemas.auth import UserRoleEnum
 
 
 
@@ -121,16 +123,20 @@ class ClubRepository:
     async def get_all_clubs(
             self,
             filters: ClubFilter | None = None,
+            platform_manager_id: int | None = None,
     ) -> list[Club]:
         """Lists all clubs, optionally filtered and sorted.
 
         Args:
             filters: ClubFilter to apply, or None for no filtering.
+            platform_manager_id: Restrict to clubs managed by this platform moderator, or None for all clubs.
 
         Returns:
             List of matching Club instances.
         """
         stmt = select(Club)
+        if platform_manager_id is not None:
+            stmt = stmt.where(Club.platform_manager_id == platform_manager_id)
         if filters:
             stmt = filters.filter(stmt)
             stmt = filters.sort(stmt)
@@ -170,4 +176,77 @@ class ClubRepository:
         self.session.add(club)
         await self.session.flush()
 
+    async def set_platform_manager(
+            self,
+            club: Club,
+            manager_id: int | None,
+    ) -> None:
+        """Sets (or clears) the platform moderator responsible for a club.
 
+        Args:
+            club: Club instance to update.
+            manager_id: ID of the platform moderator, or None to leave the club unassigned.
+        """
+        club.platform_manager_id = manager_id
+        self.session.add(club)
+        await self.session.flush()
+
+    async def get_active_clubs_by_manager(
+            self,
+            manager_id: int,
+    ) -> list[Club]:
+        """Lists the non-archived clubs assigned to a platform moderator.
+
+        Args:
+            manager_id: ID of the platform moderator.
+
+        Returns:
+            List of Club instances, oldest first.
+        """
+        stmt = (
+            select(Club)
+            .where(Club.platform_manager_id == manager_id, Club.is_archived.isnot(True))
+            .order_by(Club.id)
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_unassigned_active_clubs(self) -> list[Club]:
+        """Lists non-archived clubs that have no platform moderator assigned.
+
+        Returns:
+            List of Club instances, oldest first.
+        """
+        stmt = (
+            select(Club)
+            .where(Club.platform_manager_id.is_(None), Club.is_archived.isnot(True))
+            .order_by(Club.id)
+        )
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def get_platform_manager_loads(self) -> list[tuple[int, str, int]]:
+        """Counts the non-archived clubs assigned to each eligible platform moderator.
+
+        Eligible moderators have the `moderator` role, are active, and are not deleted.
+        Moderators with no clubs are included with a count of 0.
+
+        Returns:
+            List of (manager_id, username, active_club_count) tuples ordered by manager ID.
+        """
+        stmt = (
+            select(User.id, User.username, func.count(Club.id))
+            .outerjoin(
+                Club,
+                and_(Club.platform_manager_id == User.id, Club.is_archived.isnot(True)),
+            )
+            .where(
+                User.role == UserRoleEnum.moderator,
+                User.is_active.is_(True),
+                User.is_deleted.is_(False),
+            )
+            .group_by(User.id, User.username)
+            .order_by(User.id)
+        )
+        result = await self.session.execute(stmt)
+        return [(row[0], row[1], row[2]) for row in result.all()]

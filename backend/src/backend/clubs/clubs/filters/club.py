@@ -12,6 +12,7 @@ class ClubFilter(Filter):
     description: str | None = None
     club_type: ClubTypes | None = None
     is_archived: bool | None = None
+    platform_manager_id: int | None = None
     order_by: list[str] | None = None
 
     class Constants(Filter.Constants):

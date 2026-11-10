@@ -1,7 +1,10 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from src.backend.clubs.club_membership.permissions.membership import ensure_staff_club_access
 from src.backend.clubs.clubs.models.club import Club
+from src.backend.identity.auth.models.auth import User
+from src.backend.identity.users.dependencies.user import is_staff
 from src.backend.core.dependencies import get_db, get_storage_service
 from src.backend.core.storage import StorageService
 
@@ -39,3 +42,23 @@ async def get_club_or_404(
         ClubNotFoundError: When no club matches the ID.
     """
     return await manager.get_club_by_id(club_id)
+
+async def get_managed_club_or_404(
+        club: Club = Depends(get_club_or_404),
+        user: User = Depends(is_staff),
+) -> Club:
+    """Resolves a club for a staff route, restricting platform moderators to their assigned clubs.
+
+    Args:
+        club: Club resolved from the path by get_club_or_404.
+        user: Current staff user (admin or platform moderator) injected by is_staff.
+
+    Returns:
+        Club instance.
+
+    Raises:
+        ClubNotFoundError: When no club matches the ID.
+        PermissionDeniedError: When the user is not staff, or is a platform moderator the club is not assigned to.
+    """
+    ensure_staff_club_access(club, user)
+    return club

@@ -17,6 +17,7 @@ class AuditLogAction(str, Enum):
     club_archived = "club_archived"
     club_unarchived = "club_unarchived"
     club_content_viewed = "club_content_viewed"
+    club_manager_assigned = "club_manager_assigned"
     announcement_created = "announcement_created"
     announcement_updated = "announcement_updated"
     announcement_published = "announcement_published"

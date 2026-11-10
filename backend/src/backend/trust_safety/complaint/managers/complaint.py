@@ -1,10 +1,13 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.backend.clubs.club_membership.permissions.membership import is_owner_or_moderator
+from src.backend.clubs.club_membership.permissions.membership import is_owner_or_moderator, ensure_staff_club_access
+from src.backend.clubs.clubs.repository.club import ClubRepository
 from src.backend.clubs.clubs.managers.club import ClubManager
 from src.backend.core.storage import StorageService
 from src.backend.clubs.clubs.models.club import Club
 from src.backend.clubs.thread.managers.posts import PostManager
+from src.backend.clubs.thread.repository.posts import PostRepository
+from src.backend.clubs.thread.repository.thread import ThreadRepository
 from src.backend.identity.auth.models.auth import User
 from src.backend.identity.users.dependencies.user import ensure_can_moderate_user
 from src.backend.identity.users.managers.user import UserManager
@@ -37,6 +40,56 @@ class ComplaintManager:
         self.post_manager = PostManager(session)
         self.user_manager = UserManager(session)
         self.notification_manager = NotificationManager(session)
+        self.club_repo = ClubRepository(session)
+        self.post_repo = PostRepository(session)
+        self.thread_repo = ThreadRepository(session)
+
+    async def _get_complaint_club(
+            self,
+            complaint: Complaint,
+    ) -> Club | None:
+        """Returns the club a complaint concerns (the reported club, or the club a reported post is in).
+
+        Args:
+            complaint: Complaint to inspect.
+
+        Returns:
+            Club instance, or None when the complaint isn't about club content or the object no longer exists.
+        """
+        match complaint.object_type:
+            case ComplaintObjectType.club:
+                return await self.club_repo.get_club_by_id(complaint.object_id)
+            case ComplaintObjectType.post:
+                post = await self.post_repo.get_post_by_id(complaint.object_id)
+                if not post:
+                    return None
+                thread = await self.thread_repo.get_thread_by_id(post.thread_id)
+                if not thread:
+                    return None
+                return await self.club_repo.get_club_by_id(thread.club_id)
+        return None
+
+    async def _ensure_can_handle(
+            self,
+            user: User,
+            complaint: Complaint,
+    ) -> None:
+        """Verifies a staff member may act on a complaint.
+
+        Complaints about a club or a post inside a club may only be handled by an admin or
+        by the platform moderator assigned to that club. Other complaints (reviews, review
+        comments, users) can be handled by any platform staff member.
+
+        Args:
+            user: Staff member handling the complaint.
+            complaint: Complaint being handled.
+
+        Raises:
+            PermissionDeniedError: When a platform moderator handles a complaint about a club not assigned to them.
+        """
+        club = await self._get_complaint_club(complaint)
+        if club is not None:
+            ensure_staff_club_access(club, user)
 
 
     async def create_compliant(
@@ -119,9 +172,11 @@ class ComplaintManager:
 
         Raises:
             ComplaintStatusError: When the complaint is not pending.
+            PermissionDeniedError: When a platform moderator handles a complaint about a club not assigned to them.
         """
         if complaint.status != ComplaintStatus.pending:
             raise ComplaintStatusError("Complaint status error")
+        await self._ensure_can_handle(user, complaint)
         await self._mark_resolved(user, complaint, ComplaintStatus.reviewed, "Your report has been reviewed")
 
     async def dismiss_complaint(
@@ -137,9 +192,11 @@ class ComplaintManager:
 
         Raises:
             ComplaintStatusError: When the complaint is not pending.
+            PermissionDeniedError: When a platform moderator handles a complaint about a club not assigned to them.
         """
         if complaint.status != ComplaintStatus.pending:
             raise ComplaintStatusError("Complaint status error")
+        await self._ensure_can_handle(user, complaint)
         await self._mark_resolved(user, complaint, ComplaintStatus.dismissed, "Your report has been dismissed")
 
     async def _get_target_user(
@@ -183,10 +240,12 @@ class ComplaintManager:
 
         Raises:
             ComplaintStatusError: When the complaint is not pending.
+            PermissionDeniedError: When a platform moderator handles a complaint about a club not assigned to them.
             InvalidComplaintActionError: When the complaint's object type doesn't support content removal.
         """
         if complaint.status != ComplaintStatus.pending:
             raise ComplaintStatusError("Complaint status error")
+        await self._ensure_can_handle(user, complaint)
 
         match complaint.object_type:
             case ComplaintObjectType.review:
@@ -218,9 +277,11 @@ class ComplaintManager:
 
         Raises:
             ComplaintStatusError: When the complaint is not pending.
+            PermissionDeniedError: When a platform moderator handles a complaint about a club not assigned to them.
         """
         if complaint.status != ComplaintStatus.pending:
             raise ComplaintStatusError("Complaint status error")
+        await self._ensure_can_handle(user, complaint)
 
         target = await self._get_target_user(complaint)
         await self.notification_manager.notify(
@@ -246,10 +307,12 @@ class ComplaintManager:
 
         Raises:
             ComplaintStatusError: When the complaint is not pending.
+            PermissionDeniedError: When a platform moderator handles a complaint about a club not assigned to them.
             PermissionDeniedError: When a platform moderator targets a staff account.
         """
         if complaint.status != ComplaintStatus.pending:
             raise ComplaintStatusError("Complaint status error")
+        await self._ensure_can_handle(user, complaint)
 
         target = await self._get_target_user(complaint)
         ensure_can_moderate_user(user, target)
@@ -269,10 +332,12 @@ class ComplaintManager:
 
         Raises:
             ComplaintStatusError: When the complaint is not pending.
+            PermissionDeniedError: When a platform moderator handles a complaint about a club not assigned to them.
             PermissionDeniedError: When a platform moderator targets a staff account.
         """
         if complaint.status != ComplaintStatus.pending:
             raise ComplaintStatusError("Complaint status error")
+        await self._ensure_can_handle(user, complaint)
 
         target = await self._get_target_user(complaint)
         ensure_can_moderate_user(user, target)

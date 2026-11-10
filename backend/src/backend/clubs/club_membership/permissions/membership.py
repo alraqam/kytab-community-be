@@ -11,7 +11,8 @@ from src.backend.clubs.club_membership.schemas.membership import MemberRole
 from src.backend.clubs.clubs.models.club import Club
 from src.backend.clubs.clubs.schemas.club import ClubTypes
 from src.backend.identity.auth.models.auth import User
-from src.backend.identity.auth.schemas.auth import STAFF_ROLES
+from src.backend.identity.auth.schemas.auth import UserRoleEnum
+from src.backend.identity.users.exceptions.user import PermissionDeniedError
 from src.backend.trust_safety.audit_log.managers.audit_log import AuditLogManager
 from src.backend.trust_safety.audit_log.schemas.audit_log import AuditLogAction
 
@@ -95,16 +96,35 @@ async def is_club_member(
         raise ClubAccessDeniedError("Club not found")
     return True
 
-def is_platform_staff(user: User) -> bool:
-    """Returns whether the user is platform staff (admin or platform moderator).
+def has_staff_club_access(club: Club, user: User) -> bool:
+    """Returns whether a user has platform-staff access to a club without being a member.
+
+    Admins have access to every club. A platform moderator has access only to the clubs
+    assigned to them (`club.platform_manager_id`). Nobody else has staff access.
 
     Args:
+        club: Club to check.
         user: User to check.
 
     Returns:
-        True if the user's platform role is admin or moderator.
+        True if the user is an admin, or the platform moderator assigned to the club.
     """
-    return user.role in STAFF_ROLES
+    if user.role == UserRoleEnum.admin:
+        return True
+    return user.role == UserRoleEnum.moderator and club.platform_manager_id == user.id
+
+def ensure_staff_club_access(club: Club, user: User) -> None:
+    """Raises unless the user has platform-staff access to the club (see `has_staff_club_access`).
+
+    Args:
+        club: Club to check.
+        user: Staff member acting on the club.
+
+    Raises:
+        PermissionDeniedError: When a platform moderator acts on a club not assigned to them.
+    """
+    if not has_staff_club_access(club, user):
+        raise PermissionDeniedError("This club is not assigned to you")
 
 async def can_view_club(
         club: Club,
@@ -114,9 +134,9 @@ async def can_view_club(
 ) -> bool:
     """Verifies that the user may read a club's content.
 
-    Platform staff (admins and platform moderators) may read the content of any club,
-    whatever its privacy tier (public, private, or secret), without being a member.
-    Each such access by a non-member staff user is recorded in the audit log
+    Admins may read the content of any club, and platform moderators the content of the
+    clubs assigned to them, whatever the privacy tier (public, private, or secret),
+    without being a member. Each such access by a non-member staff user is recorded in the audit log
     (`club_content_viewed`), so staff access to club content can be reviewed.
     Everyone else must be a member. Use this for read-only operations only; writes
     (posting, reacting, voting, RSVPs, progress) must keep using `is_club_member`.
@@ -136,7 +156,7 @@ async def can_view_club(
         ClubAccessDeniedError: When a non-staff user is not a member of a private or
             secret club.
     """
-    if is_platform_staff(user):
+    if has_staff_club_access(club, user):
         if get_user_role_in_club(club, user.id) is None:
             await AuditLogManager(session).log(
                 actor=user,
@@ -155,7 +175,7 @@ async def can_preview_club(
 ) -> bool:
     """Verifies that the user may see a club's pre-join preview (FR-CLB-04).
 
-    - Members and platform staff may always preview.
+    - Members, admins, and the club's assigned platform moderator may always preview.
     - Archived clubs are hidden from everyone else.
     - Public and Private clubs are listed in the directory, so any signed-in user may preview them.
     - Secret clubs may only be previewed by users holding a pending, unexpired invitation;
@@ -172,7 +192,7 @@ async def can_preview_club(
     Raises:
         ClubAccessDeniedError: When the user may not preview the club.
     """
-    if is_platform_staff(user) or get_user_role_in_club(club, user.id) is not None:
+    if has_staff_club_access(club, user) or get_user_role_in_club(club, user.id) is not None:
         return True
     if club.is_archived:
         raise ClubAccessDeniedError("Club not found")
@@ -188,7 +208,8 @@ async def can_preview_club(
 def bypasses_spoiler_gate(club: Club, user: User) -> bool:
     """Returns whether milestone spoiler gating should be skipped for this user.
 
-    Staff who are not members of the club see everything so they can moderate it.
+    Staff with access to the club (admins, or its assigned platform moderator) who are
+    not members see everything so they can moderate it.
     Staff who are members keep the normal spoiler experience for their own reading.
 
     Args:
@@ -196,6 +217,6 @@ def bypasses_spoiler_gate(club: Club, user: User) -> bool:
         user: User requesting content.
 
     Returns:
-        True if the user is platform staff and not a member of the club.
+        True if the user has staff access to the club and is not a member of it.
     """
-    return is_platform_staff(user) and get_user_role_in_club(club, user.id) is None
+    return has_staff_club_access(club, user) and get_user_role_in_club(club, user.id) is None

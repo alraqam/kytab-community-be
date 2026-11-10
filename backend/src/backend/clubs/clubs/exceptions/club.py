@@ -9,3 +9,6 @@ class InvalidCoverUrlError(BadRequest):
 
 class IsNotClubOwnerError(Forbidden):
     """Raised when the user is not the owner of the club."""
+
+class InvalidPlatformManagerError(BadRequest):
+    """Raised when a club is assigned to a user who is not an active platform moderator."""

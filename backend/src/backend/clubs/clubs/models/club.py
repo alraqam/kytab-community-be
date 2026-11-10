@@ -19,9 +19,8 @@ class Club(Base, IntIdMixin, TimeActionMixin):
     language = Column(String(20), nullable=True)
     is_archived = Column(Boolean, default=False)
     member_cap = Column(Integer, nullable=False, default=DEFAULT_CLUB_MEMBER_CAP)
-    # Optional answer to "why are you opening this club?" given at creation.
-    # Visible to platform staff only; never exposed in public/member responses.
     opening_reason = Column(String(1024), nullable=True)
+    platform_manager_id = Column(BigInteger, ForeignKey("users.id", ondelete="SET NULL"), nullable=True, index=True)
 
     members = relationship("ClubMembership", backref="club", lazy="selectin")
     events = relationship("ClubEvent", backref="club", lazy="selectin")
@@ -29,6 +28,10 @@ class Club(Base, IntIdMixin, TimeActionMixin):
 
 Club.owner_username = column_property(
     select(User.username).where(User.id == Club.owner_id).correlate_except(User).scalar_subquery()
+)
+
+Club.platform_manager_username = column_property(
+    select(User.username).where(User.id == Club.platform_manager_id).correlate_except(User).scalar_subquery()
 )
 
 class ClubGenre (Base, IntIdMixin):
